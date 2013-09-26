@@ -96,18 +96,17 @@ public class Person extends Actor
 	  
       case PlanEntry.JUMP:
 	if (!_jumped) {
-	  var cur:Point = scene.tilemap.getTilePoint(src.x, src.y);
-	  vx = Utils.clamp(-1, (cur.x-pos.x), +1);
+	  var p1:Point = scene.tilemap.getTilePoint(src.x, src.y);
+	  vx = Utils.clamp(-1, (p1.x-pos.x), +1);
 	  if (isLanded() && vx == 0) {
 	    Main.log("jump");
 	    jump();
 	    _jumped = true;
 	  }
 	} else {
-	  if (!scene.tilemap.hasTile(src.x, src.y, next.x, next.y, Tile.isstoppable)) {
+	  var p2:Point = (isJumping())? Point(_entry.arg) : next;
+	  if (!scene.tilemap.hasTile(src.x, src.y, p2.x, p2.y, Tile.isstoppable)) {
 	    vx = Utils.clamp(-1, (nextpos.x-pos.x), +1);
-	  } else {
-	    Main.log("blckc!");
 	  }
 	}
 	break;

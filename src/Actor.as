@@ -94,6 +94,12 @@ public class Actor extends Sprite
   {
     return scene.tilemap.hasCollisionByRect(bounds, 0, 1, Tile.isstoppable);
   }
+
+  // isJumping()
+  public function isJumping():Boolean
+  {
+    return (_vg < 0);
+  }
   
   // isGrabbing()
   public function isGrabbing():Boolean
