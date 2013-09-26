@@ -12,15 +12,12 @@ import flash.geom.Rectangle;
 public class Actor extends Sprite
 {
   public var pos:Point;
-  public var scene:Scene;
 
   private var _skin:DisplayObject;
-
-  protected var _scene:Scene;
+  private var _scene:Scene;
 
   private var _vg:int = 0;
   private var _phase:Number = 0;
-  private var _jumping:Boolean;
 
   public const gravity:int = 2;
   public const speed:int = 8;
@@ -39,16 +36,22 @@ public class Actor extends Sprite
   // Actor(scene)
   public function Actor(scene:Scene)
   {
-    pos = new Point(0, 0);
     _scene = scene;
+    pos = new Point(0, 0);
+  }
+
+  // scene
+  public function get scene():Scene
+  {
+    return _scene;
   }
 
   // skin
-  public virtual function get skin():DisplayObject
+  public function get skin():DisplayObject
   {
     return _skin;
   }
-  public virtual function set skin(value:DisplayObject):void
+  public function set skin(value:DisplayObject):void
   {
     if (_skin != null) {
       removeChild(_skin);
@@ -56,60 +59,76 @@ public class Actor extends Sprite
     _skin = value;
     if (_skin != null) {
       addChild(_skin);
-      _skin.x = -Math.floor(_scene.tilemap.tilesize/2);
-      _skin.y = -Math.floor(_skin.height)+Math.floor(_scene.tilemap.tilesize/2);
+      _skin.x = -Math.floor(scene.tilemap.tilesize/2);
+      _skin.y = -Math.floor(_skin.height)+Math.floor(scene.tilemap.tilesize/2);
     }
   }
 
   // tilebounds
-  public virtual function get tilebounds():Rectangle
+  public function get tilebounds():Rectangle
   {
-    var w:int = _skin.width/_scene.tilemap.tilesize;
-    var h:int = _skin.height/_scene.tilemap.tilesize;
+    var w:int = skin.width/scene.tilemap.tilesize;
+    var h:int = skin.height/scene.tilemap.tilesize;
     return new Rectangle(0, -(h-1), w-1, h-1);
   }
 
-  public function setSkin(w:int, h:int, color:uint):void
-  {
-    var shape:Shape = new Shape();
-    shape.graphics.beginFill(color);
-    shape.graphics.drawRect(0, 0, w, h);
-    skin = shape;
-  }
-
   // bounds
-  public virtual function get bounds():Rectangle
+  public function get bounds():Rectangle
   {
-    return new Rectangle(pos.x+_skin.x, pos.y+_skin.y, _skin.width, _skin.height);
+    return new Rectangle(pos.x+skin.x, pos.y+skin.y, skin.width, skin.height);
   }
-  public virtual function set bounds(value:Rectangle):void
+  public function set bounds(value:Rectangle):void
   {
     pos.x = Math.floor((value.left+value.right)/2);
     pos.y = Math.floor((value.top+value.bottom)/2);
   }
 
+  // getMovedBounds(dx, dy)
+  public function getMovedBounds(dx:int, dy:int):Rectangle
+  {
+    return Utils.moveRect(bounds, dx, dy);
+  }
+
+  // isLanded()
+  public function isLanded():Boolean
+  {
+    return scene.tilemap.hasCollisionByRect(bounds, 0, 1, Tile.isstoppable);
+  }
+  
+  // isGrabbing()
+  public function isGrabbing():Boolean
+  {
+    return scene.tilemap.hasTileByRect(bounds, Tile.isgrabbable);
+  }
+
+  // isMovable(dx, dy)
+  public function isMovable(dx:int, dy:int):Boolean
+  {
+    return (!scene.tilemap.hasCollisionByRect(bounds, dx, dy, Tile.isobstacle));
+  }
+
   // move()
-  public function move(v0:Point):void
+  public virtual function move(v0:Point):void
   {
     if (isGrabbing()) {
       // climing a ladder.
-      var vl:Point = _scene.tilemap.getCollisionByRect(bounds, v0.x, v0.y, Tile.isobstacle);
+      var vl:Point = scene.tilemap.getCollisionByRect(bounds, v0.x, v0.y, Tile.isobstacle);
       pos = Utils.movePoint(pos, vl.x, vl.y);
       _vg = 0;
     } else {
       // falling.
-      var vf:Point = _scene.tilemap.getCollisionByRect(bounds, v0.x, _vg, Tile.isstoppable);
+      var vf:Point = scene.tilemap.getCollisionByRect(bounds, v0.x, _vg, Tile.isstoppable);
       pos = Utils.movePoint(pos, vf.x, vf.y);
       // moving (in air).
-      var vdx:Point = _scene.tilemap.getCollisionByRect(bounds, v0.x-vf.x, 0, Tile.isobstacle);
+      var vdx:Point = scene.tilemap.getCollisionByRect(bounds, v0.x-vf.x, 0, Tile.isobstacle);
       pos = Utils.movePoint(pos, vdx.x, vdx.y);
       var vdy:Point;
       if (0 < v0.y) {
 	// start climing down.
-	vdy = _scene.tilemap.getCollisionByRect(bounds, 0, _vg-vf.y+v0.y, Tile.isobstacle);
+	vdy = scene.tilemap.getCollisionByRect(bounds, 0, _vg-vf.y+v0.y, Tile.isobstacle);
       } else {
 	// falling (cont'd).
-	vdy = _scene.tilemap.getCollisionByRect(bounds, 0, _vg-vf.y, Tile.isstoppable);
+	vdy = scene.tilemap.getCollisionByRect(bounds, 0, _vg-vf.y, Tile.isstoppable);
       }
       pos = Utils.movePoint(pos, vdy.x, vdy.y);
       _vg = Math.min(vf.y+vdx.y+vdy.y+gravity, maxspeed);
@@ -124,47 +143,36 @@ public class Actor extends Sprite
   // repaint()
   public virtual function repaint():void
   {
-    var p:Point = _scene.translatePoint(pos);
+    var p:Point = scene.translatePoint(pos);
     this.x = p.x;
     this.y = p.y;
   }
 
   // jump()
-  public function jump():void
+  public virtual function jump():void
   {
     if (isLanded()) {
       _vg = -jumpspeed;
-      _jumping = true;
     }
   }
 
-  // isLanded()
-  public function isLanded():Boolean
+  // createSkin(w, h, color)
+  public function createSkin(w:int, h:int, color:uint):void
   {
-    return _scene.tilemap.hasCollisionByRect(bounds, 0, 1, Tile.isstoppable);
+    var shape:Shape = new Shape();
+    shape.graphics.beginFill(color);
+    shape.graphics.drawRect(0, 0, w, h);
+    skin = shape;
   }
-  
-  // isGrabbing()
-  public function isGrabbing():Boolean
-  {
-    return _scene.tilemap.hasTileByRect(bounds, Tile.isgrabbable);
-  }
-  
-  // isMovable(dx, dy)
-  public function isMovable(dx:int, dy:int):Boolean
-  {
-    var r:Rectangle = Utils.moveRect(bounds, dx, dy);
-    return (!_scene.tilemap.hasTileByRect(r, Tile.isobstacle));
-  }
-  
+
   // hasUpperLadderNearby()
   public function hasUpperLadderNearby():int
   {
     var r:Rectangle = bounds;
     var r0:Rectangle = Utils.moveRect(r, -r.width, 0);
     var r1:Rectangle = Utils.moveRect(r, +r.width, 0);
-    var h0:Boolean = _scene.tilemap.hasTileByRect(r0, Tile.isgrabbable);
-    var h1:Boolean = _scene.tilemap.hasTileByRect(r1, Tile.isgrabbable);
+    var h0:Boolean = scene.tilemap.hasTileByRect(r0, Tile.isgrabbable);
+    var h1:Boolean = scene.tilemap.hasTileByRect(r1, Tile.isgrabbable);
     if (!h0 && h1) {
       return +1;
     } else if (h0 && !h1) {
@@ -181,8 +189,8 @@ public class Actor extends Sprite
     var rb:Rectangle = new Rectangle(r.x, r.bottom, r.width, 1);
     var rb0:Rectangle = Utils.moveRect(rb, -rb.width, 0);
     var rb1:Rectangle = Utils.moveRect(rb, +rb.width, 0);
-    var h0:Boolean = _scene.tilemap.hasTileByRect(rb0, Tile.isgrabbable);
-    var h1:Boolean = _scene.tilemap.hasTileByRect(rb1, Tile.isgrabbable);
+    var h0:Boolean = scene.tilemap.hasTileByRect(rb0, Tile.isgrabbable);
+    var h1:Boolean = scene.tilemap.hasTileByRect(rb1, Tile.isgrabbable);
     if (!h0 && h1) {
       return +1;
     } else if (h0 && !h1) {
@@ -199,8 +207,8 @@ public class Actor extends Sprite
     var rb:Rectangle = new Rectangle(r.x, r.bottom, r.width, 1);
     var rb0:Rectangle = Utils.moveRect(rb, -rb.width, 0);
     var rb1:Rectangle = Utils.moveRect(rb, +rb.width, 0);
-    var h0:Boolean = _scene.tilemap.hasTileByRect(rb0, Tile.isnone);
-    var h1:Boolean = _scene.tilemap.hasTileByRect(rb1, Tile.isnone);
+    var h0:Boolean = scene.tilemap.hasTileByRect(rb0, Tile.isnone);
+    var h1:Boolean = scene.tilemap.hasTileByRect(rb1, Tile.isnone);
     if (!h0 && h1) {
       return +1;
     } else if (h0 && !h1) {

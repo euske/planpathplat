@@ -32,8 +32,8 @@ public class Person extends Actor
   {
     super.update();
     var vx:int, vy:int;
-    var src:Point = _scene.tilemap.getCoordsByPoint(pos);
-    var dst:Point = _scene.tilemap.getCoordsByPoint(_target.pos);
+    var src:Point = scene.tilemap.getCoordsByPoint(pos);
+    var dst:Point = scene.tilemap.getCoordsByPoint(_target.pos);
 
     // invalidate plan.
     if (_plan != null && !_plan.dst.equals(dst)) {
@@ -45,7 +45,7 @@ public class Person extends Actor
       if (_target.isLanded()) {
 	var jumpdt:int = Math.floor(jumpspeed / gravity);
 	var falldt:int = Math.floor(maxspeed / gravity);
-	var plan:PlanMap = _scene.createPlan(dst);
+	var plan:PlanMap = scene.createPlan(dst);
 	if (0 < plan.fillPlan(src, tilebounds, 50,
 			      jumpdt, falldt, speed, gravity)) {
 	  _plan = plan;
@@ -68,7 +68,7 @@ public class Person extends Actor
     }
     if (_entry != null) {
       var next:Point = _entry.next.p;
-      var nextpos:Point = _scene.tilemap.getTilePoint(next.x, next.y);
+      var nextpos:Point = scene.tilemap.getTilePoint(next.x, next.y);
       // Get a micro-level (greedy) plan.
       switch (_entry.action) {
       case PlanEntry.WALK:
@@ -89,22 +89,26 @@ public class Person extends Actor
 	  
       case PlanEntry.FALL:
 	if (src.equals(_entry.p) ||
-	    !_scene.tilemap.hasTile(src.x, src.y, next.x, next.y, Tile.isstoppable)) {
+	    !scene.tilemap.hasTile(src.x, src.y, next.x, next.y, Tile.isstoppable)) {
 	  vx = Utils.clamp(-1, (nextpos.x-pos.x), +1);
 	}
 	break;
 	  
       case PlanEntry.JUMP:
 	if (!_jumped) {
-	  var cur:Point = _scene.tilemap.getTilePoint(src.x, src.y);
+	  var cur:Point = scene.tilemap.getTilePoint(src.x, src.y);
 	  vx = Utils.clamp(-1, (cur.x-pos.x), +1);
 	  if (isLanded() && vx == 0) {
 	    Main.log("jump");
 	    jump();
 	    _jumped = true;
 	  }
-	} else if (!_scene.tilemap.hasTile(src.x, src.y, next.x, next.y, Tile.isstoppable)) {
-	  vx = Utils.clamp(-1, (nextpos.x-pos.x), +1);
+	} else {
+	  if (!scene.tilemap.hasTile(src.x, src.y, next.x, next.y, Tile.isstoppable)) {
+	    vx = Utils.clamp(-1, (nextpos.x-pos.x), +1);
+	  } else {
+	    Main.log("blckc!");
+	  }
 	}
 	break;
       }

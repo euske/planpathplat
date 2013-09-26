@@ -27,17 +27,18 @@ public class MainState extends GameState
 
   public function MainState(width:int, height:int)
   {
-    var tilemap:TileMap = new TileMap(mapimage.bitmapData, tilesimage.bitmapData, 32);
+    var tilesize:int = 32;
+    var tilemap:TileMap = new TileMap(mapimage.bitmapData, tilesimage.bitmapData, tilesize);
     scene = new Scene(width, height, tilemap);
     addChild(scene);
 
     player = new Player(scene);
-    player.setSkin(32, 64, 0x44ff44);
+    player.createSkin(tilesize*1, tilesize*2, 0x44ff44);
     scene.add(player);
 
     var enemy1:Person = new Person(scene);
     enemy1.bounds = tilemap.getTileRect(6, 6);
-    enemy1.setSkin(64, 96, 0xff44ff);
+    enemy1.createSkin(tilesize*2, tilesize*3, 0xff44ff);
     enemy1.target = player;
     enemy1.visualizer = new PlanVisualizer(tilemap);
     scene.add(enemy1)
