@@ -83,8 +83,8 @@ public class Actor extends Sprite
     pos.y = Math.floor((value.top+value.bottom)/2);
   }
 
-  // getMovedBounds(dx, dy)
-  public function getMovedBounds(dx:int, dy:int):Rectangle
+  // getMovedRect(dx, dy)
+  public function getMovedRect(dx:int, dy:int):Rectangle
   {
     return Utils.moveRect(bounds, dx, dy);
   }
@@ -169,59 +169,6 @@ public class Actor extends Sprite
     shape.graphics.beginFill(color);
     shape.graphics.drawRect(0, 0, w, h);
     skin = shape;
-  }
-
-  // hasUpperLadderNearby()
-  public function hasUpperLadderNearby():int
-  {
-    var r:Rectangle = bounds;
-    var r0:Rectangle = Utils.moveRect(r, -r.width, 0);
-    var r1:Rectangle = Utils.moveRect(r, +r.width, 0);
-    var h0:Boolean = scene.tilemap.hasTileByRect(r0, Tile.isgrabbable);
-    var h1:Boolean = scene.tilemap.hasTileByRect(r1, Tile.isgrabbable);
-    if (!h0 && h1) {
-      return +1;
-    } else if (h0 && !h1) {
-      return -1;
-    } else {
-      return 0;
-    }
-  }
-
-  // hasLowerLadderNearby()
-  public function hasLowerLadderNearby():int
-  {
-    var r:Rectangle = bounds;
-    var rb:Rectangle = new Rectangle(r.x, r.bottom, r.width, 1);
-    var rb0:Rectangle = Utils.moveRect(rb, -rb.width, 0);
-    var rb1:Rectangle = Utils.moveRect(rb, +rb.width, 0);
-    var h0:Boolean = scene.tilemap.hasTileByRect(rb0, Tile.isgrabbable);
-    var h1:Boolean = scene.tilemap.hasTileByRect(rb1, Tile.isgrabbable);
-    if (!h0 && h1) {
-      return +1;
-    } else if (h0 && !h1) {
-      return -1;
-    } else {
-      return 0;
-    }    
-  }
-
-  // hasHoleNearby()
-  public function hasHoleNearby():int
-  {
-    var r:Rectangle = bounds;
-    var rb:Rectangle = new Rectangle(r.x, r.bottom, r.width, 1);
-    var rb0:Rectangle = Utils.moveRect(rb, -rb.width, 0);
-    var rb1:Rectangle = Utils.moveRect(rb, +rb.width, 0);
-    var h0:Boolean = scene.tilemap.hasTileByRect(rb0, Tile.isnone);
-    var h1:Boolean = scene.tilemap.hasTileByRect(rb1, Tile.isnone);
-    if (!h0 && h1) {
-      return +1;
-    } else if (h0 && !h1) {
-      return -1;
-    } else {
-      return 0;
-    }    
   }
 }
 

@@ -21,23 +21,45 @@ public class Player extends Actor
   {
     super.update();
 
-    var v:Point = new Point(dir.x*speed, dir.y*speed);
-    if (v.y < 0) {
-      // move toward a nearby ladder.
-      var vx1:int = hasUpperLadderNearby();
-      if (vx1 != 0) {
-	v.x = vx1*speed;
-	v.y = 0;
+    var v:Point = dir.clone();
+    var r:Rectangle = getMovedRect(v.x*speed, v.y*speed);
+    var a:Array = scene.tilemap.scanTileByRect(r, Tile.isobstacle);
+    if (v.x != 0 && v.y == 0) {
+      // moved left/right.
+      var y0:int = r.top;
+      var y1:int = r.bottom;
+      for each (var p:Point in a) {
+	var t:Rectangle = scene.tilemap.getTileRect(p.x, p.y);
+	if (t.top < y0) {
+	  y0 = Math.max(y0, t.bottom);
+	} else if (y1 < t.bottom) {
+	  y1 = Math.min(y1, t.top);
+	}
       }
-    } else if (0 < v.y) {
-      // move toward a nearby ladder.
-      var vx2:int = hasLowerLadderNearby();
-      if (vx2 != 0) {
-	v.x = vx2*speed;
-	v.y = 0;
+      if (r.top < y0 && y1 == r.bottom) {
+	v.x = 0; v.y = +1; 
+      } else if (y0 == r.top && y1 < r.bottom) {
+	v.x = 0; v.y = -1; 
+      }
+    } else if (v.x == 0 && v.y != 0) {
+      // moved up/down.
+      var x0:int = r.left;
+      var x1:int = r.right;
+      for each (var p:Point in a) {
+	var t:Rectangle = scene.tilemap.getTileRect(p.x, p.y);
+	if (t.left < x0) {
+	  x0 = Math.max(x0, t.right);
+	} else if (x1 < t.right) {
+	  x1 = Math.min(x1, t.left);
+	}
+      }
+      if (r.left < x0 && x1 == r.right) {
+	v.x = +1; v.y = 0;
+      } else if (x0 == r.left && x1 < r.right) {
+	v.x = -1; v.y = 0; 
       }
     }
-    move(v);
+    move(new Point(v.x*speed, v.y*speed));
   }
 }
 
