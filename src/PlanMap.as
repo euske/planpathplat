@@ -113,11 +113,11 @@ public class PlanMap
 
       // for left and right.
       for (var vx:int = -1; vx <= +1; vx += 2) {
-	var bx0:int = (0 < vx)? cb.right : cb.left;
-	var bx1:int = (0 < vx)? cb.left : cb.right;
+	var bx0:int = (0 < vx)? cb.left : cb.right;
+	var bx1:int = (0 < vx)? cb.right : cb.left;
 
 	// try walking.
-	var wx:int = p.x+vx;
+	var wx:int = p.x-vx;
 	if (bounds.left <= wx && wx <= bounds.right &&
 	    map.hasTile(wx+cb.left, p.y+cb.bottom+1,
 			wx+cb.right, p.y+cb.bottom+1,
@@ -137,7 +137,7 @@ public class PlanMap
 
 	// try falling.
 	for (fdx = 1; fdx <= falldx; fdx++) {
-	  fx = p.x+vx*fdx;
+	  fx = p.x-vx*fdx;
 	  if (fx < bounds.left || bounds.right < fx) continue;
 	  fdt = Math.floor(map.tilesize*fdx/speed);
 	  fdy = Math.ceil(fdt*(fdt+1)/2 * gravity / map.tilesize);
@@ -148,7 +148,7 @@ public class PlanMap
 			     fx+cb.right, fy+cb.bottom+1, 
 			     Tile.isstoppable)) continue;
 	    if (map.hasTile(p.x+bx1, p.y+cb.bottom,
-			    fx+bx0-vx, fy+cb.top, 
+			    fx+bx0+vx, fy+cb.top, 
 			    Tile.isstoppable)) continue;
 	    e1 = _a[fy-bounds.top][fx-bounds.left];
 	    cost = e0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
@@ -168,7 +168,7 @@ public class PlanMap
 	var fx:int, fy:int;
 	var fdt:int, fdx:int, fdy:int;
 	for (fdx = 0; fdx <= falldx; fdx++) {
-	  fx = p.x+vx*fdx;
+	  fx = p.x-vx*fdx;
 	  if (fx < bounds.left || bounds.right < fx) continue;
 	  fdt = Math.floor(map.tilesize*fdx/speed);
 	  fdy = Math.ceil(fdt*(fdt+1)/2 * gravity / map.tilesize);
@@ -179,18 +179,18 @@ public class PlanMap
 			    fx, fy+cb.top, 
 			    Tile.isstoppable)) continue;
 	    for (var jdx:int = 1; jdx <= jumpdx; jdx++) {
-	      var jx:int = fx+vx*jdx;
+	      var jx:int = fx-vx*jdx;
 	      if (jx < bounds.left || bounds.right < jx) continue;
 	      var jy:int = fy-jumpdy;
 	      if (jy < bounds.top || bounds.bottom < jy) continue;
 	      if (!map.hasTile(jx+cb.left, jy+cb.bottom+1, 
 			       jx+cb.right, jy+cb.bottom+1, 
 			       Tile.isstoppable)) continue;
-	      if (map.hasTile(fx+vx, fy+cb.top, 
+	      if (map.hasTile(fx-vx, fy+cb.top, 
 			      jx+bx0, jy+cb.bottom, 
 	      		      Tile.isstoppable)) continue;
 	      e1 = _a[jy-bounds.top][jx-bounds.left];
-	      cost = e0.cost+Math.abs(fdx+jdx)+Math.abs(fdy+jumpdy)+1;
+	      cost = e0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(jumpdy)+1;
 	      if (cost < e1.cost) {
 		e1.action = PlanEntry.JUMP;
 		e1.cost = cost;

@@ -67,6 +67,7 @@ public class Person extends Actor
       }
     }
     if (_entry != null) {
+      var p:Point;
       var next:Point = _entry.next.p;
       var nextpos:Point = scene.tilemap.getTilePoint(next.x, next.y);
       // Get a micro-level (greedy) plan.
@@ -96,17 +97,19 @@ public class Person extends Actor
 	  
       case PlanEntry.JUMP:
 	if (!_jumped) {
-	  var p1:Point = scene.tilemap.getTilePoint(src.x, src.y);
-	  vx = Utils.clamp(-1, (p1.x-pos.x), +1);
+	  p = scene.tilemap.getTilePoint(src.x, src.y);
+	  vx = Utils.clamp(-1, (p.x-pos.x), +1);
 	  if (isLanded() && vx == 0) {
 	    Main.log("jump");
 	    jump();
 	    _jumped = true;
 	  }
 	} else {
-	  var p2:Point = (isJumping())? Point(_entry.arg) : next;
-	  if (!scene.tilemap.hasTile(src.x, src.y, p2.x, p2.y, Tile.isstoppable)) {
-	    vx = Utils.clamp(-1, (nextpos.x-pos.x), +1);
+	  var mid:Point = (isJumping())? Point(_entry.arg) : next;
+	  Main.log("mid="+mid);
+	  if (!scene.tilemap.hasTile(src.x, src.y, mid.x, mid.y, Tile.isstoppable)) {
+	    p = scene.tilemap.getTilePoint(mid.x, mid.y);
+	    vx = Utils.clamp(-1, (p.x-pos.x), +1);
 	  }
 	}
 	break;
