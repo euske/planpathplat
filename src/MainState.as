@@ -33,7 +33,7 @@ public class MainState extends GameState
     addChild(scene);
 
     player = new Player(scene);
-    player.createSkin(tilesize*1, tilesize*2, 0x44ff44);
+    player.createSkin(tilesize*1, tilesize*3, 0x44ff44);
     scene.add(player);
 
     var enemy1:Person = new Person(scene);
@@ -43,6 +43,14 @@ public class MainState extends GameState
     enemy1.visualizer = new PlanVisualizer(tilemap);
     scene.add(enemy1)
     addChild(enemy1.visualizer);
+
+    var enemy2:Person = new Person(scene);
+    enemy2.bounds = tilemap.getTileRect(10, 10);
+    enemy2.createSkin(tilesize*1, tilesize*2, 0x44ffff);
+    enemy2.target = player;
+    enemy2.visualizer = new PlanVisualizer(tilemap);
+    scene.add(enemy2)
+    addChild(enemy2.visualizer);
   }
 
   // open()

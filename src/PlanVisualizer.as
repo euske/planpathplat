@@ -20,50 +20,71 @@ public class PlanVisualizer extends Shape
     this.tilemap = tilemap;
   }
 
+  private function get tilewindow():Rectangle
+  {
+    return tilemap.tilewindow;
+  }
+  private function get tilesize():int
+  {
+    return tilemap.tilesize;
+  }
+
+  private function drawRect(color:uint, p:Point, size:int):void
+  {
+    graphics.lineStyle(0, color);
+    graphics.drawRect((p.x-tilewindow.left+0.5)*tilesize-size/2, 
+		      (p.y-tilewindow.top+0.5)*tilesize-size/2, 
+		      size, size);
+  }
+
+  private function drawLine(color:uint, src:Point, dst:Point):void
+  {
+    graphics.lineStyle(0, color);
+    graphics.moveTo((src.x-tilewindow.left+0.5)*tilesize,
+		    (src.y-tilewindow.top+0.5)*tilesize);
+    graphics.lineTo((dst.x-tilewindow.left+0.5)*tilesize,
+		    (dst.y-tilewindow.top+0.5)*tilesize);
+  }
+
   public function repaint():void
   {
     graphics.clear();
     if (plan == null) return;
 
-    var ts:int = tilemap.tilesize;
-    var tw:Rectangle = tilemap.tilewindow;
-    for (var y:int = 0; y < tw.height; y++) {
-      for (var x:int = 0; x <= tw.width; x++) {
-	var e:PlanEntry = plan.getEntry(tw.left+x, tw.top+y);
+    for (var y:int = 0; y < tilewindow.height; y++) {
+      for (var x:int = 0; x <= tilewindow.width; x++) {
+	var e:PlanEntry = plan.getEntry(tilewindow.left+x, 
+					tilewindow.top+y);
 	if (e == null) continue;
 	var p:Point = e.p;
 	var c:int = 0x0000ff;
 	switch (e.action) {
-	case PlanEntry.WALK:
-	  c = 0xffffff;		// white
-	  break;
-	case PlanEntry.FALL:
-	  c = 0x0000ff;		// blue
+	case PlanEntry.WALK:	// white
+	  drawRect(0xffffff, p, tilesize);
 	  break;
 	case PlanEntry.CLIMB:	// green
-	  c = 0x00ff00;
+	  drawRect(0x00ff00, p, tilesize);
+	  break;
+	case PlanEntry.FALL:	// blue
+	  drawRect(0x0000ff, p, tilesize);
+	  if (e.next != null) {
+	    drawLine(0x0000ff, p, e.next.p);
+	  }
 	  break;
 	case PlanEntry.JUMP:	// magenta
-	  c = 0xff00ff;
+	  drawRect(0xff00ff, p, tilesize);
+	  if (e.arg != null && e.next != null) {
+	    var pm:Point = Point(e.arg);
+	    drawLine(0xff00ff, p, pm);
+	    drawLine(0xff00ff, pm, e.next.p);
+	  }
 	  break;
-	default:
-	  continue;
-	}
-	graphics.lineStyle(0, c);
-	graphics.drawRect((p.x-tw.left)*ts, (p.y-tw.top)*ts, ts, ts);
-	graphics.lineStyle(0, 0xffff00);
-	if (e.next != null) {
-	  var pn:Point = e.next.p;
-	  graphics.moveTo((p.x-tw.left)*ts+ts/2, (p.y-tw.top)*ts+ts/2);
-	  graphics.lineTo((pn.x-tw.left)*ts+ts/2, (pn.y-tw.top)*ts+ts/2);
 	}
       }
     }
-    graphics.lineStyle(0, 0x00ff00);
-    graphics.drawRect((plan.dst.x-tw.left)*ts+2, (plan.dst.y-tw.top)*ts+2, ts-4, ts-4);
+    drawRect(0x00ff00, plan.dst, tilesize-4);
     if (plan.src != null) {
-      graphics.lineStyle(0, 0xffffff);
-      graphics.drawRect((plan.src.x-tw.left)*ts+2, (plan.src.y-tw.top)*ts+2, ts-4, ts-4);
+      drawRect(0xffffff, plan.src, tilesize-4);
     }
 
     this.x = tilemap.x;

@@ -46,8 +46,9 @@ public class Person extends Actor
 	var jumpdt:int = Math.floor(jumpspeed / gravity);
 	var falldt:int = Math.floor(maxspeed / gravity);
 	var plan:PlanMap = scene.createPlan(dst);
-	if (0 < plan.fillPlan(src, tilebounds, 50,
-			      jumpdt, falldt, speed, gravity)) {
+	if (0 < plan.fillPlan(tilebounds, 
+			      jumpdt, falldt, speed, gravity,
+			      src, 50)) {
 	  _plan = plan;
 	  if (visualizer != null) {
 	    visualizer.plan = plan;
@@ -70,6 +71,8 @@ public class Person extends Actor
       var p:Point;
       var next:Point = _entry.next.p;
       var nextpos:Point = scene.tilemap.getTilePoint(next.x, next.y);
+      Main.log("action="+_entry.action+", src="+src+", next="+next);
+
       // Get a micro-level (greedy) plan.
       switch (_entry.action) {
       case PlanEntry.WALK:
@@ -106,7 +109,6 @@ public class Person extends Actor
 	  }
 	} else {
 	  var mid:Point = (isJumping())? Point(_entry.arg) : next;
-	  Main.log("mid="+mid);
 	  if (!scene.tilemap.hasTile(src.x, src.y, mid.x, mid.y, Tile.isstoppable)) {
 	    p = scene.tilemap.getTilePoint(mid.x, mid.y);
 	    vx = Utils.clamp(-1, (p.x-pos.x), +1);
@@ -114,7 +116,6 @@ public class Person extends Actor
 	}
 	break;
       }
-      Main.log("action="+_entry.action+", src="+src+", next="+next);
 
       if (_entry.next.p.equals(src)) {
 	_entry = null;

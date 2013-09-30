@@ -46,9 +46,10 @@ public class PlanMap
   }
 
   // fillPlan(plan, b)
-  public function fillPlan(src:Point, cb:Rectangle, n:int,
+  public function fillPlan(cb:Rectangle, 
 			   jumpdt:int, falldt:int, 
-			   speed:int, gravity:int):int
+			   speed:int, gravity:int,
+			   src:Point=null, n:int=1000):int
   {
     var jumpdx:int = Math.floor(jumpdt*speed / map.tilesize);
     var jumpdy:int = -Math.floor(jumpdt*(jumpdt+1)/2 * gravity / map.tilesize);
@@ -195,7 +196,7 @@ public class PlanMap
 		e1.action = PlanEntry.JUMP;
 		e1.cost = cost;
 		e1.next = e0;
-		e1.arg = new Point(jx, jy);
+		e1.arg = new Point(fx, fy);
 		if (src != null) {
 		  e1.prio = Math.abs(src.x-e1.p.x)+Math.abs(src.y-e1.p.y);
 		}
