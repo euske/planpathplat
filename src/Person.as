@@ -12,7 +12,8 @@ public class Person extends Actor
   private var _target:Actor;
   private var _plan:PlanMap;
   private var _entry:PlanEntry;
-  private var _jumped:Boolean;
+  private var _jumping:Boolean;
+  private var _falling:Boolean;
 
   // Person(image)
   public function Person(scene:Scene)
@@ -32,11 +33,11 @@ public class Person extends Actor
   {
     super.update();
     var vx:int, vy:int;
-    var src:Point = scene.tilemap.getCoordsByPoint(pos);
-    var dst:Point = scene.tilemap.getCoordsByPoint(_target.pos);
+    var start:Point = tilemap.getCoordsByPoint(pos);
+    var goal:Point = tilemap.getCoordsByPoint(_target.pos);
 
     // invalidate plan.
-    if (_plan != null && !_plan.dst.equals(dst)) {
+    if (_plan != null && !_plan.goal.equals(goal)) {
       _plan = null;
     }
 
@@ -45,10 +46,10 @@ public class Person extends Actor
       if (_target.isLanded()) {
 	var jumpdt:int = Math.floor(jumpspeed / gravity);
 	var falldt:int = Math.floor(maxspeed / gravity);
-	var plan:PlanMap = scene.createPlan(dst);
+	var plan:PlanMap = scene.createPlan(goal);
 	if (0 < plan.fillPlan(tilebounds, 
 			      jumpdt, falldt, speed, gravity,
-			      src, 50)) {
+			      start, 50)) {
 	  _plan = plan;
 	  if (visualizer != null) {
 	    visualizer.plan = plan;
@@ -60,64 +61,73 @@ public class Person extends Actor
     // follow a plan.
     if (_entry == null && _plan != null) {
       // Get a macro-level plan.
-      var entry:PlanEntry = _plan.getEntry(src.x, src.y);
+      var entry:PlanEntry = _plan.getEntry(start.x, start.y);
       if (entry != null && entry.next != null) {
 	Main.log("entry="+entry);
 	_entry = entry;
-	_jumped = false;
+	_jumping = false;
+	_falling = false;
       }
     }
     if (_entry != null) {
-      var p:Point;
-      var next:Point = _entry.next.p;
-      var nextpos:Point = scene.tilemap.getTilePoint(next.x, next.y);
-      Main.log("action="+_entry.action+", src="+src+", next="+next);
+      var srcpos:Point = tilemap.getTilePoint(start.x, start.y);
+      var dst:Point = _entry.next.p;
+      var dstpos:Point = tilemap.getTilePoint(dst.x, dst.y);
+      Main.log("action="+_entry.action+", start="+start+", dst="+dst);
 
       // Get a micro-level (greedy) plan.
       switch (_entry.action) {
       case PlanEntry.WALK:
-	vx = Utils.clamp(-1, (nextpos.x-pos.x), +1);
+	vx = Utils.clamp(-1, (dstpos.x-pos.x), +1);
 	if (!isMovable(vx*speed, 0)) {
 	  vx = 0;
-	  vy = Utils.clamp(-1, (nextpos.y-pos.y), +1);
+	  vy = Utils.clamp(-1, (dstpos.y-pos.y), +1);
 	}
 	break;
 	  
       case PlanEntry.CLIMB:
-	vy = Utils.clamp(-1, (nextpos.y-pos.y), +1);
+	vy = Utils.clamp(-1, (dstpos.y-pos.y), +1);
 	if (!isMovable(0, vy*speed)) {
-	  vx = Utils.clamp(-1, (nextpos.x-pos.x), +1);
+	  vx = Utils.clamp(-1, (dstpos.x-pos.x), +1);
 	  vy = 0;
 	}
 	break;
 	  
       case PlanEntry.FALL:
-	if (src.equals(_entry.p) ||
-	    !scene.tilemap.hasTile(src.x, src.y, next.x, next.y, Tile.isstoppable)) {
-	  vx = Utils.clamp(-1, (nextpos.x-pos.x), +1);
+	if (!_falling) {
+	  Main.log("srcpos="+srcpos+", pos="+pos);
+	  if (srcpos.equals(pos)) {
+	    _falling = true;
+	  } else {
+	    vx = Utils.clamp(-1, (srcpos.x-pos.x), +1);
+	    vy = Utils.clamp(-1, (srcpos.y-pos.y), +1);
+	  }
+	} else if (isLanded() ||
+		   !tilemap.hasTile(start.x, start.y, dst.x, dst.y, Tile.isstoppable)) {
+	  vx = Utils.clamp(-1, (dstpos.x-pos.x), +1);
 	}
 	break;
 	  
       case PlanEntry.JUMP:
-	if (!_jumped) {
-	  p = scene.tilemap.getTilePoint(src.x, src.y);
-	  vx = Utils.clamp(-1, (p.x-pos.x), +1);
-	  if (isLanded() && vx == 0) {
-	    Main.log("jump");
+	if (!_jumping) {
+	  if (srcpos.equals(pos)) {
 	    jump();
-	    _jumped = true;
+	    _jumping = true;
+	  } else {
+	    vx = Utils.clamp(-1, (srcpos.x-pos.x), +1);
+	    vy = Utils.clamp(-1, (srcpos.y-pos.y), +1);
 	  }
 	} else {
-	  var mid:Point = (isJumping())? Point(_entry.arg) : next;
-	  if (!scene.tilemap.hasTile(src.x, src.y, mid.x, mid.y, Tile.isstoppable)) {
-	    p = scene.tilemap.getTilePoint(mid.x, mid.y);
-	    vx = Utils.clamp(-1, (p.x-pos.x), +1);
+	  var mid:Point = (isJumping())? Point(_entry.arg) : dst;
+	  if (!tilemap.hasTile(start.x, start.y, mid.x, mid.y, Tile.isstoppable)) {
+	    var midpos:Point = tilemap.getTilePoint(mid.x, mid.y);
+	    vx = Utils.clamp(-1, (midpos.x-pos.x), +1);
 	  }
 	}
 	break;
       }
 
-      if (_entry.next.p.equals(src)) {
+      if (_entry.next.p.equals(start)) {
 	_entry = null;
       }
     }
