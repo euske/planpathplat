@@ -38,7 +38,7 @@ public class Main extends Sprite
     _logger.height = 100;
     _logger.background = true;
     _logger.type = TextFieldType.DYNAMIC;
-    addChild(_logger);
+    //addChild(_logger);
 
     init();
   }

@@ -8,16 +8,16 @@ import flash.geom.Rectangle;
 public class PlanMap
 {
   public var map:TileMap;
-  public var src:Point;
-  public var dst:Point;
+  public var start:Point;
+  public var goal:Point;
   public var bounds:Rectangle;
 
   private var _a:Array;
 
-  public function PlanMap(map:TileMap, dst:Point, bounds:Rectangle)
+  public function PlanMap(map:TileMap, goal:Point, bounds:Rectangle)
   {
     this.map = map;
-    this.dst = dst;
+    this.goal = goal;
     this.bounds = bounds;
     _a = new Array(bounds.height+1);
     var maxcost:int = (bounds.width+bounds.height+1)*2;
@@ -49,27 +49,27 @@ public class PlanMap
   public function fillPlan(cb:Rectangle, 
 			   jumpdt:int, falldt:int, 
 			   speed:int, gravity:int,
-			   src:Point=null, n:int=1000):int
+			   start:Point=null, n:int=1000):int
   {
     var jumpdx:int = Math.floor(jumpdt*speed / map.tilesize);
     var jumpdy:int = -Math.floor(jumpdt*(jumpdt+1)/2 * gravity / map.tilesize);
     var falldx:int = Math.floor(falldt*speed / map.tilesize);
     var falldy:int = Math.ceil(falldt*(falldt+1)/2 * gravity / map.tilesize);
 
-    if (src != null &&
-	!map.hasTile(src.x+cb.left, src.y+cb.bottom+1, 
-		     src.x+cb.right, src.y+cb.bottom+1, 
+    if (start != null &&
+	!map.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
+		     start.x+cb.right, start.y+cb.bottom+1, 
 		     Tile.isstoppable)) return 0;
-    this.src = src;
+    this.start = start;
     
-    var e1:PlanEntry = _a[dst.y-bounds.top][dst.x-bounds.left];
+    var e1:PlanEntry = _a[goal.y-bounds.top][goal.x-bounds.left];
     e1.cost = 0;
     var queue:Array = [ e1 ];
     while (0 < n && 0 < queue.length) {
       var cost:int;
       var e0:PlanEntry = queue.pop();
       var p:Point = e0.p;
-      if (src != null && src.equals(p)) break;
+      if (start != null && start.equals(p)) break;
       if (map.hasTile(p.x+cb.left, p.y+cb.top, 
 		      p.x+cb.right, p.y+cb.bottom, 
 		      Tile.isobstacle)) continue;
@@ -88,8 +88,8 @@ public class PlanMap
 	  e1.action = PlanEntry.CLIMB;
 	  e1.cost = cost;
 	  e1.next = e0;
-	  if (src != null) {
-	    e1.prio = Math.abs(src.x-e1.p.x)+Math.abs(src.y-e1.p.y);
+	  if (start != null) {
+	    e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
 	  }
 	  queue.push(e1);
 	}
@@ -105,8 +105,8 @@ public class PlanMap
 	  e1.action = PlanEntry.CLIMB;
 	  e1.cost = cost;
 	  e1.next = e0;
-	  if (src != null) {
-	    e1.prio = Math.abs(src.x-e1.p.x)+Math.abs(src.y-e1.p.y);
+	  if (start != null) {
+	    e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
 	  }
 	  queue.push(e1);
 	}
@@ -129,8 +129,8 @@ public class PlanMap
 	    e1.action = PlanEntry.WALK;
 	    e1.cost = cost;
 	    e1.next = e0;
-	    if (src != null) {
-	      e1.prio = Math.abs(src.x-e1.p.x)+Math.abs(src.y-e1.p.y);
+	    if (start != null) {
+	      e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
 	    }
 	    queue.push(e1);
 	  }
@@ -157,8 +157,8 @@ public class PlanMap
 	      e1.action = PlanEntry.FALL;
 	      e1.cost = cost;
 	      e1.next = e0;
-	      if (src != null) {
-		e1.prio = Math.abs(src.x-e1.p.x)+Math.abs(src.y-e1.p.y);
+	      if (start != null) {
+		e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
 	      }
 	      queue.push(e1);
 	    }
@@ -197,8 +197,8 @@ public class PlanMap
 		e1.cost = cost;
 		e1.next = e0;
 		e1.arg = new Point(fx, fy);
-		if (src != null) {
-		  e1.prio = Math.abs(src.x-e1.p.x)+Math.abs(src.y-e1.p.y);
+		if (start != null) {
+		  e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
 		}
 		queue.push(e1);
 	      }
@@ -206,7 +206,7 @@ public class PlanMap
 	  }
 	}
       }
-      if (src != null) {
+      if (start != null) {
 	// A* search.
 	queue.sortOn("prio", Array.NUMERIC | Array.DESCENDING);
       }

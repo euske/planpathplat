@@ -46,6 +46,12 @@ public class Actor extends Sprite
     return _scene;
   }
 
+  // tilemap
+  public function get tilemap():TileMap
+  {
+    return _scene.tilemap;
+  }
+
   // skin
   public function get skin():DisplayObject
   {
@@ -59,16 +65,16 @@ public class Actor extends Sprite
     _skin = value;
     if (_skin != null) {
       addChild(_skin);
-      _skin.x = -Math.floor(scene.tilemap.tilesize/2);
-      _skin.y = -Math.floor(_skin.height)+Math.floor(scene.tilemap.tilesize/2);
+      _skin.x = -Math.floor(tilemap.tilesize/2);
+      _skin.y = -Math.floor(_skin.height)+Math.floor(tilemap.tilesize/2);
     }
   }
 
   // tilebounds
   public function get tilebounds():Rectangle
   {
-    var w:int = skin.width/scene.tilemap.tilesize;
-    var h:int = skin.height/scene.tilemap.tilesize;
+    var w:int = skin.width/tilemap.tilesize;
+    var h:int = skin.height/tilemap.tilesize;
     return new Rectangle(0, -(h-1), w-1, h-1);
   }
 
@@ -92,7 +98,7 @@ public class Actor extends Sprite
   // isLanded()
   public function isLanded():Boolean
   {
-    return scene.tilemap.hasCollisionByRect(bounds, 0, 1, Tile.isstoppable);
+    return tilemap.hasCollisionByRect(bounds, 0, 1, Tile.isstoppable);
   }
 
   // isJumping()
@@ -104,13 +110,13 @@ public class Actor extends Sprite
   // isGrabbing()
   public function isGrabbing():Boolean
   {
-    return scene.tilemap.hasTileByRect(bounds, Tile.isgrabbable);
+    return tilemap.hasTileByRect(bounds, Tile.isgrabbable);
   }
 
   // isMovable(dx, dy)
   public function isMovable(dx:int, dy:int):Boolean
   {
-    return (!scene.tilemap.hasCollisionByRect(bounds, dx, dy, Tile.isobstacle));
+    return (!tilemap.hasCollisionByRect(bounds, dx, dy, Tile.isobstacle));
   }
 
   // move()
@@ -118,23 +124,23 @@ public class Actor extends Sprite
   {
     if (isGrabbing()) {
       // climing a ladder.
-      var vl:Point = scene.tilemap.getCollisionByRect(bounds, v0.x, v0.y, Tile.isobstacle);
+      var vl:Point = tilemap.getCollisionByRect(bounds, v0.x, v0.y, Tile.isobstacle);
       pos = Utils.movePoint(pos, vl.x, vl.y);
       _vg = 0;
     } else {
       // falling.
-      var vf:Point = scene.tilemap.getCollisionByRect(bounds, v0.x, _vg, Tile.isstoppable);
+      var vf:Point = tilemap.getCollisionByRect(bounds, v0.x, _vg, Tile.isstoppable);
       pos = Utils.movePoint(pos, vf.x, vf.y);
       // moving (in air).
-      var vdx:Point = scene.tilemap.getCollisionByRect(bounds, v0.x-vf.x, 0, Tile.isobstacle);
+      var vdx:Point = tilemap.getCollisionByRect(bounds, v0.x-vf.x, 0, Tile.isobstacle);
       pos = Utils.movePoint(pos, vdx.x, vdx.y);
       var vdy:Point;
       if (0 < v0.y) {
 	// start climing down.
-	vdy = scene.tilemap.getCollisionByRect(bounds, 0, _vg-vf.y+v0.y, Tile.isobstacle);
+	vdy = tilemap.getCollisionByRect(bounds, 0, _vg-vf.y+v0.y, Tile.isobstacle);
       } else {
 	// falling (cont'd).
-	vdy = scene.tilemap.getCollisionByRect(bounds, 0, _vg-vf.y, Tile.isstoppable);
+	vdy = tilemap.getCollisionByRect(bounds, 0, _vg-vf.y, Tile.isstoppable);
       }
       pos = Utils.movePoint(pos, vdy.x, vdy.y);
       _vg = Math.min(vf.y+vdx.y+vdy.y+gravity, maxspeed);

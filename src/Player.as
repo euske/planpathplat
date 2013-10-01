@@ -24,13 +24,13 @@ public class Player extends Actor
     var p:Point, t:Rectangle;
     var v:Point = dir.clone();
     var r:Rectangle = getMovedRect(v.x*speed, v.y*speed);
-    var a:Array = scene.tilemap.scanTileByRect(r, Tile.isobstacle);
+    var a:Array = tilemap.scanTileByRect(r, Tile.isobstacle);
     if (v.x != 0 && v.y == 0) {
       // moved left/right.
       var y0:int = r.top;
       var y1:int = r.bottom;
       for each (p in a) {
-	t = scene.tilemap.getTileRect(p.x, p.y);
+	t = tilemap.getTileRect(p.x, p.y);
 	if (t.top < y0) {
 	  y0 = Math.max(y0, t.bottom);
 	} else if (y1 < t.bottom) {
@@ -47,7 +47,7 @@ public class Player extends Actor
       var x0:int = r.left;
       var x1:int = r.right;
       for each (p in a) {
-	t = scene.tilemap.getTileRect(p.x, p.y);
+	t = tilemap.getTileRect(p.x, p.y);
 	if (t.left < x0) {
 	  x0 = Math.max(x0, t.right);
 	} else if (x1 < t.right) {

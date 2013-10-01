@@ -82,10 +82,10 @@ public class PlanVisualizer extends Shape
 	}
       }
     }
-    drawRect(0x00ff00, plan.dst, tilesize-4);
-    if (plan.src != null) {
-      drawRect(0xffffff, plan.src, tilesize-4);
+    if (plan.start != null) {
+      drawRect(0xffffff, plan.start, tilesize-4);
     }
+    drawRect(0x00ff00, plan.goal, tilesize-4);
 
     this.x = tilemap.x;
     this.y = tilemap.y;

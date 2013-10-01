@@ -74,6 +74,7 @@ public class Person extends Actor
       var dst:Point = _entry.next.p;
       var dstpos:Point = tilemap.getTilePoint(dst.x, dst.y);
       Main.log("action="+_entry.action+", start="+start+", dst="+dst);
+      Main.log("srcpos="+srcpos+", dstpos="+dstpos+", pos="+pos);
 
       // Get a micro-level (greedy) plan.
       switch (_entry.action) {
@@ -95,7 +96,6 @@ public class Person extends Actor
 	  
       case PlanEntry.FALL:
 	if (!_falling) {
-	  Main.log("srcpos="+srcpos+", pos="+pos);
 	  if (srcpos.equals(pos)) {
 	    _falling = true;
 	  } else {
