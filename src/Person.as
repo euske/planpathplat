@@ -84,9 +84,9 @@ public class Person extends Actor
       var startpos:Point = tilemap.getTilePoint(start.x, start.y);
       var dst:Point = _action.next.p;
       var dstpos:Point = tilemap.getTilePoint(dst.x, dst.y);
-      Main.log(" start="+start+", "+startpos);
-      Main.log(" dst="+dst+", "+dstpos);
-      Main.log(" pos="+pos+", landed="+isLanded()+", jumpable="+isJumpable());
+      //Main.log(" start="+start+", "+startpos);
+      //Main.log(" dst="+dst+", "+dstpos);
+      //Main.log(" pos="+pos+", landed="+isLanded()+", jumpable="+isJumpable());
 
       // Get a micro-level (greedy) plan.
       switch (_action.action) {
@@ -126,7 +126,7 @@ public class Person extends Actor
 
       // finishing an action.
       if (_action.next.p.equals(start)) {
-	Main.log(" finished.");
+	//Main.log(" finished.");
 	_action = null;
       }
     }
