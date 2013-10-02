@@ -89,6 +89,12 @@ public class Actor extends Sprite
     pos.y = Math.floor((value.top+value.bottom)/2);
   }
 
+  // vspeed
+  public function get vspeed():int
+  {
+    return _vg;
+  }
+  
   // getMovedRect(dx, dy)
   public function getMovedRect(dx:int, dy:int):Rectangle
   {
@@ -101,16 +107,16 @@ public class Actor extends Sprite
     return tilemap.hasCollisionByRect(bounds, 0, 1, Tile.isstoppable);
   }
 
-  // isJumping()
-  public function isJumping():Boolean
-  {
-    return (_vg < 0);
-  }
-  
   // isGrabbing()
   public function isGrabbing():Boolean
   {
     return tilemap.hasTileByRect(bounds, Tile.isgrabbable);
+  }
+
+  // isJumpable()
+  public function isJumpable():Boolean
+  {
+    return !tilemap.hasTileByRect(bounds, Tile.isstoppable);
   }
 
   // isMovable(dx, dy)

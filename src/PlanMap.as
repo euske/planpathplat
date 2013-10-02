@@ -196,7 +196,7 @@ public class PlanMap
 		e1.action = PlanEntry.JUMP;
 		e1.cost = cost;
 		e1.next = e0;
-		e1.arg = new Point(fx, fy);
+		e1.arg = new Point(fx-vx, fy);
 		if (start != null) {
 		  e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
 		}
