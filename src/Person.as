@@ -47,28 +47,31 @@ public class Person extends Actor
     super.update();
     var v:Point = new Point(0, 0);
     var start:Point = tilemap.getCoordsByPoint(pos);
-    var goal:Point = tilemap.getCoordsByPoint(_target.pos);
-
+    var goal:Point = ((_target.isLanded()) ? 
+		      tilemap.getCoordsByPoint(_target.pos) :
+		      PlanMap.getLandingPoint(tilemap, _target.pos, _target.tilebounds,
+					      jumpdt, falldt, speed, gravity));
+    
     // invalidate plan.
-    if (_plan != null && !_plan.goal.equals(goal)) {
-      _plan = null;
+    if (_plan != null) {
+      if (goal == null || !_plan.goal.equals(goal)) {
+	_plan = null;
+      }
     }
 
     // make a plan.
-    if (_plan == null) {
-      if (_target.isLanded()) {
-	var jumpdt:int = Math.floor(jumpspeed / gravity);
-	var falldt:int = Math.floor(maxspeed / gravity);
-	var plan:PlanMap = scene.createPlan(goal);
-	if (0 < plan.fillPlan(tilebounds, 
-			      jumpdt, falldt, speed, gravity,
-			      start, 50)) {
-	  _plan = plan;
-	  if (visualizer != null) {
-	    visualizer.plan = plan;
-	  }
-	}
+    if (_plan == null && goal != null) {
+      var jumpdt:int = Math.floor(jumpspeed / gravity);
+      var falldt:int = Math.floor(maxspeed / gravity);
+      var plan:PlanMap = scene.createPlan(goal);
+      if (0 < plan.fillPlan(tilebounds, 
+			    jumpdt, falldt, speed, gravity,
+			    start, 50)) {
+	_plan = plan;
       }
+    }
+    if (visualizer != null) {
+      visualizer.plan = _plan;
     }
 
     // follow a plan.

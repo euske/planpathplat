@@ -14,6 +14,15 @@ public class PlanMap
 
   private var _a:Array;
 
+  // getLandingPoint
+  public static function getLandingPoint(map:TileMap, 
+					 src:Point, cb:Rectangle, 
+					 jumpdt:int, falldt:int, 
+					 speed:int, gravity:int):Point
+  {
+    return null;
+  }
+
   public function PlanMap(map:TileMap, goal:Point, bounds:Rectangle)
   {
     this.map = map;
