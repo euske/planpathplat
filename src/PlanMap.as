@@ -15,9 +15,10 @@ public class PlanMap
   private var _a:Array;
 
   // getLandingPoint
-  public static function getLandingPoint(map:TileMap, 
-					 pos:Point, cb:Rectangle, 
-					 velocity:Point, gravity:int):Point
+  public static function getLandingPoint(map:TileMap, pos:Point, 
+					 cb:Rectangle, 
+					 velocity:Point, gravity:int,
+					 falldy:int=10):Point
   {
     return null;
   }
@@ -55,14 +56,12 @@ public class PlanMap
 
   // fillPlan(plan, b)
   public function fillPlan(cb:Rectangle, 
-			   jumpdt:int, falldt:int, 
-			   speed:int, gravity:int,
-			   start:Point=null, n:int=1000):int
+			   jumpdt:int, speed:int, gravity:int,
+			   start:Point=null, n:int=1000,
+			   falldx:int=10, falldy:int=20):int
   {
     var jumpdx:int = Math.floor(jumpdt*speed / map.tilesize);
     var jumpdy:int = -Math.floor(jumpdt*(jumpdt+1)/2 * gravity / map.tilesize);
-    var falldx:int = Math.floor(falldt*speed / map.tilesize);
-    var falldy:int = Math.ceil(falldt*(falldt+1)/2 * gravity / map.tilesize);
 
     if (start != null &&
 	!map.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
@@ -139,12 +138,12 @@ public class PlanMap
 	// try falling.
 	for (fdx = 1; fdx <= falldx; fdx++) {
 	  fx = p.x-vx*fdx;
-	  if (fx < bounds.left || bounds.right < fx) continue;
+	  if (fx < bounds.left || bounds.right < fx) break;
 	  fdt = Math.floor(map.tilesize*fdx/speed);
 	  fdy = Math.ceil(fdt*(fdt+1)/2 * gravity / map.tilesize);
 	  for (; fdy <= falldy; fdy++) {
 	    fy = p.y-fdy;
-	    if (fy < bounds.top || bounds.bottom < fy) continue;
+	    if (fy < bounds.top || bounds.bottom < fy) break;
 	    if (!map.hasTile(fx+cb.left, fy+cb.bottom+1, 
 			     fx+cb.right, fy+cb.bottom+1, 
 			     Tile.isstoppable)) continue;
@@ -167,12 +166,12 @@ public class PlanMap
 	var fdt:int, fdx:int, fdy:int;
 	for (fdx = 0; fdx <= falldx; fdx++) {
 	  fx = p.x-vx*fdx;
-	  if (fx < bounds.left || bounds.right < fx) continue;
+	  if (fx < bounds.left || bounds.right < fx) break;
 	  fdt = Math.floor(map.tilesize*fdx/speed);
 	  fdy = Math.ceil(fdt*(fdt+1)/2 * gravity / map.tilesize);
 	  for (; fdy <= falldy; fdy++) {
 	    fy = p.y-fdy;
-	    if (fy < bounds.top || bounds.bottom < fy) continue;
+	    if (fy < bounds.top || bounds.bottom < fy) break;
 	    if (map.hasTile(p.x+bx1, p.y+cb.bottom, 
 			    fx, fy+cb.top, 
 			    Tile.isstoppable)) continue;
@@ -184,7 +183,7 @@ public class PlanMap
 	      if (!map.hasTile(jx+cb.left, jy+cb.bottom+1, 
 			       jx+cb.right, jy+cb.bottom+1, 
 			       Tile.isstoppable)) continue;
-	      if (map.hasTile(fx-vx, fy+cb.top, 
+	      if (map.hasTile(fx+bx1-vx, fy+cb.top, 
 			      jx+bx0, jy+cb.bottom, 
 	      		      Tile.isstoppable)) continue;
 	      e1 = _a[jy-bounds.top][jx-bounds.left];
