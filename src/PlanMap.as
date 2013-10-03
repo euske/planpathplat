@@ -73,10 +73,11 @@ public class PlanMap
     
     var e1:PlanEntry = _a[goal.y-bounds.top][goal.x-bounds.left];
     e1.cost = 0;
-    var queue:Array = [ e1 ];
+    var queue:Array = [ new QueueItem(e1) ];
     while (0 < n && 0 < queue.length) {
       var cost:int;
-      var e0:PlanEntry = queue.pop();
+      var q:QueueItem = queue.pop();
+      var e0:PlanEntry = q.entry;
       var p:Point = e0.p;
       if (start != null && start.equals(p)) break;
       if (map.hasTile(p.x+cb.left, p.y+cb.top, 
@@ -97,10 +98,7 @@ public class PlanMap
 	  e1.action = PlanEntry.CLIMB;
 	  e1.cost = cost;
 	  e1.next = e0;
-	  if (start != null) {
-	    e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
-	  }
-	  queue.push(e1);
+	  queue.push(new QueueItem(e1, start));
 	}
       }
       // try climbing up.
@@ -114,10 +112,7 @@ public class PlanMap
 	  e1.action = PlanEntry.CLIMB;
 	  e1.cost = cost;
 	  e1.next = e0;
-	  if (start != null) {
-	    e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
-	  }
-	  queue.push(e1);
+	  queue.push(new QueueItem(e1, start));
 	}
       }
 
@@ -138,10 +133,7 @@ public class PlanMap
 	    e1.action = PlanEntry.WALK;
 	    e1.cost = cost;
 	    e1.next = e0;
-	    if (start != null) {
-	      e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
-	    }
-	    queue.push(e1);
+	    queue.push(new QueueItem(e1, start));
 	  }
 	}
 
@@ -166,10 +158,7 @@ public class PlanMap
 	      e1.action = PlanEntry.FALL;
 	      e1.cost = cost;
 	      e1.next = e0;
-	      if (start != null) {
-		e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
-	      }
-	      queue.push(e1);
+	      queue.push(new QueueItem(e1, start));
 	    }
 	  }
 	}
@@ -206,10 +195,7 @@ public class PlanMap
 		e1.cost = cost;
 		e1.next = e0;
 		e1.arg = new Point(fx-vx, fy);
-		if (start != null) {
-		  e1.prio = Math.abs(start.x-e1.p.x)+Math.abs(start.y-e1.p.y);
-		}
-		queue.push(e1);
+		queue.push(new QueueItem(e1, start));
 	      }
 	    }
 	  }
@@ -227,3 +213,19 @@ public class PlanMap
 }
 
 } // package
+
+import flash.geom.Point;
+import flash.geom.Rectangle;
+
+class QueueItem
+{
+  public var entry:PlanEntry;
+  public var prio:int;
+  
+  public function QueueItem(entry:PlanEntry, start:Point=null)
+  {
+    this.entry = entry;
+    this.prio = ((start == null)? 0 :
+		 Math.abs(start.x-entry.p.x)+Math.abs(start.y-entry.p.y));
+  }
+}
