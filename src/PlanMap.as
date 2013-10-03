@@ -16,9 +16,8 @@ public class PlanMap
 
   // getLandingPoint
   public static function getLandingPoint(map:TileMap, 
-					 src:Point, cb:Rectangle, 
-					 jumpdt:int, falldt:int, 
-					 speed:int, gravity:int):Point
+					 pos:Point, cb:Rectangle, 
+					 velocity:Point, gravity:int):Point
   {
     return null;
   }

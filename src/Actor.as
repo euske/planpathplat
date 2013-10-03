@@ -16,6 +16,7 @@ public class Actor extends Sprite
   private var _skin:DisplayObject;
   private var _scene:Scene;
 
+  private var _velocity:Point;
   private var _vg:int = 0;
   private var _phase:Number = 0;
 
@@ -24,19 +25,11 @@ public class Actor extends Sprite
   public const jumpspeed:int = 24;
   public const maxspeed:int = 24;
 
-  public static var isstoppable:Function = 
-    (function (b:int):Boolean { return b != 0; });
-  public static var isobstacle:Function =
-    (function (b:int):Boolean { return b < 0 || b == 1; });
-  public static var isgrabbable:Function =
-    (function (b:int):Boolean { return b < 0 || b == 2; });
-  public static var isnone:Function = 
-    (function (b:int):Boolean { return b == 0; });
-  
   // Actor(scene)
   public function Actor(scene:Scene)
   {
     _scene = scene;
+    _velocity = new Point(0, 0);
     pos = new Point(0, 0);
   }
 
@@ -89,10 +82,10 @@ public class Actor extends Sprite
     pos.y = Math.floor((value.top+value.bottom)/2);
   }
 
-  // vspeed
-  public function get vspeed():int
+  // velocity
+  public function get velocity():Point
   {
-    return _vg;
+    return _velocity;
   }
   
   // getMovedRect(dx, dy)
@@ -128,29 +121,24 @@ public class Actor extends Sprite
   // move()
   public virtual function move(v0:Point):void
   {
+    var v:Point;
     if (isGrabbing()) {
       // climing a ladder.
-      var vl:Point = tilemap.getCollisionByRect(bounds, v0.x, v0.y, Tile.isobstacle);
-      pos = Utils.movePoint(pos, vl.x, vl.y);
-      _vg = 0;
+      v = tilemap.getCollisionByRect(bounds, v0.x, v0.y, Tile.isobstacle);
+      _velocity = new Point(v.x, 0);
     } else {
-      // falling.
-      var vf:Point = tilemap.getCollisionByRect(bounds, v0.x, _vg, Tile.isstoppable);
-      pos = Utils.movePoint(pos, vf.x, vf.y);
-      // moving (in air).
-      var vdx:Point = tilemap.getCollisionByRect(bounds, v0.x-vf.x, 0, Tile.isobstacle);
-      pos = Utils.movePoint(pos, vdx.x, vdx.y);
-      var vdy:Point;
-      if (0 < v0.y) {
-	// start climing down.
-	vdy = tilemap.getCollisionByRect(bounds, 0, _vg-vf.y+v0.y, Tile.isobstacle);
-      } else {
-	// falling (cont'd).
-	vdy = tilemap.getCollisionByRect(bounds, 0, _vg-vf.y, Tile.isstoppable);
-      }
-      pos = Utils.movePoint(pos, vdy.x, vdy.y);
-      _vg = Math.min(vf.y+vdx.y+vdy.y+gravity, maxspeed);
+      // falling (in x and y).
+      v = tilemap.getCollisionByRect(bounds, v0.x, _velocity.y, Tile.isstoppable);
+      // falling (in x).
+      v.x = tilemap.getCollisionByRect(bounds, v0.x, v.y, Tile.isstoppable).x;
+      // falling (in y).
+      v.y = tilemap.getCollisionByRect(bounds, v.x, _velocity.y, Tile.isstoppable).y;
+      _velocity = new Point(v.x, Math.min(v.y+gravity, maxspeed));
+      pos = Utils.movePoint(pos, v.x, v.y);
+      // moving.
+      v = tilemap.getCollisionByRect(bounds, v0.x-v.x, Math.max(0, v0.y), Tile.isobstacle);
     }
+    pos = Utils.movePoint(pos, v.x, v.y);
   }
 
   // update()
@@ -170,7 +158,7 @@ public class Actor extends Sprite
   public virtual function jump():void
   {
     if (isLanded()) {
-      _vg = -jumpspeed;
+      _velocity.y = -jumpspeed;
     }
   }
 
@@ -180,6 +168,7 @@ public class Actor extends Sprite
     var shape:Shape = new Shape();
     shape.graphics.beginFill(color);
     shape.graphics.drawRect(0, 0, w, h);
+    shape.graphics.endFill();
     skin = shape;
   }
 }

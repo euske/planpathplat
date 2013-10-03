@@ -49,8 +49,9 @@ public class Person extends Actor
     var start:Point = tilemap.getCoordsByPoint(pos);
     var goal:Point = ((_target.isLanded()) ? 
 		      tilemap.getCoordsByPoint(_target.pos) :
-		      PlanMap.getLandingPoint(tilemap, _target.pos, _target.tilebounds,
-					      jumpdt, falldt, speed, gravity));
+		      PlanMap.getLandingPoint(tilemap, 
+					      _target.pos, _target.tilebounds,
+					      _target.velocity, _target.gravity));
     
     // invalidate plan.
     if (_plan != null) {
@@ -69,9 +70,6 @@ public class Person extends Actor
 			    start, 50)) {
 	_plan = plan;
       }
-    }
-    if (visualizer != null) {
-      visualizer.plan = _plan;
     }
 
     // follow a plan.
@@ -118,7 +116,7 @@ public class Person extends Actor
 	    v = moveToward(startpos);
 	  }
 	} else {
-	  var tmp:Point = (vspeed < 0)? mid : dst;
+	  var tmp:Point = (velocity.y < 0)? mid : dst;
 	  if (!tilemap.hasTile(start.x, start.y, tmp.x, tmp.y, Tile.isstoppable)) {
 	    var tmppos:Point = tilemap.getTilePoint(tmp.x, tmp.y);
 	    v.x = speed * Utils.clamp(-1, (tmppos.x-pos.x), +1);
@@ -132,8 +130,13 @@ public class Person extends Actor
 	//Main.log(" finished.");
 	_action = null;
       }
+
     }
     move(v);
+
+    if (visualizer != null) {
+      visualizer.plan = _plan;
+    }
   }
 
   // repaint()
