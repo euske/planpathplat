@@ -14,31 +14,7 @@ public class PlanMap
 
   private var _a:Array;
 
-  // getLandingPoint
-  public static function getLandingPoint(map:TileMap, pos:Point, 
-					 cb:Rectangle, 
-					 velocity:Point, gravity:int,
-					 maxdt:int=40):Point
-  {
-    var y0:int = Math.floor(pos.y / map.tilesize);
-    for (var dt:int = 0; dt < maxdt; dt++) {
-      var x:int = Math.floor((pos.x+velocity.x*dt) / map.tilesize);
-      var y1:int = Math.floor((pos.y + dt*(dt+1)/2 * gravity) / map.tilesize);
-      for (var y:int = y0; y <= y1; y++) {
-	if (map.hasTile(x+cb.left, y+cb.bottom, 
-			x+cb.right, y+cb.bottom, 
-			Tile.isstoppable)) return null;
-	if (map.hasTile(x+cb.left, y+cb.bottom+1, 
-			x+cb.right, y+cb.bottom+1, 
-			Tile.isstoppable)) {
-	  return new Point(x, y);
-	}
-      }
-      y0 = y1;
-    }
-    return null;
-  }
-
+  // PlanMap(map, goal, bounds)
   public function PlanMap(map:TileMap, goal:Point, bounds:Rectangle)
   {
     this.map = map;
@@ -224,6 +200,32 @@ public class PlanMap
 
     return n;
   }
+
+  // getLandingPoint
+  public static function getLandingPoint(map:TileMap, pos:Point, 
+					 cb:Rectangle, 
+					 velocity:Point, gravity:int,
+					 maxdt:int=40):Point
+  {
+    var y0:int = Math.floor(pos.y / map.tilesize);
+    for (var dt:int = 0; dt < maxdt; dt++) {
+      var x:int = Math.floor((pos.x+velocity.x*dt) / map.tilesize);
+      var y1:int = Math.floor((pos.y + dt*(dt+1)/2 * gravity) / map.tilesize);
+      for (var y:int = y0; y <= y1; y++) {
+	if (map.hasTile(x+cb.left, y+cb.bottom, 
+			x+cb.right, y+cb.bottom, 
+			Tile.isstoppable)) return null;
+	if (map.hasTile(x+cb.left, y+cb.bottom+1, 
+			x+cb.right, y+cb.bottom+1, 
+			Tile.isstoppable)) {
+	  return new Point(x, y);
+	}
+      }
+      y0 = y1;
+    }
+    return null;
+  }
+
 }
 
 } // package

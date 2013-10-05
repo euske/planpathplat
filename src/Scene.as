@@ -101,8 +101,8 @@ public class Scene extends Sprite
     var y0:int = Math.floor(_window.top/tilemap.tilesize);
     var x1:int = Math.ceil(_window.right/tilemap.tilesize);
     var y1:int = Math.ceil(_window.bottom/tilemap.tilesize);
-    return new PlanMap(tilemap, center, 
-		       new Rectangle(x0, y0, x1-x0, y1-y0));
+    var bounds:Rectangle = new Rectangle(x0, y0, x1-x0, y1-y0);
+    return new PlanMap(tilemap, center, bounds);
   }
 }
 

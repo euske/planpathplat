@@ -20,10 +20,15 @@ public class Person extends Actor
   }
 
   // target
+  public function get target():Actor
+  {
+    return _target;
+  }
   public function set target(value:Actor):void
   {
     _target = value;
     _plan = null;
+    _action = null;
   }
 
   private function moveToward(p:Point):Point
@@ -102,7 +107,8 @@ public class Person extends Actor
 	if (isLanded()) {
 	  v = moveToward(dstpos);
 	} else if (!tilemap.hasTile(start.x, start.y, dst.x, dst.y, Tile.isstoppable)) {
-	  v.x = speed * Utils.clamp(-1, (dstpos.x-pos.x), +1);
+	  v = moveToward(dstpos);
+	  v.y = 0;
 	}
 	break;
 	  
@@ -115,10 +121,10 @@ public class Person extends Actor
 	    v = moveToward(startpos);
 	  }
 	} else {
-	  var tmp:Point = (velocity.y < 0)? mid : dst;
-	  if (!tilemap.hasTile(start.x, start.y, tmp.x, tmp.y, Tile.isstoppable)) {
-	    var tmppos:Point = tilemap.getTilePoint(tmp.x, tmp.y);
-	    v.x = speed * Utils.clamp(-1, (tmppos.x-pos.x), +1);
+	  mid = (velocity.y < 0)? mid : dst;
+	  if (!tilemap.hasTile(start.x, start.y, mid.x, mid.y, Tile.isstoppable)) {
+	    v = moveToward(tilemap.getTilePoint(mid.x, mid.y));
+	    v.y = 0;
 	  }
 	}
 	break;

@@ -42,6 +42,7 @@ public class Player extends Actor
       } else if (y0 == r.top && y1 < r.bottom) {
 	v.x = 0; v.y = -1; 
       }
+
     } else if (v.x == 0 && v.y != 0) {
       // moved up/down.
       var x0:int = r.left;

@@ -3,7 +3,6 @@ package {
 import flash.display.Shape;
 import flash.display.Sprite;
 import flash.display.DisplayObject;
-import flash.events.Event;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
@@ -63,14 +62,6 @@ public class Actor extends Sprite
     }
   }
 
-  // tilebounds
-  public function get tilebounds():Rectangle
-  {
-    var w:int = skin.width/tilemap.tilesize;
-    var h:int = skin.height/tilemap.tilesize;
-    return new Rectangle(0, -(h-1), w-1, h-1);
-  }
-
   // bounds
   public function get bounds():Rectangle
   {
@@ -80,6 +71,14 @@ public class Actor extends Sprite
   {
     pos.x = Math.floor((value.left+value.right)/2);
     pos.y = Math.floor((value.top+value.bottom)/2);
+  }
+
+  // tilebounds
+  public function get tilebounds():Rectangle
+  {
+    var w:int = skin.width/tilemap.tilesize;
+    var h:int = skin.height/tilemap.tilesize;
+    return new Rectangle(0, -(h-1), w-1, h-1);
   }
 
   // velocity
@@ -141,6 +140,14 @@ public class Actor extends Sprite
     pos = Utils.movePoint(pos, v.x, v.y);
   }
 
+  // jump()
+  public virtual function jump():void
+  {
+    if (isLanded()) {
+      _velocity.y = -jumpspeed;
+    }
+  }
+
   // update()
   public virtual function update():void
   {
@@ -152,14 +159,6 @@ public class Actor extends Sprite
     var p:Point = scene.translatePoint(pos);
     this.x = p.x;
     this.y = p.y;
-  }
-
-  // jump()
-  public virtual function jump():void
-  {
-    if (isLanded()) {
-      _velocity.y = -jumpspeed;
-    }
   }
 
   // createSkin(w, h, color)
