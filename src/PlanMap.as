@@ -8,9 +8,9 @@ import flash.geom.Rectangle;
 public class PlanMap
 {
   public var map:TileMap;
-  public var start:Point;
   public var goal:Point;
   public var bounds:Rectangle;
+  public var start:Point;
 
   private var _a:Array;
 
@@ -48,9 +48,9 @@ public class PlanMap
 
   // addPlan(plan, b)
   public function addPlan(cb:Rectangle, 
-			   jumpdt:int, speed:int, gravity:int,
-			   start:Point=null, n:int=1000,
-			   falldx:int=10, falldy:int=20):int
+			  jumpdt:int, speed:int, gravity:int,
+			  start:Point=null, n:int=1000,
+			  falldx:int=10, falldy:int=20):int
   {
     var jumpdx:int = Math.floor(jumpdt*speed / map.tilesize);
     var jumpdy:int = -Math.floor(jumpdt*(jumpdt+1)/2 * gravity / map.tilesize);
@@ -60,6 +60,9 @@ public class PlanMap
 		     start.x+cb.right, start.y+cb.bottom+1, 
 		     Tile.isstoppable)) return 0;
     this.start = start;
+
+    if (goal.x < bounds.left || bounds.right < goal.x ||
+	goal.y < bounds.top || bounds.bottom < goal.y) return 0;
     
     var e1:PlanEntry = _a[goal.y-bounds.top][goal.x-bounds.left];
     e1.cost = 0;
@@ -131,7 +134,7 @@ public class PlanMap
 	for (fdx = 1; fdx <= falldx; fdx++) {
 	  fx = p.x-vx*fdx;
 	  if (fx < bounds.left || bounds.right < fx) break;
-	  fdt = Math.floor(map.tilesize*fdx/speed);
+	  fdt = Math.ceil(map.tilesize*fdx/speed);
 	  fdy = Math.ceil(fdt*(fdt+1)/2 * gravity / map.tilesize);
 	  for (; fdy <= falldy; fdy++) {
 	    fy = p.y-fdy;
@@ -159,13 +162,13 @@ public class PlanMap
 	for (fdx = 0; fdx <= falldx; fdx++) {
 	  fx = p.x-vx*fdx;
 	  if (fx < bounds.left || bounds.right < fx) break;
-	  fdt = Math.floor(map.tilesize*fdx/speed);
+	  fdt = Math.ceil(map.tilesize*fdx/speed);
 	  fdy = Math.ceil(fdt*(fdt+1)/2 * gravity / map.tilesize);
 	  for (; fdy <= falldy; fdy++) {
 	    fy = p.y-fdy;
 	    if (fy < bounds.top || bounds.bottom < fy) break;
 	    if (map.hasTile(p.x+bx1, p.y+cb.bottom, 
-			    fx, fy+cb.top, 
+			    fx, fy+cb.top-1, 
 			    Tile.isstoppable)) continue;
 	    for (var jdx:int = 1; jdx <= jumpdx; jdx++) {
 	      var jx:int = fx-vx*jdx;
@@ -175,7 +178,7 @@ public class PlanMap
 	      if (!map.hasTile(jx+cb.left, jy+cb.bottom+1, 
 			       jx+cb.right, jy+cb.bottom+1, 
 			       Tile.isstoppable)) continue;
-	      if (map.hasTile(fx+bx1-vx, fy+cb.top, 
+	      if (map.hasTile(fx+bx1-vx, fy+cb.top-1, 
 			      jx+bx0, jy+cb.bottom, 
 	      		      Tile.isstoppable)) continue;
 	      e1 = _a[jy-bounds.top][jx-bounds.left];
@@ -184,7 +187,7 @@ public class PlanMap
 		e1.action = PlanEntry.JUMP;
 		e1.cost = cost;
 		e1.next = e0;
-		e1.arg = new Point(fx-vx, fy);
+		e1.arg = new Point(fx, fy);
 		queue.push(new QueueItem(e1, start));
 	      }
 	    }
@@ -205,13 +208,15 @@ public class PlanMap
   public static function getLandingPoint(map:TileMap, pos:Point, 
 					 cb:Rectangle, 
 					 velocity:Point, gravity:int,
-					 maxdt:int=40):Point
+					 maxdt:int=20):Point
   {
     var y0:int = Math.floor(pos.y / map.tilesize);
     for (var dt:int = 0; dt < maxdt; dt++) {
       var x:int = Math.floor((pos.x+velocity.x*dt) / map.tilesize);
-      var y1:int = Math.floor((pos.y + dt*(dt+1)/2 * gravity) / map.tilesize);
+      if (x < 0 || map.mapwidth <= x) continue;
+      var y1:int = Math.ceil((pos.y + dt*(dt+1)/2 * gravity) / map.tilesize);
       for (var y:int = y0; y <= y1; y++) {
+	if (y < 0 || map.mapheight <= y) continue;
 	if (map.hasTile(x+cb.left, y+cb.bottom, 
 			x+cb.right, y+cb.bottom, 
 			Tile.isstoppable)) return null;

@@ -238,8 +238,8 @@ class TileMapCache
     if (y1 < y0) {
       t = y0; y0 = y1; y1 = t;
     }
-    x0 = Math.max(-1, Math.min(_data.width-1, x0));
-    y0 = Math.max(-1, Math.min(_data.height-1, y0));
+    x0 = Math.max(-1, Math.min(_data.width-2, x0));
+    y0 = Math.max(-1, Math.min(_data.height-2, y0));
     x1 = Math.max(0, Math.min(_data.width-1, x1+1));
     y1 = Math.max(0, Math.min(_data.height-1, y1+1));
     return (_data.getPixel(x1, y1)+
