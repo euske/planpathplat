@@ -36,13 +36,13 @@ public class MainState extends GameState
     player.createSkin(tilesize*1, tilesize*3, 0x44ff44);
     scene.add(player);
 
-    // var enemy1:Person = new Person(scene);
-    // enemy1.bounds = tilemap.getTileRect(6, 6);
-    // enemy1.createSkin(tilesize*2, tilesize*3, 0xff44ff);
-    // enemy1.target = player;
-    // enemy1.visualizer = new PlanVisualizer(tilemap);
-    // scene.add(enemy1)
-    // addChild(enemy1.visualizer);
+    var enemy1:Person = new Person(scene);
+    enemy1.bounds = tilemap.getTileRect(6, 6);
+    enemy1.createSkin(tilesize*2, tilesize*3, 0xff44ff);
+    enemy1.target = player;
+    enemy1.visualizer = new PlanVisualizer(tilemap);
+    scene.add(enemy1)
+    addChild(enemy1.visualizer);
 
     var enemy2:Person = new Person(scene);
     enemy2.bounds = tilemap.getTileRect(10, 10);

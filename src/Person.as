@@ -12,6 +12,7 @@ public class Person extends Actor
   private var _target:Actor;
   private var _plan:PlanMap;
   private var _action:PlanEntry;
+  private var _jumping:Boolean;
 
   // Person(image)
   public function Person(scene:Scene)
@@ -29,6 +30,7 @@ public class Person extends Actor
     _target = value;
     _plan = null;
     _action = null;
+    _jumping = false;
   }
 
   private function moveToward(p:Point):Point
@@ -82,14 +84,13 @@ public class Person extends Actor
       var action:PlanEntry = _plan.getEntry(cur.x, cur.y);
       if (action != null && action.next != null) {
 	_action = action;
+	_jumping = false;
 	Main.log(this+": begin: "+_action+" for "+_plan.goal);
       }
     }
     if (_action != null) {
-      var startpos:Point = tilemap.getTilePoint(cur.x, cur.y);
       var dst:Point = _action.next.p;
       var dstpos:Point = tilemap.getTilePoint(dst.x, dst.y);
-      //Main.log(" cur="+cur+", "+startpos);
       //Main.log(" dst="+dst+", "+dstpos);
       //Main.log(" pos="+pos+", landed="+isLanded()+", jumpable="+isJumpable());
 
@@ -106,24 +107,22 @@ public class Person extends Actor
       case PlanEntry.FALL:
 	if (isLanded()) {
 	  v = moveToward(dstpos);
-	} else if (!tilemap.hasTile(cur.x, cur.y, dst.x, dst.y, Tile.isstoppable)) {
+	} else if (!_action.hasObstacle(cur, tilebounds)) {
 	  v = moveToward(dstpos);
 	  v.y = 0;
 	}
 	break;
 	  
       case PlanEntry.JUMP:
-	var mid:Point = Point(_action.arg);
-	if (_action.p.equals(cur)) {
-	  if (isJumpable()) {
-	    jump();
-	  } else {
-	    v = moveToward(startpos);
-	  }
+	if (!_jumping && (!isLanded() || _action.hasObstacle(cur, tilebounds))) {
+	  v = moveToward(tilemap.getTilePoint(cur.x, cur.y));
 	} else {
-	  mid = (velocity.y < 0)? mid : dst;
-	  Main.log(" cur="+cur+", mid="+mid);
-	  if (!tilemap.hasTile(cur.x, cur.y, mid.x, mid.y, Tile.isstoppable)) {
+	  if (!_jumping) {
+	    jump();
+	    _jumping = true;
+	  }
+	  var mid:Point = _action.getDestination(cur);
+	  if (mid != null) {
 	    v = moveToward(tilemap.getTilePoint(mid.x, mid.y));
 	    v.y = 0;
 	  }
@@ -133,7 +132,7 @@ public class Person extends Actor
 
       // finishing an action.
       if (_action.next.p.equals(cur)) {
-	Main.log(this+": end: "+action);
+	Main.log(this+": end: "+_action);
 	_action = null;
       }
 

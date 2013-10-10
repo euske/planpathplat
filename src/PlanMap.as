@@ -26,7 +26,7 @@ public class PlanMap
       var b:Array = new Array(bounds.width+1);
       for (var x:int = bounds.left; x <= bounds.right; x++) {
 	var p:Point = new Point(x, y);
-	b[x-bounds.left] = new PlanEntry(p, PlanEntry.NONE, maxcost, null);
+	b[x-bounds.left] = new PlanEntry(map, p, PlanEntry.NONE, maxcost);
       }
       _a[y-bounds.top] = b;
     }
@@ -187,7 +187,7 @@ public class PlanMap
 		e1.action = PlanEntry.JUMP;
 		e1.cost = cost;
 		e1.next = e0;
-		e1.arg = new Point(fx, fy);
+		e1.arg = new Point(fx-vx, fy);
 		queue.push(new QueueItem(e1, start));
 	      }
 	    }
