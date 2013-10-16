@@ -65,7 +65,7 @@ public class Actor extends Sprite
   // bounds
   public function get bounds():Rectangle
   {
-    return new Rectangle(pos.x+skin.x, pos.y+skin.y, skin.width, skin.height);
+    return getBoundsAt(pos);
   }
   public function set bounds(value:Rectangle):void
   {
@@ -87,10 +87,16 @@ public class Actor extends Sprite
     return _velocity;
   }
   
-  // getMovedRect(dx, dy)
-  public function getMovedRect(dx:int, dy:int):Rectangle
+  // getMovedBounds(dx, dy)
+  public function getMovedBounds(dx:int, dy:int):Rectangle
   {
     return Utils.moveRect(bounds, dx, dy);
+  }
+
+  // getBoundsAt(p)
+  public function getBoundsAt(p:Point):Rectangle
+  {
+    return new Rectangle(p.x+skin.x, p.y+skin.y, skin.width, skin.height);
   }
 
   // isLanded()

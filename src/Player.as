@@ -23,7 +23,7 @@ public class Player extends Actor
 
     var p:Point, t:Rectangle;
     var v:Point = dir.clone();
-    var r:Rectangle = getMovedRect(v.x*speed, v.y*speed);
+    var r:Rectangle = getMovedBounds(v.x*speed, v.y*speed);
     var a:Array = tilemap.scanTileByRect(r, Tile.isobstacle);
     if (v.x != 0 && v.y == 0) {
       // moved left/right.
