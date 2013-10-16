@@ -168,7 +168,7 @@ public class PlanMap
 	    fy = p.y-fdy;
 	    if (fy < bounds.top || bounds.bottom < fy) break;
 	    if (map.hasTile(p.x+bx1, p.y+cb.bottom, 
-			    fx, fy+cb.top-1, 
+			    fx+bx0, fy+cb.top-1, 
 			    Tile.isstoppable)) break;
 	    for (var jdx:int = 1; jdx <= jumpdx; jdx++) {
 	      var jx:int = fx-vx*jdx;
@@ -187,7 +187,7 @@ public class PlanMap
 		e1.action = PlanEntry.JUMP;
 		e1.cost = cost;
 		e1.next = e0;
-		e1.arg = new Point(fx-vx, fy);
+		e1.mid = new Point(fx-vx, fy);
 		queue.push(new QueueItem(e1, start));
 	      }
 	    }

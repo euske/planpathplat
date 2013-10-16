@@ -19,7 +19,7 @@ public class PlanEntry
   public var cost:int;
 
   public var next:PlanEntry;
-  public var arg:Object;
+  public var mid:Point;
 
   public function PlanEntry(map:TileMap, p:Point, action:String, cost:int)
   {
@@ -32,35 +32,6 @@ public class PlanEntry
   public function toString():String
   {
     return ("<PlanEntry: ("+p.x+","+p.y+") action="+action+", cost="+cost+">");
-  }
-
-  public function hasObstacle(src:Point, cb:Rectangle):Boolean
-  {
-    var mid:Point = getDestination(src);
-    var x0:int = Math.min(src.x+cb.left, mid.x);
-    var x1:int = Math.max(src.x+cb.right, mid.x);
-    var y0:int = Math.min(src.y+cb.top, mid.y);
-    var y1:int = Math.max(src.y+cb.bottom, mid.y);
-    Main.log("bounds="+x0+","+y0+"-"+x1+","+y1);
-    return map.hasTile(x0, y0, x1, y1, Tile.isstoppable);
-  }
-
-  public function getDestination(src:Point):Point
-  {
-    var mid:Point = Point(arg);
-    if (mid != null &&
-	inbetween(p.x, src.x, mid.x) &&
-	inbetween(p.y, src.y, mid.y)) {
-      return mid;
-    } else {
-      return next.p;
-    }
-  }
-
-  private function inbetween(v0:int, v:int, v1:int):Boolean
-  {
-    return ((v0 <= v && v <= v1) || 
-	    (v1 <= v && v <= v0));
   }
 
 }

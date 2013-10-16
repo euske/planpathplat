@@ -89,8 +89,10 @@ public class Person extends Actor
       }
     }
     if (_action != null) {
+      var mid:Point = _action.mid;
       var dst:Point = _action.next.p;
       var dstpos:Point = tilemap.getTilePoint(dst.x, dst.y);
+      var r:Rectangle;
       //Main.log(" dst="+dst+", "+dstpos);
       //Main.log(" pos="+pos+", landed="+isLanded()+", jumpable="+isJumpable());
 
@@ -107,23 +109,29 @@ public class Person extends Actor
       case PlanEntry.FALL:
 	if (isLanded()) {
 	  v = moveToward(dstpos);
-	} else if (!_action.hasObstacle(cur, tilebounds)) {
-	  v = moveToward(dstpos);
-	  v.y = 0;
+	} else {
+	  r = bounds.union(tilemap.getTileRect(dst.x, dst.y));
+	  if (!tilemap.hasTileByRect(r, Tile.isstoppable)) {
+	    v = moveToward(dstpos);
+	    v.y = 0;
+	  }
 	}
 	break;
 	  
       case PlanEntry.JUMP:
-	if (!_jumping && (!isLanded() || _action.hasObstacle(cur, tilebounds))) {
-	  v = moveToward(tilemap.getTilePoint(cur.x, cur.y));
-	} else {
-	  if (!_jumping) {
+	if (!_jumping) {
+	  r = bounds.union(tilemap.getTileRect(mid.x, mid.y));
+	  if (isLanded() && !tilemap.hasTileByRect(r, Tile.isstoppable)) {
 	    jump();
 	    _jumping = true;
+	  } else {
+	    v = moveToward(tilemap.getTilePoint(cur.x, cur.y));
 	  }
-	  var mid:Point = _action.getDestination(cur);
-	  if (mid != null) {
-	    v = moveToward(tilemap.getTilePoint(mid.x, mid.y));
+	} else {
+	  r = bounds.union(tilemap.getTileRect(dst.x, dst.y));
+	  // XXX
+	  if (!tilemap.hasTileByRect(r, Tile.isstoppable)) {
+	    v = moveToward(tilemap.getTilePoint(dst.x, dst.y));
 	    v.y = 0;
 	  }
 	}
