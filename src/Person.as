@@ -33,21 +33,6 @@ public class Person extends Actor
     _jumping = false;
   }
 
-  private function moveToward(p:Point):Point
-  {
-    var v:Point = new Point(speed * Utils.clamp(-1, (p.x-pos.x), +1),
-			    speed * Utils.clamp(-1, (p.y-pos.y), +1));
-    if (isMovable(v.x, v.y)) {
-      return v;
-    } else if (isMovable(v.x, 0)) {
-      return new Point(v.x, 0);
-    } else if (isMovable(0, v.y)) {
-      return new Point(0, v.y);
-    } else {
-      return new Point(0, 0);
-    }
-  }
-
   // update()
   public override function update():void
   {
@@ -113,7 +98,6 @@ public class Person extends Actor
 	  r = bounds.union(tilemap.getTileRect(dst.x, dst.y));
 	  if (!tilemap.hasTileByRect(r, Tile.isstoppable)) {
 	    v = moveToward(dstpos);
-	    v.y = 0;
 	  }
 	}
 	break;
@@ -132,7 +116,6 @@ public class Person extends Actor
 	  // XXX
 	  if (!tilemap.hasTileByRect(r, Tile.isstoppable)) {
 	    v = moveToward(tilemap.getTilePoint(dst.x, dst.y));
-	    v.y = 0;
 	  }
 	}
 	break;
@@ -150,6 +133,24 @@ public class Person extends Actor
     if (visualizer != null) {
       visualizer.plan = _plan;
     }
+  }
+
+  private function moveToward(p:Point):Point
+  {
+    var v:Point = new Point(speed * Utils.clamp(-1, (p.x-pos.x), +1),
+			    speed * Utils.clamp(-1, (p.y-pos.y), +1));
+    if (isLanded()) {
+      if (isMovable(v.x, v.y)) {
+	return v;
+      } else if (isMovable(0, v.y)) {
+	return new Point(0, v.y);
+      }
+    } else {
+      if (isMovable(v.x, 0)) {
+	return new Point(v.x, 0);
+      }
+    }
+    return new Point(0, 0);
   }
 
   // repaint()
