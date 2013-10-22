@@ -39,6 +39,7 @@ public class Person extends Actor
     super.update();
     var v:Point = new Point(0, 0);
     var cur:Point = tilemap.getCoordsByPoint(pos);
+    var curpos:Point = tilemap.getTilePoint(cur.x, cur.y);
     var goal:Point = ((_target.isLanded())?
 		      tilemap.getCoordsByPoint(_target.pos) :
 		      PlanMap.getLandingPoint(tilemap, _target.pos,
@@ -95,8 +96,7 @@ public class Person extends Actor
 	if (isLanded()) {
 	  v = moveToward(dstpos);
 	} else {
-	  r = bounds.union(tilemap.getTileRect(dst.x, dst.y));
-	  if (!tilemap.hasTileByRect(r, Tile.isstoppable)) {
+	  if (isReachableTo(dst)) {
 	    v = moveToward(dstpos);
 	  }
 	}
@@ -104,18 +104,15 @@ public class Person extends Actor
 	  
       case PlanEntry.JUMP:
 	if (!_jumping) {
-	  r = bounds.union(tilemap.getTileRect(mid.x, mid.y));
-	  if (isLanded() && !tilemap.hasTileByRect(r, Tile.isstoppable)) {
+	  if (isLanded() && isReachableTo(mid)) {
 	    jump();
 	    _jumping = true;
 	  } else {
-	    v = moveToward(tilemap.getTilePoint(cur.x, cur.y));
+	    v = moveToward(curpos);
 	  }
 	} else {
-	  r = bounds.union(tilemap.getTileRect(dst.x, dst.y));
-	  // XXX
-	  if (!tilemap.hasTileByRect(r, Tile.isstoppable)) {
-	    v = moveToward(tilemap.getTilePoint(dst.x, dst.y));
+	  if (isReachableTo(dst)) {
+	    v = moveToward(dstpos);
 	  }
 	}
 	break;
@@ -151,6 +148,12 @@ public class Person extends Actor
       }
     }
     return new Point(0, 0);
+  }
+
+  private function isReachableTo(p:Point):Boolean
+  {
+    var r:Rectangle = bounds.union(tilemap.getTileRect(p.x, p.y));
+    return (!tilemap.hasTileByRect(r, Tile.isstoppable));
   }
 
   // repaint()
