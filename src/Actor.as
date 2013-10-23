@@ -102,7 +102,7 @@ public class Actor extends Sprite
   // isLanded()
   public function isLanded():Boolean
   {
-    return tilemap.hasCollisionByRect(bounds, 0, 1, Tile.isstoppable);
+    return 0 <= _velocity.y && tilemap.hasCollisionByRect(bounds, 0, 1, Tile.isstoppable);
   }
 
   // isGrabbing()
@@ -123,27 +123,39 @@ public class Actor extends Sprite
     return (!tilemap.hasCollisionByRect(bounds, dx, dy, Tile.isobstacle));
   }
 
-  // move()
-  public virtual function move(v0:Point):void
+  // fall()
+  public virtual function fall():void
   {
-    var v:Point;
-    if (isGrabbing()) {
-      // climing a ladder.
-      v = tilemap.getCollisionByRect(bounds, v0.x, v0.y, Tile.isobstacle);
-      _velocity = new Point(v.x, 0);
-    } else {
+    if (!isGrabbing() && !isLanded()) {
+      var v:Point;
       // falling (in x and y).
-      v = tilemap.getCollisionByRect(bounds, v0.x, _velocity.y, Tile.isstoppable);
+      v = tilemap.getCollisionByRect(bounds, _velocity.x, _velocity.y, Tile.isstoppable);
       // falling (in x).
-      v.x = tilemap.getCollisionByRect(bounds, v0.x, v.y, Tile.isstoppable).x;
+      v.x = tilemap.getCollisionByRect(bounds, _velocity.x, v.y, Tile.isstoppable).x;
       // falling (in y).
       v.y = tilemap.getCollisionByRect(bounds, v.x, _velocity.y, Tile.isstoppable).y;
-      _velocity = new Point(v.x, Math.min(v.y+gravity, maxspeed));
       pos = Utils.movePoint(pos, v.x, v.y);
-      // moving.
-      v = tilemap.getCollisionByRect(bounds, v0.x-v.x, Math.max(0, v0.y), Tile.isobstacle);
+      _velocity = new Point(v.x, Math.min(v.y+gravity, maxspeed));
     }
-    pos = Utils.movePoint(pos, v.x, v.y);
+  }
+
+  // move()
+  public virtual function move(v:Point):void
+  {
+    if (isGrabbing()) {
+      // climing a ladder.
+      v = tilemap.getCollisionByRect(bounds, v.x, v.y, Tile.isobstacle);
+      pos = Utils.movePoint(pos, v.x, v.y);
+      _velocity = new Point(0, 0);
+    } else if (isLanded()) {
+      // moving.
+      v = tilemap.getCollisionByRect(bounds, v.x, Math.max(0, v.y), Tile.isobstacle);
+      pos = Utils.movePoint(pos, v.x, v.y);
+      _velocity = new Point(0, 0);
+    } else {
+      // jumping/falling.
+      _velocity = new Point(v.x, _velocity.y);
+    }
   }
 
   // jump()

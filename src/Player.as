@@ -20,6 +20,7 @@ public class Player extends Actor
   public override function update():void
   {
     super.update();
+    fall();
 
     var p:Point, t:Rectangle;
     var v:Point = dir.clone();

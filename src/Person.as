@@ -37,6 +37,8 @@ public class Person extends Actor
   public override function update():void
   {
     super.update();
+    fall();
+
     var v:Point = new Point(0, 0);
     var cur:Point = tilemap.getCoordsByPoint(pos);
     var curpos:Point = tilemap.getTilePoint(cur.x, cur.y);
