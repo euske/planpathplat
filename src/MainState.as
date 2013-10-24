@@ -45,7 +45,7 @@ public class MainState extends GameState
     addChild(enemy1.visualizer);
 
     var enemy2:Person = new Person(scene);
-    enemy2.bounds = tilemap.getTileRect(10, 10);
+    enemy2.bounds = tilemap.getTileRect(10, 9);
     enemy2.createSkin(tilesize*1, tilesize*2, 0x44ffff);
     enemy2.target = player;
     enemy2.visualizer = new PlanVisualizer(tilemap);

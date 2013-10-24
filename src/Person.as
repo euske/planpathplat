@@ -39,7 +39,6 @@ public class Person extends Actor
     super.update();
     fall();
 
-    var v:Point = new Point(0, 0);
     var cur:Point = tilemap.getCoordsByPoint(pos);
     var curpos:Point = tilemap.getTilePoint(cur.x, cur.y);
     var goal:Point = ((_target.isLanded())?
@@ -87,19 +86,19 @@ public class Person extends Actor
       // Get a micro-level (greedy) plan.
       switch (_action.action) {
       case PlanEntry.WALK:
-	v = moveToward(dstpos);
+	moveToward(dstpos);
 	break;
 	  
       case PlanEntry.CLIMB:
-	v = moveToward(dstpos);
+	moveToward(dstpos);
 	break;
 	  
       case PlanEntry.FALL:
 	if (isLanded()) {
-	  v = moveToward(dstpos);
+	  moveToward(dstpos);
 	} else {
 	  if (isReachableTo(dst)) {
-	    v = moveToward(dstpos);
+	    moveToward(dstpos);
 	  }
 	}
 	break;
@@ -110,11 +109,11 @@ public class Person extends Actor
 	    jump();
 	    _jumping = true;
 	  } else {
-	    v = moveToward(curpos);
+	    moveToward(curpos);
 	  }
 	} else {
 	  if (isReachableTo(dst)) {
-	    v = moveToward(dstpos);
+	    moveToward(dstpos);
 	  }
 	}
 	break;
@@ -127,29 +126,27 @@ public class Person extends Actor
       }
 
     }
-    move(v);
 
     if (visualizer != null) {
       visualizer.plan = _plan;
     }
   }
 
-  private function moveToward(p:Point):Point
+  private function moveToward(p:Point):void
   {
     var v:Point = new Point(speed * Utils.clamp(-1, (p.x-pos.x), +1),
 			    speed * Utils.clamp(-1, (p.y-pos.y), +1));
     if (isLanded()) {
       if (isMovable(v.x, v.y)) {
-	return v;
+	move(v);
       } else if (isMovable(0, v.y)) {
-	return new Point(0, v.y);
+	move(new Point(0, v.y));
       }
     } else {
       if (isMovable(v.x, 0)) {
-	return new Point(v.x, 0);
+	move(new Point(v.x, 0));
       }
     }
-    return new Point(0, 0);
   }
 
   private function isReachableTo(p:Point):Boolean
