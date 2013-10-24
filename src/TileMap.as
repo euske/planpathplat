@@ -174,11 +174,10 @@ public class TileMap extends Bitmap
       }
     }
     var r:Array = new Array();
-    e = a[h][w];
-    while (0 < e.d) {
+    e = a[h][w].next;
+    while (e != null) {
       r.push(e.p);
       e = e.next;
-      if (e == null) return null;
     }
     return r;
   }

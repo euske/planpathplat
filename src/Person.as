@@ -77,8 +77,12 @@ public class Person extends Actor
     }
     if (_action != null) {
       var dst:Point = _action.next.p;
+      var path:Array = tilemap.findPath(dst.x, dst.y, cur.x, cur.y, 
+					Tile.isstoppable, tilebounds);
+      if (0 < path.length) {
+	dst = Point(path[0]);
+      }
       var dstpos:Point = tilemap.getTilePoint(dst.x, dst.y);
-      var r:Rectangle;
       //Main.log(" dst="+dst+", "+dstpos);
       //Main.log(" pos="+pos+", landed="+isLanded()+", jumpable="+isJumpable());
 
@@ -93,27 +97,19 @@ public class Person extends Actor
 	break;
 	  
       case PlanEntry.FALL:
-	if (isLanded()) {
-	  moveToward(dstpos);
-	} else {
-	  if (isReachableTo(dst)) {
-	    moveToward(dstpos);
-	  }
-	}
+	moveToward(dstpos);
 	break;
 	  
       case PlanEntry.JUMP:
 	if (!_jumping) {
-	  if (isLanded() && isReachableTo(dst)) {
+	  if (isLanded() && !isGrabbing()) {
 	    jump();
 	    _jumping = true;
 	  } else {
 	    moveToward(curpos);
 	  }
 	} else {
-	  if (isReachableTo(dst)) {
-	    moveToward(dstpos);
-	  }
+	  moveToward(dstpos);
 	}
 	break;
       }
@@ -140,21 +136,14 @@ public class Person extends Actor
 	move(v);
       } else if (isMovable(0, v.y)) {
 	move(new Point(0, v.y));
+      } else if (isMovable(v.x, 0)) {
+	move(new Point(v.x, 0));
       }
     } else {
       if (isMovable(v.x, 0)) {
 	move(new Point(v.x, 0));
       }
     }
-  }
-
-  private function isReachableTo(dst:Point):Boolean
-  {
-    var src:Point = tilemap.getCoordsByPoint(pos);
-    var a:Array = tilemap.findPath(dst.x, dst.y, src.x, src.y, 
-				   Tile.isstoppable, tilebounds);
-    Main.log(this+": a="+a);
-    return (a != null);
   }
 
   // repaint()

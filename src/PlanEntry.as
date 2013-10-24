@@ -17,7 +17,9 @@ public class PlanEntry
   public var p:Point;
   public var action:String;
   public var cost:int;
+
   public var next:PlanEntry;
+  public var mid:Point;
 
   public function PlanEntry(map:TileMap, p:Point, action:String, cost:int)
   {

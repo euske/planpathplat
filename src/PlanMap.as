@@ -187,6 +187,7 @@ public class PlanMap
 		e1.action = PlanEntry.JUMP;
 		e1.cost = cost;
 		e1.next = e0;
+		e1.mid = new Point(fx, fy);
 		queue.push(new QueueItem(e1, start));
 	      }
 	    }
