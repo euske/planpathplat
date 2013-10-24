@@ -137,6 +137,52 @@ public class TileMap extends Bitmap
     return (cache.getCount(x0, y0, x1, y1) != 0);
   }
 
+  // findPath(x0, y0, x1, x1, f, b)
+  public function findPath(x0:int, y0:int, x1:int, y1:int, f:Function, cb:Rectangle):Array
+  {
+    var a:Array = new Array();
+    var w:int = Math.abs(x1-x0);
+    var h:int = Math.abs(y1-y0);
+    var inf:int = (w+h+1)*2;
+    var vx:int = (x0 <= x1)? +1 : -1;
+    var vy:int = (y0 <= y1)? +1 : -1;
+    for (var dy:int = 0; dy <= h; dy++) {
+      a.push(new Array());
+      var y:int = y0+dy*vy;
+      for (var dx:int = 0; dx <= w; dx++) {
+	var x:int = x0+dx*vx;
+	var p:Point = new Point(x, y);
+	var e:PathEntry = null;
+	var d:int;
+	if (dx == 0 && dy == 0) {
+	  d = 0;
+	} else {
+	  d = inf;
+	  if (!hasTile(x+cb.left, y+cb.top, x+cb.right, y+cb.bottom, f)) {
+	    if (0 < dx && a[dy][dx-1].d < d) {
+	      e = a[dy][dx-1];
+	      d = e.d;
+	    }
+	    if (0 < dy && a[dy-1][dx].d < d) {
+	      e = a[dy-1][dx];
+	      d = e.d;
+	    }
+	  }
+	  d++;
+	}
+	a[dy].push(new PathEntry(p, d, e));
+      }
+    }
+    var r:Array = new Array();
+    e = a[h][w];
+    while (0 < e.d) {
+      r.push(e.p);
+      e = e.next;
+      if (e == null) return null;
+    }
+    return r;
+  }
+
   // getTilePoint(x, y)
   public function getTilePoint(x:int, y:int):Point
   {
@@ -205,6 +251,8 @@ public class TileMap extends Bitmap
 } // package
 
 
+import flash.geom.Point;
+import flash.geom.Rectangle;
 import flash.display.BitmapData;
 
 class TileMapCache 
@@ -246,5 +294,18 @@ class TileMapCache
 	    ((x0<0 || y0<0)? 0 : _data.getPixel(x0, y0))-
 	    ((y0<0)? 0 : _data.getPixel(x1, y0))-
 	    ((x0<0)? 0 : _data.getPixel(x0, y1)));
+  }
+}
+
+class PathEntry
+{
+  public var p:Point;
+  public var d:int;
+  public var next:PathEntry;
+  public function PathEntry(p:Point, d:int, next:PathEntry)
+  {
+    this.p = p;
+    this.d = d;
+    this.next = next;
   }
 }

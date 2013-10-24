@@ -76,7 +76,6 @@ public class Person extends Actor
       }
     }
     if (_action != null) {
-      var mid:Point = _action.mid;
       var dst:Point = _action.next.p;
       var dstpos:Point = tilemap.getTilePoint(dst.x, dst.y);
       var r:Rectangle;
@@ -105,7 +104,7 @@ public class Person extends Actor
 	  
       case PlanEntry.JUMP:
 	if (!_jumping) {
-	  if (isLanded() && isReachableTo(mid)) {
+	  if (isLanded() && isReachableTo(dst)) {
 	    jump();
 	    _jumping = true;
 	  } else {
@@ -149,10 +148,13 @@ public class Person extends Actor
     }
   }
 
-  private function isReachableTo(p:Point):Boolean
+  private function isReachableTo(dst:Point):Boolean
   {
-    var r:Rectangle = bounds.union(tilemap.getTileRect(p.x, p.y));
-    return (!tilemap.hasTileByRect(r, Tile.isstoppable));
+    var src:Point = tilemap.getCoordsByPoint(pos);
+    var a:Array = tilemap.findPath(dst.x, dst.y, src.x, src.y, 
+				   Tile.isstoppable, tilebounds);
+    Main.log(this+": a="+a);
+    return (a != null);
   }
 
   // repaint()

@@ -21,12 +21,12 @@ public class PlanMap
     this.goal = goal;
     this.bounds = bounds;
     _a = new Array(bounds.height+1);
-    var maxcost:int = (bounds.width+bounds.height+1)*2;
+    var inf:int = (bounds.width+bounds.height+1)*2;
     for (var y:int = bounds.top; y <= bounds.bottom; y++) {
       var b:Array = new Array(bounds.width+1);
       for (var x:int = bounds.left; x <= bounds.right; x++) {
 	var p:Point = new Point(x, y);
-	b[x-bounds.left] = new PlanEntry(map, p, PlanEntry.NONE, maxcost);
+	b[x-bounds.left] = new PlanEntry(map, p, PlanEntry.NONE, inf);
       }
       _a[y-bounds.top] = b;
     }
@@ -187,7 +187,6 @@ public class PlanMap
 		e1.action = PlanEntry.JUMP;
 		e1.cost = cost;
 		e1.next = e0;
-		e1.mid = new Point(fx-vx, fy);
 		queue.push(new QueueItem(e1, start));
 	      }
 	    }
