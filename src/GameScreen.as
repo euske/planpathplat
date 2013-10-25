@@ -4,11 +4,11 @@ import flash.display.Bitmap;
 import flash.events.Event;
 import flash.ui.Keyboard;
 
-//  MainState
+//  GameScreen
 //
-public class MainState extends GameState
+public class GameScreen extends Screen
 {
-  public static const NAME:String = "MainState";
+  public static const NAME:String = "GameScreen";
   
   // Tile image:
   [Embed(source="../assets/tiles.png", mimeType="image/png")]
@@ -25,7 +25,7 @@ public class MainState extends GameState
   private var scene:Scene;
   private var player:Player;
 
-  public function MainState(width:int, height:int)
+  public function GameScreen(width:int, height:int)
   {
     var tilesize:int = 32;
     var tilemap:TileMap = new TileMap(mapimage.bitmapData, tilesimage.bitmapData, tilesize);

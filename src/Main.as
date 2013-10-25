@@ -17,7 +17,7 @@ public class Main extends Sprite
 {
   private static var _logger:TextField;
 
-  private var _state:GameState;
+  private var _screen:Screen;
   private var _paused:Boolean;
   private var _keydown:int;
 
@@ -65,39 +65,39 @@ public class Main extends Sprite
     _paused = paused;
   }
 
-  // setGameState(state)
-  private function setGameState(state:GameState):void
+  // setScreen(screen)
+  private function setScreen(screen:Screen):void
   {
-    if (_state != null) {
-      log("close: "+_state);
-      _state.close();
-      _state.removeEventListener(GameStateEvent.CHANGED, onStateChanged);
-      removeChild(_state);
+    if (_screen != null) {
+      log("close: "+_screen);
+      _screen.close();
+      _screen.removeEventListener(ScreenEvent.CHANGED, onScreenChanged);
+      removeChild(_screen);
     }
-    _state = state;
-    if (_state != null) {
-      log("open: "+_state);
-      _state.open();
-      _state.addEventListener(GameStateEvent.CHANGED, onStateChanged);
-      addChild(_state);
+    _screen = screen;
+    if (_screen != null) {
+      log("open: "+_screen);
+      _screen.open();
+      _screen.addEventListener(ScreenEvent.CHANGED, onScreenChanged);
+      addChild(_screen);
     }
   }
 
-  // createGameState(name)
-  private function createGameState(name:String):GameState
+  // createScreen(name)
+  private function createScreen(name:String):Screen
   {
     switch (name) {
-    case MainState.NAME:
-      return new MainState(stage.stageWidth, stage.stageHeight);
+    case GameScreen.NAME:
+      return new GameScreen(stage.stageWidth, stage.stageHeight);
     default:
       return null;
     }
   }
 
-  // onStateChanged(e)
-  private function onStateChanged(e:GameStateEvent):void
+  // onScreenChanged(e)
+  private function onScreenChanged(e:ScreenEvent):void
   {
-    setGameState(createGameState(e.name));
+    setScreen(createScreen(e.name));
   }
 
   // OnActivate(e)
@@ -116,8 +116,8 @@ public class Main extends Sprite
   protected function OnEnterFrame(e:Event):void
   {
     if (!_paused) {
-      if (_state != null) {
-	_state.update();
+      if (_screen != null) {
+	_screen.update();
       }
     }
   }
@@ -138,8 +138,8 @@ public class Main extends Sprite
       break;
 
     default:
-      if (_state != null) {
-	_state.keydown(e.keyCode);
+      if (_screen != null) {
+	_screen.keydown(e.keyCode);
       }
     }
   }
@@ -148,15 +148,15 @@ public class Main extends Sprite
   protected function OnKeyUp(e:KeyboardEvent):void 
   {
     _keydown = 0;
-    if (_state != null) {
-      _state.keyup(e.keyCode);
+    if (_screen != null) {
+      _screen.keyup(e.keyCode);
     }
   }
 
   // init()
   protected virtual function init():void
   {
-    setGameState(createGameState(MainState.NAME));
+    setScreen(createScreen(GameScreen.NAME));
   }
 
 }

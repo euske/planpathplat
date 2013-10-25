@@ -2,9 +2,9 @@ package {
 
 import flash.display.Sprite;
 
-//  GameState
+//  Screen
 //
-public class GameState extends Sprite
+public class Screen extends Sprite
 {
   // open()
   public virtual function open():void
