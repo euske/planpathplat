@@ -72,15 +72,15 @@ public class Person extends Actor
       if (action != null && action.next != null) {
 	_action = action;
 	_jumping = false;
-	Main.log(this+": begin: "+_action+" for "+_plan.goal);
+	Main.log(this, "begin", _action, _plan.goal);
       }
     }
     if (_action != null) {
       var dst:Point = _action.next.p;
       var dstpos:Point = tilemap.getTilePoint(dst.x, dst.y);
       var path:Array;
-      //Main.log(" dst="+dst+", "+dstpos);
-      //Main.log(" pos="+pos+", landed="+isLanded()+", jumpable="+isJumpable());
+      //Main.log(" dst="+dst, "dstpos="+dstpos);
+      //Main.log(" pos="+pos, "landed="+isLanded(), "jumpable="+isJumpable());
 
       // Get a micro-level (greedy) plan.
       switch (_action.action) {
@@ -101,7 +101,9 @@ public class Person extends Actor
 	  
       case PlanEntry.JUMP:
 	if (!_jumping) {
-	  if (isLanded() && !isGrabbing()) {
+	  var y:int = _action.mid.y;
+	  if (isLanded() && !isGrabbing() && 
+	      hasClearance(new Point(cur.x, y))) {
 	    jump();
 	    _jumping = true;
 	  } else {
@@ -119,7 +121,7 @@ public class Person extends Actor
 
       // finishing an action.
       if (_action.next.p.equals(cur)) {
-	Main.log(this+": end: "+_action);
+	Main.log(this, "end", _action);
 	_action = null;
       }
 
@@ -130,6 +132,15 @@ public class Person extends Actor
     }
   }
 
+  private function hasClearance(p:Point):Boolean
+  {
+    var r:Rectangle = tilemap.getTileRect(p.x+tilebounds.left, p.y+tilebounds.top, 
+					  tilebounds.width+1, tilebounds.height+1);
+    var b:Boolean = !tilemap.hasTileByRect(bounds.union(r), Tile.isstoppable);
+    Main.log("hasClearance", "p="+p, "r="+r, "b="+b);
+    return b;
+  }
+  
   // repaint()
   public override function repaint():void
   {

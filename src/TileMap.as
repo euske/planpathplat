@@ -189,9 +189,9 @@ public class TileMap extends Bitmap
   }
 
   // getTileRect(x, y)
-  public function getTileRect(x:int, y:int):Rectangle
+  public function getTileRect(x:int, y:int, w:int=1, h:int=1):Rectangle
   {
-    return new Rectangle(x*tilesize, y*tilesize, tilesize, tilesize);
+    return new Rectangle(x*tilesize, y*tilesize, w*tilesize, h*tilesize);
   }
 
   // getCoordsByPoint(p)

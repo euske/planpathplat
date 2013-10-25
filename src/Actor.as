@@ -132,7 +132,7 @@ public class Actor extends Sprite
   // jump()
   public function jump():void
   {
-    if (isLanded()) {
+    if (isLanded() && !isGrabbing()) {
       _velocity.y = -jumpspeed;
     }
   }
@@ -182,7 +182,7 @@ public class Actor extends Sprite
   {
     var v:Point = new Point(speed * Utils.clamp(-1, (p.x-pos.x), +1),
 			    speed * Utils.clamp(-1, (p.y-pos.y), +1));
-    if (isLanded()) {
+    if (isLanded() || isGrabbing()) {
       if (isMovable(v.x, v.y)) {
 	move(v);
       } else if (isMovable(0, v.y)) {
