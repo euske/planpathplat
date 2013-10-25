@@ -77,27 +77,26 @@ public class Person extends Actor
     }
     if (_action != null) {
       var dst:Point = _action.next.p;
-      var path:Array = tilemap.findPath(dst.x, dst.y, cur.x, cur.y, 
-					Tile.isstoppable, tilebounds);
-      if (0 < path.length) {
-	dst = Point(path[0]);
-      }
       var dstpos:Point = tilemap.getTilePoint(dst.x, dst.y);
+      var path:Array;
       //Main.log(" dst="+dst+", "+dstpos);
       //Main.log(" pos="+pos+", landed="+isLanded()+", jumpable="+isJumpable());
 
       // Get a micro-level (greedy) plan.
       switch (_action.action) {
       case PlanEntry.WALK:
-	moveToward(dstpos);
-	break;
-	  
       case PlanEntry.CLIMB:
 	moveToward(dstpos);
 	break;
 	  
       case PlanEntry.FALL:
-	moveToward(dstpos);
+	{
+	  path = tilemap.findPath(dst.x, dst.y, cur.x, cur.y, 
+				  Tile.isstoppable, tilebounds);
+	  if (0 < path.length) {
+	    moveToward(tilemap.getTilePoint(path[0].x, path[0].y));
+	  }
+	}
 	break;
 	  
       case PlanEntry.JUMP:
@@ -109,7 +108,11 @@ public class Person extends Actor
 	    moveToward(curpos);
 	  }
 	} else {
-	  moveToward(dstpos);
+	  path = tilemap.findPath(dst.x, dst.y, cur.x, cur.y, 
+				  Tile.isstoppable, tilebounds);
+	  if (0 < path.length) {
+	    moveToward(tilemap.getTilePoint(path[0].x, path[0].y));
+	  }
 	}
 	break;
       }
@@ -124,25 +127,6 @@ public class Person extends Actor
 
     if (visualizer != null) {
       visualizer.plan = _plan;
-    }
-  }
-
-  private function moveToward(p:Point):void
-  {
-    var v:Point = new Point(speed * Utils.clamp(-1, (p.x-pos.x), +1),
-			    speed * Utils.clamp(-1, (p.y-pos.y), +1));
-    if (isLanded()) {
-      if (isMovable(v.x, v.y)) {
-	move(v);
-      } else if (isMovable(0, v.y)) {
-	move(new Point(0, v.y));
-      } else if (isMovable(v.x, 0)) {
-	move(new Point(v.x, 0));
-      }
-    } else {
-      if (isMovable(v.x, 0)) {
-	move(new Point(v.x, 0));
-      }
     }
   }
 
