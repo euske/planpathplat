@@ -131,15 +131,6 @@ public class Person extends Actor
       visualizer.plan = _plan;
     }
   }
-
-  private function hasClearance(p:Point):Boolean
-  {
-    var r:Rectangle = tilemap.getTileRect(p.x+tilebounds.left, p.y+tilebounds.top, 
-					  tilebounds.width+1, tilebounds.height+1);
-    var b:Boolean = !tilemap.hasTileByRect(bounds.union(r), Tile.isstoppable);
-    Main.log("hasClearance", "p="+p, "r="+r, "b="+b);
-    return b;
-  }
   
   // repaint()
   public override function repaint():void
@@ -148,6 +139,15 @@ public class Person extends Actor
     if (visualizer != null) {
       visualizer.repaint();
     }
+  }
+
+  private function hasClearance(p:Point):Boolean
+  {
+    var r:Rectangle = tilemap.getTileRect(p.x+tilebounds.left, p.y+tilebounds.top, 
+					  tilebounds.width+1, tilebounds.height+1);
+    var b:Boolean = !tilemap.hasTileByRect(bounds.union(r), Tile.isstoppable);
+    Main.log("hasClearance", "p="+p, "r="+r, "b="+b);
+    return b;
   }
 
 }
