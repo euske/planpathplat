@@ -192,17 +192,17 @@ public class PlanMap
 	      if (jx < bounds.left || bounds.right < jx) break;
 	      var jy:int = fy-jumpdy;
 	      if (jy < bounds.top || bounds.bottom < jy) break;
-	      //  .....
+	      //  .......
 	      //  ....+--+  [vx = +1]
 	      //  ....|  |
 	      //  ....+-X+ (fx,fy) midpoint
-	      //  .....  
-	      //  +--+
-	      //  |  |
-	      //  +-X+ (jx,jy) original position.
+	      //  .......
+	      //  +--+...
+	      //  |  |...
+	      //  +-X+... (jx,jy) original position.
 	      // ======
 	      if (map.hasTile(jx+bx0, jy+cb.bottom, 
-			      fx+bx0, fy+cb.top-1, 
+			      fx+bx1-vx, fy+cb.top-1, 
 	      		      Tile.isstoppable)) break;
 	      if (!map.hasTile(jx+cb.left, jy+cb.bottom+1, 
 			       jx+cb.right, jy+cb.bottom+1, 
