@@ -12,7 +12,7 @@ FDB=$(JAVA) -jar $(FLEX_HOME)/lib/fdb.jar
 # Project settings
 CFLAGS=-static-rsls -debug=true
 TARGET=main.swf
-LIVE_URL=ludumdare.tabesugi.net:public/cgi/root/host/ludumdare.tabesugi.net/ppp/main.swf
+LIVE_URL=ludumdare.tabesugi.net:public/file/ludumdare.tabesugi.net/ppp/
 
 all: $(TARGET)
 
@@ -20,7 +20,7 @@ clean:
 	-$(RM) $(TARGET)
 
 update: $(TARGET)
-	$(RSYNC) $(TARGET) $(LIVE_URL)
+	$(RSYNC) $(TARGET) index.html $(LIVE_URL)
 
 debug: $(TARGET)
 	$(FDB) $(TARGET)
