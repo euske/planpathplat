@@ -92,7 +92,7 @@ public class Person extends Actor
       case PlanEntry.FALL:
 	{
 	  path = tilemap.findPath(dst.x, dst.y, cur.x, cur.y, 
-				  Tile.isstoppable, tilebounds);
+				  Tile.isobstacle, tilebounds);
 	  if (0 < path.length) {
 	    moveToward(tilemap.getTilePoint(path[0].x, path[0].y));
 	  }
@@ -121,7 +121,7 @@ public class Person extends Actor
 
       // finishing an action.
       if (_action.next.p.equals(cur)) {
-	Main.log(this, "end", _action);
+	Main.log(this, "end  ", _action);
 	_action = null;
       }
 
@@ -145,9 +145,7 @@ public class Person extends Actor
   {
     var r:Rectangle = tilemap.getTileRect(p.x+tilebounds.left, p.y+tilebounds.top, 
 					  tilebounds.width+1, tilebounds.height+1);
-    var b:Boolean = !tilemap.hasTileByRect(bounds.union(r), Tile.isstoppable);
-    Main.log("hasClearance", "p="+p, "r="+r, "b="+b);
-    return b;
+    return !tilemap.hasTileByRect(bounds.union(r), Tile.isstoppable);
   }
 
 }
