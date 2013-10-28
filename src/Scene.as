@@ -95,12 +95,16 @@ public class Scene extends Sprite
   }
 
   // createPlan(center)
-  public function createPlan(center:Point):PlanMap
+  public function createPlan(center:Point, margin:int=0):PlanMap
   {
     var x0:int = Math.floor(_window.left/tilemap.tilesize);
+    x0 = Math.max(x0-margin, 0);
     var y0:int = Math.floor(_window.top/tilemap.tilesize);
+    y0 = Math.max(y0-margin, 0);
     var x1:int = Math.ceil(_window.right/tilemap.tilesize);
+    x1 = Math.min(x1+margin, tilemap.mapwidth-1);
     var y1:int = Math.ceil(_window.bottom/tilemap.tilesize);
+    y1 = Math.min(y1+margin, tilemap.mapheight-1);
     var bounds:Rectangle = new Rectangle(x0, y0, x1-x0, y1-y0);
     return new PlanMap(tilemap, center, bounds);
   }
