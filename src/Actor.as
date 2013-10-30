@@ -147,7 +147,7 @@ public class Actor extends Sprite
 				     Tile.isstoppable);
       // falling (in x).
       v.x = tilemap.getCollisionByRect(bounds, _velocity.x, v.y, 
-				       Tile.isstoppable).x;
+				       Tile.isobstacle).x;
       // falling (in y).
       v.y = tilemap.getCollisionByRect(bounds, v.x, _velocity.y, 
 				       Tile.isstoppable).y;
