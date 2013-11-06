@@ -180,8 +180,8 @@ public class Actor extends Sprite
   // moveToward(p)
   public function moveToward(p:Point):void
   {
-    var v:Point = new Point(speed * Utils.clamp(-1, (p.x-pos.x), +1),
-			    speed * Utils.clamp(-1, (p.y-pos.y), +1));
+    var v:Point = new Point(Utils.clamp(-speed, (p.x-pos.x), +speed),
+			    Utils.clamp(-speed, (p.y-pos.y), +speed));
     if (isLanded() || isGrabbing()) {
       if (isMovable(v.x, v.y)) {
 	move(v);

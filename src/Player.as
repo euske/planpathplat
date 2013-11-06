@@ -23,8 +23,8 @@ public class Player extends Actor
     fall();
 
     var p:Point, t:Rectangle;
-    var v:Point = dir.clone();
-    var r:Rectangle = getMovedBounds(v.x*speed, v.y*speed);
+    var v:Point = new Point(dir.x*speed, dir.y*speed);
+    var r:Rectangle = getMovedBounds(v.x, v.y);
     var a:Array = tilemap.scanTileByRect(r, Tile.isobstacle);
     if (v.x != 0 && v.y == 0) {
       // moved left/right.
@@ -39,9 +39,9 @@ public class Player extends Actor
 	}
       }
       if (r.top < y0 && y1 == r.bottom) {
-	v.x = 0; v.y = +1; 
+	v.x = 0; v.y = Math.min(+speed, y0-r.top); 
       } else if (y0 == r.top && y1 < r.bottom) {
-	v.x = 0; v.y = -1; 
+	v.x = 0; v.y = Math.max(-speed, y1-r.bottom);
       }
 
     } else if (v.x == 0 && v.y != 0) {
@@ -57,12 +57,12 @@ public class Player extends Actor
 	}
       }
       if (r.left < x0 && x1 == r.right) {
-	v.x = +1; v.y = 0;
+	v.x = Math.min(+speed, x0-r.left); v.y = 0;
       } else if (x0 == r.left && x1 < r.right) {
-	v.x = -1; v.y = 0; 
+	v.x = Math.max(-speed, x1-r.right); v.y = 0;
       }
     }
-    move(new Point(v.x*speed, v.y*speed));
+    move(v);
   }
 }
 
