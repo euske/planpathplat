@@ -1,4 +1,5 @@
-AI (Path Planning) in Platformer Games
+Path Planning (AI) in Platformer Games
+======================================
 
 I've been working on path planning for platformer games for a
 while. My original intension was to create a "scripted" character in a
@@ -7,6 +8,7 @@ applications. I have a working prototype and its source code.
 
 
 Handling Continuous Space
+-------------------------
 
 The first problem that we need to address is the continuous nature of
 a platformer game. In a typical path planning, a problem is usually
@@ -32,6 +34,7 @@ are considered.
 
 
 Jumping / Falling
+-----------------
 
 Jumping and falling is the key element of platformer games and the
 meat of its planning problem. It has so many parameters that using
@@ -45,18 +48,19 @@ trajectory of characters.
 
 
 Landing Prediction
-
+------------------
 
 Splinting / Double Jumping
-
+--------------------------
 
 Moving Platforms
-
+----------------
 
 A-star or not A-star?
-
+---------------------
 
 Is This Smarter than humans?
+----------------------------
 
 Unfortunately, no.  Due to computational limits, the current
 implementation considers only a handful of ways of possible jumps at
@@ -66,3 +70,4 @@ do. Also, since it's on block-by-block basis, it cannot consider a
 possibility of barely-make-it kinds of jumps. These are mostly
 complexity problems, but in some cases there might be need to give up
 to find an optimal solution.
+
