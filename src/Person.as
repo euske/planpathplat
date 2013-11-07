@@ -11,7 +11,7 @@ public class Person extends Actor
 
   private var _target:Actor;
   private var _plan:PlanMap;
-  private var _action:PlanEntry;
+  private var _action:PlanAction;
   private var _jumping:Boolean;
 
   // Person(image)
@@ -68,7 +68,7 @@ public class Person extends Actor
     // follow a plan.
     if (_plan != null && _action == null) {
       // Get a macro-level plan.
-      var action:PlanEntry = _plan.getEntry(cur.x, cur.y);
+      var action:PlanAction = _plan.getAction(cur.x, cur.y);
       if (action != null && action.next != null) {
 	_action = action;
 	_jumping = false;
@@ -84,12 +84,12 @@ public class Person extends Actor
 
       // Get a micro-level (greedy) plan.
       switch (_action.action) {
-      case PlanEntry.WALK:
-      case PlanEntry.CLIMB:
+      case PlanAction.WALK:
+      case PlanAction.CLIMB:
 	moveToward(dstpos);
 	break;
 	  
-      case PlanEntry.FALL:
+      case PlanAction.FALL:
 	{
 	  path = tilemap.findPath(dst.x, dst.y, cur.x, cur.y, 
 				  Tile.isobstacle, tilebounds);
@@ -99,7 +99,7 @@ public class Person extends Actor
 	}
 	break;
 	  
-      case PlanEntry.JUMP:
+      case PlanAction.JUMP:
 	if (!_jumping) {
 	  var y:int = _action.mid.y;
 	  if (isLanded() && !isGrabbing() && 

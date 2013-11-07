@@ -3,9 +3,9 @@ package {
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
-//  PlanEntry
+//  PlanAction
 //
-public class PlanEntry
+public class PlanAction
 {
   public static const NONE:String = "NONE";
   public static const WALK:String = "WALK";
@@ -18,10 +18,10 @@ public class PlanEntry
   public var action:String;
   public var cost:int;
 
-  public var next:PlanEntry;
+  public var next:PlanAction;
   public var mid:Point;
 
-  public function PlanEntry(map:TileMap, p:Point, action:String, cost:int)
+  public function PlanAction(map:TileMap, p:Point, action:String, cost:int)
   {
     this.map = map;
     this.p = p;
@@ -31,7 +31,7 @@ public class PlanEntry
 
   public function toString():String
   {
-    return ("<PlanEntry: ("+p.x+","+p.y+") action="+action+", cost="+cost+">");
+    return ("<PlanAction: ("+p.x+","+p.y+") action="+action+", cost="+cost+">");
   }
 
 }

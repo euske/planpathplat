@@ -53,25 +53,25 @@ public class PlanVisualizer extends Shape
 
     for (var y:int = 0; y < tilewindow.height; y++) {
       for (var x:int = 0; x <= tilewindow.width; x++) {
-	var e:PlanEntry = plan.getEntry(tilewindow.left+x, 
-					tilewindow.top+y);
+	var e:PlanAction = plan.getAction(tilewindow.left+x, 
+					  tilewindow.top+y);
 	if (e == null) continue;
 	var p:Point = e.p;
 	var c:int = 0x0000ff;
 	switch (e.action) {
-	case PlanEntry.WALK:	// white
+	case PlanAction.WALK:	// white
 	  drawRect(0xffffff, p, tilesize);
 	  break;
-	case PlanEntry.CLIMB:	// green
+	case PlanAction.CLIMB:	// green
 	  drawRect(0x00ff00, p, tilesize);
 	  break;
-	case PlanEntry.FALL:	// blue
+	case PlanAction.FALL:	// blue
 	  drawRect(0x0000ff, p, tilesize);
 	  if (e.next != null) {
 	    drawLine(0x0000ff, p, e.next.p);
 	  }
 	  break;
-	case PlanEntry.JUMP:	// magenta
+	case PlanAction.JUMP:	// magenta
 	  drawRect(0xff00ff, p, tilesize);
 	  if (e.mid != null && e.next != null) {
 	    drawLine(0xff00ff, p, e.mid);

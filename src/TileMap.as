@@ -216,7 +216,7 @@ public class TileMap extends Bitmap
       for (var dx:int = 0; dx <= w; dx++) {
 	var x:int = x0+dx*vx;
 	var p:Point = new Point(x, y);
-	var e:PathEntry = null;
+	var e:WayPoint = null;
 	var d:int;
 	if (dx == 0 && dy == 0) {
 	  d = 0;
@@ -234,7 +234,7 @@ public class TileMap extends Bitmap
 	  }
 	  d++;
 	}
-	a[dy].push(new PathEntry(p, d, e));
+	a[dy].push(new WayPoint(p, d, e));
       }
     }
     var r:Array = new Array();
@@ -297,12 +297,12 @@ class TileMapCache
   }
 }
 
-class PathEntry
+class WayPoint
 {
   public var p:Point;
   public var d:int;
-  public var next:PathEntry;
-  public function PathEntry(p:Point, d:int, next:PathEntry)
+  public var next:WayPoint;
+  public function WayPoint(p:Point, d:int, next:WayPoint)
   {
     this.p = p;
     this.d = d;

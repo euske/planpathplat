@@ -26,7 +26,7 @@ public class PlanMap
       var b:Array = new Array(bounds.width+1);
       for (var x:int = bounds.left; x <= bounds.right; x++) {
 	var p:Point = new Point(x, y);
-	b[x-bounds.left] = new PlanEntry(map, p, PlanEntry.NONE, inf);
+	b[x-bounds.left] = new PlanAction(map, p, PlanAction.NONE, inf);
       }
       _a[y-bounds.top] = b;
     }
@@ -38,8 +38,8 @@ public class PlanMap
 	    bounds.right+","+bounds.bottom+")>");
   }
 
-  // getEntry(x, y)
-  public function getEntry(x:int, y:int):PlanEntry
+  // getAction(x, y)
+  public function getAction(x:int, y:int):PlanAction
   {
     if (x < bounds.left || bounds.right < x ||
 	y < bounds.top || bounds.bottom < y) return null;
@@ -64,13 +64,13 @@ public class PlanMap
     if (goal.x < bounds.left || bounds.right < goal.x ||
 	goal.y < bounds.top || bounds.bottom < goal.y) return 0;
     
-    var e1:PlanEntry = _a[goal.y-bounds.top][goal.x-bounds.left];
+    var e1:PlanAction = _a[goal.y-bounds.top][goal.x-bounds.left];
     e1.cost = 0;
     var queue:Array = [ new QueueItem(e1) ];
     while (0 < n && 0 < queue.length) {
       var cost:int;
       var q:QueueItem = queue.pop();
-      var e0:PlanEntry = q.entry;
+      var e0:PlanAction = q.action;
       var p:Point = e0.p;
       if (start != null && start.equals(p)) break;
       if (map.hasTile(p.x+cb.left, p.y+cb.top, 
@@ -89,7 +89,7 @@ public class PlanMap
 	e1 = _a[p.y-bounds.top-1][p.x-bounds.left];
 	cost = e0.cost+1;
 	if (cost < e1.cost) {
-	  e1.action = PlanEntry.CLIMB;
+	  e1.action = PlanAction.CLIMB;
 	  e1.cost = cost;
 	  e1.next = e0;
 	  queue.push(new QueueItem(e1, start));
@@ -103,7 +103,7 @@ public class PlanMap
 	e1 = _a[p.y-bounds.top+1][p.x-bounds.left];
 	cost = e0.cost+1;
 	if (cost < e1.cost) {
-	  e1.action = PlanEntry.CLIMB;
+	  e1.action = PlanAction.CLIMB;
 	  e1.cost = cost;
 	  e1.next = e0;
 	  queue.push(new QueueItem(e1, start));
@@ -124,7 +124,7 @@ public class PlanMap
 	  e1 = _a[p.y-bounds.top][wx-bounds.left];
 	  cost = e0.cost+1;
 	  if (cost < e1.cost) {
-	    e1.action = PlanEntry.WALK;
+	    e1.action = PlanAction.WALK;
 	    e1.cost = cost;
 	    e1.next = e0;
 	    queue.push(new QueueItem(e1, start));
@@ -157,7 +157,7 @@ public class PlanMap
 	    e1 = _a[fy-bounds.top][fx-bounds.left];
 	    cost = e0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
 	    if (cost < e1.cost) {
-	      e1.action = PlanEntry.FALL;
+	      e1.action = PlanAction.FALL;
 	      e1.cost = cost;
 	      e1.next = e0;
 	      queue.push(new QueueItem(e1, start));
@@ -209,7 +209,7 @@ public class PlanMap
 	      e1 = _a[jy-bounds.top][jx-bounds.left];
 	      cost = e0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(jumpdy)+1;
 	      if (cost < e1.cost) {
-		e1.action = PlanEntry.JUMP;
+		e1.action = PlanAction.JUMP;
 		e1.cost = cost;
 		e1.next = e0;
 		e1.mid = new Point(fx, fy);
@@ -265,13 +265,13 @@ import flash.geom.Rectangle;
 
 class QueueItem
 {
-  public var entry:PlanEntry;
+  public var action:PlanAction;
   public var prio:int;
   
-  public function QueueItem(entry:PlanEntry, start:Point=null)
+  public function QueueItem(action:PlanAction, start:Point=null)
   {
-    this.entry = entry;
+    this.action = action;
     this.prio = ((start == null)? 0 :
-		 Math.abs(start.x-entry.p.x)+Math.abs(start.y-entry.p.y));
+		 Math.abs(start.x-action.p.x)+Math.abs(start.y-action.p.y));
   }
 }
