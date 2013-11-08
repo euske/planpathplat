@@ -201,8 +201,8 @@ public class TileMap extends Bitmap
     return hasTileByRect(src, f);
   }
 
-  // findPath(x0, y0, x1, x1, f, b)
-  public function findPath(x0:int, y0:int, x1:int, y1:int, f:Function, cb:Rectangle):Array
+  // findSimplePath(x0, y0, x1, x1, f, b)
+  public function findSimplePath(x0:int, y0:int, x1:int, y1:int, f:Function, cb:Rectangle):Array
   {
     var a:Array = new Array();
     var w:int = Math.abs(x1-x0);

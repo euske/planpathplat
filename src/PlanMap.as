@@ -38,6 +38,12 @@ public class PlanMap
 	    bounds.right+","+bounds.bottom+")>");
   }
 
+  // isValid(pos)
+  public function isValid(p:Point):Boolean
+  {
+    return (p != null && goal.equals(p));
+  }
+
   // getAction(x, y)
   public function getAction(x:int, y:int):PlanAction
   {

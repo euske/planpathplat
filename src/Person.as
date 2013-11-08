@@ -39,23 +39,19 @@ public class Person extends Actor
     super.update();
     fall();
 
-    var cur:Point = tilemap.getCoordsByPoint(pos);
-    var curpos:Point = tilemap.getTilePoint(cur.x, cur.y);
     var goal:Point = ((_target.isLanded())?
 		      tilemap.getCoordsByPoint(_target.pos) :
 		      PlanMap.getLandingPoint(tilemap, _target.pos,
 					      _target.tilebounds,
 					      _target.velocity, _target.gravity));
-
     // invalidate plan.
-    if (_plan != null) {
-      if (goal == null || !_plan.goal.equals(goal)) {
-	_plan = null;
-      }
+    if (_plan != null && !_plan.isValid(goal)) {
+      _plan = null;
     }
 
     // make a plan.
-    if (goal != null && _action == null && _plan == null) {
+    var cur:Point = tilemap.getCoordsByPoint(pos);
+    if (_plan == null && _action == null && goal != null) {
       var jumpdt:int = Math.floor(jumpspeed / gravity);
       var plan:PlanMap = scene.createPlan(goal, 10);
       if (0 < plan.addPlan(tilebounds, 
@@ -75,24 +71,23 @@ public class Person extends Actor
 	Main.log(this, "begin", _action, _plan.goal);
       }
     }
+
+    // do an action.
     if (_action != null) {
       var dst:Point = _action.next.p;
-      var dstpos:Point = tilemap.getTilePoint(dst.x, dst.y);
       var path:Array;
-      //Main.log(" dst="+dst, "dstpos="+dstpos);
-      //Main.log(" pos="+pos, "landed="+isLanded(), "jumpable="+isJumpable());
 
       // Get a micro-level (greedy) plan.
       switch (_action.action) {
       case PlanAction.WALK:
       case PlanAction.CLIMB:
-	moveToward(dstpos);
+	moveToward(tilemap.getTilePoint(dst.x, dst.y));
 	break;
 	  
       case PlanAction.FALL:
 	{
-	  path = tilemap.findPath(dst.x, dst.y, cur.x, cur.y, 
-				  Tile.isobstacle, tilebounds);
+	  path = tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
+					Tile.isobstacle, tilebounds);
 	  if (0 < path.length) {
 	    moveToward(tilemap.getTilePoint(path[0].x, path[0].y));
 	  }
@@ -107,11 +102,11 @@ public class Person extends Actor
 	    jump();
 	    _jumping = true;
 	  } else {
-	    moveToward(curpos);
+	    moveToward(tilemap.getTilePoint(cur.x, cur.y));
 	  }
 	} else {
-	  path = tilemap.findPath(dst.x, dst.y, cur.x, cur.y, 
-				  Tile.isstoppable, tilebounds);
+	  path = tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
+					Tile.isstoppable, tilebounds);
 	  if (0 < path.length) {
 	    moveToward(tilemap.getTilePoint(path[0].x, path[0].y));
 	  }
@@ -120,7 +115,7 @@ public class Person extends Actor
       }
 
       // finishing an action.
-      if (_action.next.p.equals(cur)) {
+      if (cur.equals(dst)) {
 	Main.log(this, "end  ", _action);
 	_action = null;
       }
