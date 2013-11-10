@@ -1,26 +1,24 @@
 package {
 
-import flash.display.Shape;
-import flash.display.Sprite;
 import flash.display.DisplayObject;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
 //  Actor
 //
-public class Actor extends Sprite
+public class Actor
 {
   public var pos:Point;
-
-  private var _skin:DisplayObject;
-  private var _scene:Scene;
-  private var _velocity:Point;
-  private var _phase:Number = 0;
+  public var frame:Rectangle;
+  public var skin:DisplayObject;
 
   public const gravity:int = 2;
   public const speed:int = 8;
   public const jumpspeed:int = 24;
   public const maxspeed:int = 24;
+
+  private var _scene:Scene;
+  private var _velocity:Point;
 
   // Actor(scene)
   public function Actor(scene:Scene)
@@ -42,59 +40,30 @@ public class Actor extends Sprite
     return _scene.tilemap;
   }
 
-  // skin
-  public function get skin():DisplayObject
-  {
-    return _skin;
-  }
-  public function set skin(value:DisplayObject):void
-  {
-    if (_skin != null) {
-      removeChild(_skin);
-    }
-    _skin = value;
-    if (_skin != null) {
-      addChild(_skin);
-      _skin.x = -Math.floor(tilemap.tilesize/2);
-      _skin.y = -Math.floor(_skin.height)+Math.floor(tilemap.tilesize/2);
-    }
-  }
-
-  // bounds
-  public function get bounds():Rectangle
-  {
-    return getBoundsAt(pos);
-  }
-  public function set bounds(value:Rectangle):void
-  {
-    pos.x = Math.floor((value.left+value.right)/2);
-    pos.y = Math.floor((value.top+value.bottom)/2);
-  }
-
-  // tilebounds
-  public function get tilebounds():Rectangle
-  {
-    var w:int = skin.width/tilemap.tilesize;
-    var h:int = skin.height/tilemap.tilesize;
-    return new Rectangle(0, -(h-1), w-1, h-1);
-  }
-
   // velocity
   public function get velocity():Point
   {
     return _velocity;
   }
   
-  // getMovedBounds(dx, dy)
-  public function getMovedBounds(dx:int, dy:int):Rectangle
+  // bounds
+  public function get bounds():Rectangle
   {
-    return Utils.moveRect(bounds, dx, dy);
+    return new Rectangle(pos.x+frame.x, pos.y+frame.y, 
+			 frame.width, frame.height);
+  }
+  public function set bounds(value:Rectangle):void
+  {
+    frame = new Rectangle(value.x-pos.x, value.y-pos.y,
+			  value.width, value.height);
   }
 
-  // getBoundsAt(p)
-  public function getBoundsAt(p:Point):Rectangle
+  // tilebounds
+  public function get tilebounds():Rectangle
   {
-    return new Rectangle(p.x+skin.x, p.y+skin.y, skin.width, skin.height);
+    var w:int = frame.width/tilemap.tilesize;
+    var h:int = frame.height/tilemap.tilesize;
+    return new Rectangle(0, -(h-1), w-1, h-1);
   }
 
   // isLanded()
@@ -116,17 +85,15 @@ public class Actor extends Sprite
     return (!tilemap.hasCollisionByRect(bounds, dx, dy, Tile.isobstacle));
   }
 
+  // getMovedBounds(dx, dy)
+  public function getMovedBounds(dx:int, dy:int):Rectangle
+  {
+    return Utils.moveRect(bounds, dx, dy);
+  }
+
   // update()
   public virtual function update():void
   {
-  }
-
-  // repaint()
-  public virtual function repaint():void
-  {
-    var p:Point = scene.translatePoint(pos);
-    this.x = p.x;
-    this.y = p.y;
   }
 
   // jump()
@@ -195,16 +162,6 @@ public class Actor extends Sprite
 	move(new Point(v.x, 0));
       }
     }
-  }
-
-  // createSkin(w, h, color)
-  public function createSkin(w:int, h:int, color:uint):void
-  {
-    var shape:Shape = new Shape();
-    shape.graphics.beginFill(color);
-    shape.graphics.drawRect(0, 0, w, h);
-    shape.graphics.endFill();
-    skin = shape;
   }
 }
 

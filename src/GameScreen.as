@@ -1,5 +1,6 @@
 package {
 
+import flash.display.Shape;
 import flash.display.Bitmap;
 import flash.events.Event;
 import flash.ui.Keyboard;
@@ -33,20 +34,24 @@ public class GameScreen extends Screen
     addChild(scene);
 
     player = new Player(scene);
-    player.createSkin(tilesize*1, tilesize*3, 0x44ff44);
+    player.pos = tilemap.getTilePoint(3, 3);
+    player.bounds = tilemap.getTileRect(3, 1, 1, 3);
+    player.skin = createSkin(tilesize*1, tilesize*3, 0x44ff44);
     scene.add(player);
 
     var enemy1:Person = new Person(scene);
-    enemy1.bounds = tilemap.getTileRect(6, 6);
-    enemy1.createSkin(tilesize*2, tilesize*3, 0xff44ff);
+    enemy1.pos = tilemap.getTilePoint(6, 6);
+    enemy1.bounds = tilemap.getTileRect(6, 4, 2, 3);
+    enemy1.skin = createSkin(tilesize*2, tilesize*3, 0xff44ff);
     enemy1.target = player;
     enemy1.visualizer = new PlanVisualizer(tilemap);
     scene.add(enemy1);
     addChild(enemy1.visualizer);
 
     var enemy2:Person = new Person(scene);
-    enemy2.bounds = tilemap.getTileRect(10, 9);
-    enemy2.createSkin(tilesize*1, tilesize*2, 0x44ffff);
+    enemy2.pos = tilemap.getTilePoint(10, 9);
+    enemy2.bounds = tilemap.getTileRect(10, 8, 1, 2);
+    enemy2.skin = createSkin(tilesize*1, tilesize*2, 0x44ffff);
     enemy2.target = player;
     enemy2.visualizer = new PlanVisualizer(tilemap);
     scene.add(enemy2);
@@ -56,7 +61,6 @@ public class GameScreen extends Screen
   // open()
   public override function open():void
   {
-    player.bounds = scene.tilemap.getTileRect(3, 3);
   }
 
   // close()
@@ -132,6 +136,16 @@ public class GameScreen extends Screen
       player.dir.y = 0;
       break;
     }
+  }
+
+  // createSkin(w, h, color)
+  public static function createSkin(w:int, h:int, color:uint):Shape
+  {
+    var shape:Shape = new Shape();
+    shape.graphics.beginFill(color);
+    shape.graphics.drawRect(0, 0, w, h);
+    shape.graphics.endFill();
+    return shape;
   }
 }
 

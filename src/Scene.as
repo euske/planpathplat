@@ -13,6 +13,7 @@ public class Scene extends Sprite
 
   private var _window:Rectangle;
   private var _mapsize:Point;
+  private var _actors:Array;
 
   // Scene(width, height, tilemap)
   public function Scene(width:int, height:int, tilemap:TileMap)
@@ -21,43 +22,41 @@ public class Scene extends Sprite
     _window = new Rectangle(0, 0, width, height);
     _mapsize = new Point(tilemap.mapwidth*tilemap.tilesize,
 			 tilemap.mapheight*tilemap.tilesize);
+    _actors = new Array();
     addChild(tilemap);
   }
 
   // add(actor)
   public function add(actor:Actor):void
   {
-    addChild(actor);
+    _actors.push(actor);
+    addChild(actor.skin);
   }
 
   // remove(actor)
   public function remove(actor:Actor):void
   {
-    removeChild(actor);
+    _actors.remove(actor);
+    removeChild(actor.skin);
   }
 
   // update()
   public function update():void
   {
-    for (var i:int = 0; i < numChildren; i++) {
-      var obj:DisplayObject = getChildAt(i);
-      if (obj is Actor) {
-	(obj as Actor).update();
-      }
+    for each (var actor:Actor in _actors) {
+      actor.update();
     }
   }
 
   // repaint()
   public function repaint():void
   {
-    for (var i:int = 0; i < numChildren; i++) {
-      var obj:DisplayObject = getChildAt(i);
-      if (obj is Actor) {
-	(obj as Actor).repaint();
-      } else if (obj is TileMap) {
-	(obj as TileMap).repaint(_window);
-      }
+    for each (var actor:Actor in _actors) {
+      var p:Point = translatePoint(actor.pos);
+      actor.skin.x = p.x+actor.frame.x;
+      actor.skin.y = p.y+actor.frame.y;
     }
+    tilemap.repaint(_window);
   }
 
   // setCenter(p)

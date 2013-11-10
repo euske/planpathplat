@@ -101,18 +101,10 @@ public class Person extends Actor
     // display the current plan.
     if (visualizer != null) {
       visualizer.plan = _plan;
-    }
-  }
-  
-  // repaint()
-  public override function repaint():void
-  {
-    super.repaint();
-    if (visualizer != null) {
       visualizer.repaint();
     }
   }
-
+  
   private function onActionJump(e:Event):void
   {
     jump();
