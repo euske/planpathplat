@@ -8,15 +8,12 @@ import flash.geom.Rectangle;
 // 
 public class PlanVisualizer extends Shape
 {
-  public static var main:PlanVisualizer;
-
   public var plan:PlanMap;
   public var tilemap:TileMap;
 
   public function PlanVisualizer(tilemap:TileMap)
   {
     super();
-    main = this;
     this.tilemap = tilemap;
   }
 

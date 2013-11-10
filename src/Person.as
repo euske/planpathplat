@@ -43,6 +43,19 @@ public class Person extends Actor
 		      PlanMap.getLandingPoint(tilemap, _target.pos,
 					      _target.tilebounds,
 					      _target.velocity, _target.gravity));
+
+    // adjust the goal position when it cannot fit.
+    if (goal != null) {
+      for (var dx:int = tilebounds.left; dx <= tilebounds.right; dx++) {
+	if (!tilemap.hasTile(goal.x-dx+tilebounds.left, goal.y+tilebounds.top,
+			     goal.x-dx+tilebounds.right, goal.y+tilebounds.bottom,
+			     Tile.isobstacle)) {
+	  goal.x -= dx;
+	  break;
+	}
+      }
+    }
+
     // invalidate plan.
     if (_plan != null && !_plan.isValid(goal)) {
       _plan = null;

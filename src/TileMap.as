@@ -137,6 +137,51 @@ public class TileMap extends Bitmap
     return (cache.getCount(x0, y0, x1, y1) != 0);
   }
 
+  // findSimplePath(x0, y0, x1, x1, f, b)
+  public function findSimplePath(x0:int, y0:int, x1:int, y1:int, f:Function, cb:Rectangle):Array
+  {
+    var a:Array = new Array();
+    var w:int = Math.abs(x1-x0);
+    var h:int = Math.abs(y1-y0);
+    var inf:int = (w+h+1)*2;
+    var vx:int = (x0 <= x1)? +1 : -1;
+    var vy:int = (y0 <= y1)? +1 : -1;
+    for (var dy:int = 0; dy <= h; dy++) {
+      a.push(new Array());
+      var y:int = y0+dy*vy;
+      for (var dx:int = 0; dx <= w; dx++) {
+	var x:int = x0+dx*vx;
+	var p:Point = new Point(x, y);
+	var e:WayPoint = null;
+	var d:int;
+	if (dx == 0 && dy == 0) {
+	  d = 0;
+	} else {
+	  d = inf;
+	  if (!hasTile(x+cb.left, y+cb.top, x+cb.right, y+cb.bottom, f)) {
+	    if (0 < dx && a[dy][dx-1].d < d) {
+	      e = a[dy][dx-1];
+	      d = e.d;
+	    }
+	    if (0 < dy && a[dy-1][dx].d < d) {
+	      e = a[dy-1][dx];
+	      d = e.d;
+	    }
+	  }
+	  d++;
+	}
+	a[dy].push(new WayPoint(p, d, e));
+      }
+    }
+    var r:Array = new Array();
+    e = a[h][w].next;
+    while (e != null) {
+      r.push(e.p);
+      e = e.next;
+    }
+    return r;
+  }
+
   // getTilePoint(x, y)
   public function getTilePoint(x:int, y:int):Point
   {
@@ -199,51 +244,6 @@ public class TileMap extends Bitmap
   {
     var src:Rectangle = r.union(Utils.moveRect(r, vx, vy));
     return hasTileByRect(src, f);
-  }
-
-  // findSimplePath(x0, y0, x1, x1, f, b)
-  public function findSimplePath(x0:int, y0:int, x1:int, y1:int, f:Function, cb:Rectangle):Array
-  {
-    var a:Array = new Array();
-    var w:int = Math.abs(x1-x0);
-    var h:int = Math.abs(y1-y0);
-    var inf:int = (w+h+1)*2;
-    var vx:int = (x0 <= x1)? +1 : -1;
-    var vy:int = (y0 <= y1)? +1 : -1;
-    for (var dy:int = 0; dy <= h; dy++) {
-      a.push(new Array());
-      var y:int = y0+dy*vy;
-      for (var dx:int = 0; dx <= w; dx++) {
-	var x:int = x0+dx*vx;
-	var p:Point = new Point(x, y);
-	var e:WayPoint = null;
-	var d:int;
-	if (dx == 0 && dy == 0) {
-	  d = 0;
-	} else {
-	  d = inf;
-	  if (!hasTile(x+cb.left, y+cb.top, x+cb.right, y+cb.bottom, f)) {
-	    if (0 < dx && a[dy][dx-1].d < d) {
-	      e = a[dy][dx-1];
-	      d = e.d;
-	    }
-	    if (0 < dy && a[dy-1][dx].d < d) {
-	      e = a[dy-1][dx];
-	      d = e.d;
-	    }
-	  }
-	  d++;
-	}
-	a[dy].push(new WayPoint(p, d, e));
-      }
-    }
-    var r:Array = new Array();
-    e = a[h][w].next;
-    while (e != null) {
-      r.push(e.p);
-      e = e.next;
-    }
-    return r;
   }
 
 }

@@ -41,7 +41,7 @@ public class GameScreen extends Screen
     enemy1.createSkin(tilesize*2, tilesize*3, 0xff44ff);
     enemy1.target = player;
     enemy1.visualizer = new PlanVisualizer(tilemap);
-    scene.add(enemy1)
+    scene.add(enemy1);
     addChild(enemy1.visualizer);
 
     var enemy2:Person = new Person(scene);
@@ -49,7 +49,7 @@ public class GameScreen extends Screen
     enemy2.createSkin(tilesize*1, tilesize*2, 0x44ffff);
     enemy2.target = player;
     enemy2.visualizer = new PlanVisualizer(tilemap);
-    scene.add(enemy2)
+    scene.add(enemy2);
     addChild(enemy2.visualizer);
   }
 
