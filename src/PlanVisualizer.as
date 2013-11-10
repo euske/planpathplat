@@ -10,6 +10,7 @@ public class PlanVisualizer extends Shape
 {
   public var plan:PlanMap;
   public var tilemap:TileMap;
+  public var tilewindow:Rectangle = new Rectangle();
 
   public function PlanVisualizer(tilemap:TileMap)
   {
@@ -17,10 +18,6 @@ public class PlanVisualizer extends Shape
     this.tilemap = tilemap;
   }
 
-  private function get tilewindow():Rectangle
-  {
-    return tilemap.tilewindow;
-  }
   private function get tilesize():int
   {
     return tilemap.tilesize;
@@ -82,9 +79,6 @@ public class PlanVisualizer extends Shape
       drawRect(0xffffff, plan.start, tilesize-4);
     }
     drawRect(0x00ff00, plan.goal, tilesize-4);
-
-    this.x = tilemap.x;
-    this.y = tilemap.y;
   }
 }
 

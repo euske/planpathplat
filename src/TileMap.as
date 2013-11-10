@@ -1,6 +1,5 @@
 package {
 
-import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.geom.Point;
 import flash.geom.Rectangle;
@@ -8,29 +7,24 @@ import flash.utils.Dictionary;
 
 //  TileMap
 //
-public class TileMap extends Bitmap
+public class TileMap
 {
-  public var map:BitmapData;
-  public var tiles:BitmapData;
+  public var bitmap:BitmapData;
   public var tilesize:int;
-  public var tilewindow:Rectangle;
 
   private var _tilevalue:Dictionary;
   private var _mapcache:Dictionary;
 
-  // TileMap(map, tiles, tilesize, width, height)
-  public function TileMap(map:BitmapData, 
-			  tiles:BitmapData,
+  // TileMap(bitmap, tilesize)
+  public function TileMap(bitmap:BitmapData, 
 			  tilesize:int)
   {
-    this.map = map;
-    this.tiles = tiles;
+    this.bitmap = bitmap;
     this.tilesize = tilesize;
-    this.tilewindow = new Rectangle();
 
     _tilevalue = new Dictionary();
-    for (var i:int = 0; i < map.width; i++) {
-      var c:uint = map.getPixel(i, 0);
+    for (var i:int = 0; i < bitmap.width; i++) {
+      var c:uint = bitmap.getPixel(i, 0);
       if (_tilevalue[c] === undefined) {
 	_tilevalue[c] = i;
       }
@@ -39,59 +33,25 @@ public class TileMap extends Bitmap
     _mapcache = new Dictionary();
   }
 
-  // mapwidth
-  public function get mapwidth():int
+  // width
+  public function get width():int
   {
-    return map.width;
+    return bitmap.width;
   }
-  // mapheight
-  public function get mapheight():int
+  // height
+  public function get height():int
   {
-    return map.height-1;
-  }
-
-  // repaint(window)
-  public function repaint(window:Rectangle):void
-  {
-    var r:Rectangle = new Rectangle(Math.floor(window.x/tilesize),
-				    Math.floor(window.y/tilesize),
-				    Math.floor(window.width/tilesize)+1,
-				    Math.floor(window.height/tilesize)+1);
-    if (!tilewindow.equals(r)) {
-      tilewindow = r;
-      renderTiles(tilewindow.x, tilewindow.y,
-		  tilewindow.width, tilewindow.height);
-    }
-    this.x = (tilewindow.x*tilesize)-window.x;
-    this.y = (tilewindow.y*tilesize)-window.y;
-  }
-
-  // renderTiles(x, y)
-  protected function renderTiles(x0:int, y0:int, mw:int, mh:int):void
-  {
-    if (bitmapData == null) {
-      bitmapData = new BitmapData(mw*tilesize, 
-				  mh*tilesize, 
-				  true, 0x00000000);
-    }
-    for (var dy:int = 0; dy < mh; dy++) {
-      for (var dx:int = 0; dx < mw; dx++) {
-	var i:int = getTile(x0+dx, y0+dy);
-	var src:Rectangle = new Rectangle(i*tilesize, 0, tilesize, tilesize);
-	var dst:Point = new Point(dx*tilesize, dy*tilesize);
-	bitmapData.copyPixels(tiles, src, dst);
-      }
-    }
+    return bitmap.height-1;
   }
 
   // getTile(x, y)
   public function getTile(x:int, y:int):int
   {
-    if (x < 0 || map.width <= x || 
-	y < 0 || map.height-1 <= y) {
+    if (x < 0 || bitmap.width <= x || 
+	y < 0 || bitmap.height-1 <= y) {
       return -1;
     }
-    var c:uint = map.getPixel(x, y+1);
+    var c:uint = bitmap.getPixel(x, y+1);
     return _tilevalue[c];
   }
 
@@ -138,7 +98,8 @@ public class TileMap extends Bitmap
   }
 
   // findSimplePath(x0, y0, x1, x1, f, b)
-  public function findSimplePath(x0:int, y0:int, x1:int, y1:int, f:Function, cb:Rectangle):Array
+  public function findSimplePath(x0:int, y0:int, x1:int, y1:int, 
+				 f:Function, cb:Rectangle):Array
   {
     var a:Array = new Array();
     var w:int = Math.abs(x1-x0);
@@ -261,11 +222,11 @@ class TileMapCache
 
   public function TileMapCache(tilemap:TileMap, f:Function)
   {
-    _data = new BitmapData(tilemap.mapwidth+2, 
-			   tilemap.mapheight+2, false, 0);
-    for (var y:int = -1; y <= tilemap.mapheight; y++) {
+    _data = new BitmapData(tilemap.width+2, 
+			   tilemap.height+2, false, 0);
+    for (var y:int = -1; y <= tilemap.height; y++) {
       var n:uint = 0;
-      for (var x:int = -1; x <= tilemap.mapwidth; x++) {
+      for (var x:int = -1; x <= tilemap.width; x++) {
 	var n0:uint = (y<0)? 0 : _data.getPixel(x+1, y);
 	if (f(tilemap.getTile(x, y))) {
 	  n++;

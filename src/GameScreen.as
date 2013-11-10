@@ -29,8 +29,8 @@ public class GameScreen extends Screen
   public function GameScreen(width:int, height:int)
   {
     var tilesize:int = 32;
-    var tilemap:TileMap = new TileMap(mapimage.bitmapData, tilesimage.bitmapData, tilesize);
-    scene = new Scene(width, height, tilemap);
+    var tilemap:TileMap = new TileMap(mapimage.bitmapData, tilesize);
+    scene = new Scene(width, height, tilemap, tilesimage.bitmapData);
     addChild(scene);
 
     player = new Player(scene);
