@@ -80,20 +80,18 @@ public class Person extends Actor
       if (action != null && action.next != null) {
 	_action = action;
 	_action.addEventListener(PlanAction.JUMP, onActionJump);
+	_action.addEventListener(PlanAction.MOVETO, onActionMoveTo);
 	_action.begin(this);
       }
     }
 
     // perform an action.
     if (_action != null) {
-      var p:Point = _action.update(this);
-      if (p != null) {
-	moveToward(p);
-      }
-      if (_action.isFinished) {
+      if (_action.update(this)) {
 	// finishing an action.
 	_action.end(this);
 	_action.removeEventListener(PlanAction.JUMP, onActionJump);
+	_action.removeEventListener(PlanAction.MOVETO, onActionMoveTo);
 	_action = null;
       }
     }
@@ -108,6 +106,10 @@ public class Person extends Actor
   private function onActionJump(e:Event):void
   {
     jump();
+  }
+  private function onActionMoveTo(e:MoveToEvent):void
+  {
+    moveToward(e.p);
   }
 
 }
