@@ -49,9 +49,9 @@ public class PlanVisualizer extends Shape
     if (plan == null) return;
 
     for (var y:int = Math.floor(window.left/tilesize); 
-	 y < Math.ceil(window.right/tilesize); y++) {
+	 y < Math.ceil(window.bottom/tilesize); y++) {
       for (var x:int = Math.floor(window.left/tilesize); 
-	   x < Math.ceil(window.bottom/tilesize); x++) {
+	   x < Math.ceil(window.right/tilesize); x++) {
 	var e:PlanAction = plan.getAction(x, y);
 	if (e == null) continue;
 	var p:Point = e.p;
