@@ -44,7 +44,7 @@ public class GameScreen extends Screen
     enemy1.bounds = tilemap.getTileRect(6, 4, 2, 3);
     enemy1.skin = createSkin(tilesize*2, tilesize*3, 0xff44ff);
     enemy1.target = player;
-    enemy1.visualizer = new PlanVisualizer(tilemap);
+    enemy1.visualizer = new PlanVisualizer(scene);
     scene.add(enemy1);
     addChild(enemy1.visualizer);
 
@@ -53,7 +53,7 @@ public class GameScreen extends Screen
     enemy2.bounds = tilemap.getTileRect(10, 8, 1, 2);
     enemy2.skin = createSkin(tilesize*1, tilesize*2, 0x44ffff);
     enemy2.target = player;
-    enemy2.visualizer = new PlanVisualizer(tilemap);
+    enemy2.visualizer = new PlanVisualizer(scene);
     scene.add(enemy2);
     addChild(enemy2.visualizer);
   }

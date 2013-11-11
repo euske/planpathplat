@@ -9,35 +9,38 @@ import flash.geom.Rectangle;
 public class PlanVisualizer extends Shape
 {
   public var plan:PlanMap;
-  public var tilemap:TileMap;
-  public var tilewindow:Rectangle = new Rectangle();
+  public var scene:Scene;
 
-  public function PlanVisualizer(tilemap:TileMap)
+  public function PlanVisualizer(scene:Scene)
   {
     super();
-    this.tilemap = tilemap;
+    this.scene = scene;
   }
 
+  private function get window():Rectangle
+  {
+    return scene.window;
+  }
   private function get tilesize():int
   {
-    return tilemap.tilesize;
+    return scene.tilemap.tilesize;
   }
 
   private function drawRect(color:uint, p:Point, size:int):void
   {
     graphics.lineStyle(0, color);
-    graphics.drawRect((p.x-tilewindow.left+0.5)*tilesize-size/2, 
-		      (p.y-tilewindow.top+0.5)*tilesize-size/2, 
+    graphics.drawRect((p.x+0.5)*tilesize-size/2-window.left, 
+		      (p.y+0.5)*tilesize-size/2-window.top, 
 		      size, size);
   }
 
   private function drawLine(color:uint, src:Point, dst:Point):void
   {
     graphics.lineStyle(0, color);
-    graphics.moveTo((src.x-tilewindow.left+0.5)*tilesize,
-		    (src.y-tilewindow.top+0.5)*tilesize);
-    graphics.lineTo((dst.x-tilewindow.left+0.5)*tilesize,
-		    (dst.y-tilewindow.top+0.5)*tilesize);
+    graphics.moveTo((src.x+0.5)*tilesize-window.left,
+		    (src.y+0.5)*tilesize-window.top);
+    graphics.lineTo((dst.x+0.5)*tilesize-window.left,
+		    (dst.y+0.5)*tilesize-window.top);
   }
 
   public function repaint():void
@@ -45,10 +48,11 @@ public class PlanVisualizer extends Shape
     graphics.clear();
     if (plan == null) return;
 
-    for (var y:int = 0; y < tilewindow.height; y++) {
-      for (var x:int = 0; x <= tilewindow.width; x++) {
-	var e:PlanAction = plan.getAction(tilewindow.left+x, 
-					  tilewindow.top+y);
+    for (var y:int = Math.floor(window.left/tilesize); 
+	 y < Math.ceil(window.right/tilesize); y++) {
+      for (var x:int = Math.floor(window.left/tilesize); 
+	   x < Math.ceil(window.bottom/tilesize); x++) {
+	var e:PlanAction = plan.getAction(x, y);
 	if (e == null) continue;
 	var p:Point = e.p;
 	var c:int = 0x0000ff;

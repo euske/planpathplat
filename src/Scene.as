@@ -10,11 +10,11 @@ import flash.geom.Rectangle;
 // 
 public class Scene extends Sprite
 {
+  private var _window:Rectangle;
   private var _tilemap:TileMap;
   private var _tilewindow:Rectangle;
   private var _tiles:BitmapData;
   private var _mapimage:Bitmap;
-  private var _window:Rectangle;
   private var _mapsize:Point;
   private var _actors:Array;
 
@@ -22,11 +22,11 @@ public class Scene extends Sprite
   public function Scene(width:int, height:int, 
 			tilemap:TileMap, tiles:BitmapData)
   {
+    _window = new Rectangle(0, 0, width, height);
     _tilemap = tilemap;
     _tiles = tiles;
     _tilewindow = new Rectangle();
     _mapimage = new Bitmap(new BitmapData(width, height, true, 0x00000000));
-    _window = new Rectangle(0, 0, width, height);
     _mapsize = new Point(tilemap.width*tilemap.tilesize,
 			 tilemap.height*tilemap.tilesize);
     _actors = new Array();
@@ -37,6 +37,12 @@ public class Scene extends Sprite
   public function get tilemap():TileMap
   {
     return _tilemap;
+  }
+
+  // window
+  public function get window():Rectangle
+  {
+    return _window;
   }
 
   // add(actor)
