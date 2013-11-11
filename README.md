@@ -2,7 +2,7 @@ Path Planning (AI) in Platformer Games
 ======================================
 
 I've been working on path planning for platformer games for a
-while. My original intension was to create a "scripted" character in a
+while. My original intention was to create a "scripted" character in a
 platformer game more easily, but it can have other interesting
 applications. I have a working prototype and its source code.
 
@@ -43,8 +43,8 @@ proposed method, the macro-level planner only takes care of its
 starting point and ending point in the block coordinates. The planner
 has to know in advance the speed of the character in question and its
 jump impulse, as well as the gravity acceleration, so that it can know
-where it The macro-level planner doesn't take care of an actual
-trajectory of characters.
+where it will exactly land. The macro-level planner doesn't take care
+of an actual trajectory of characters.
 
 
 Landing Prediction
@@ -58,6 +58,17 @@ Moving Platforms
 
 A-star or not A-star?
 ---------------------
+
+Source Code Structure
+---------------------
+
+There are several important classes that do the logic.
+They are mostly separated from the UI.
+
+ * Actor
+ * PlanAction
+ * PlanMap
+ * TileMap
 
 Is This Smarter than humans?
 ----------------------------
