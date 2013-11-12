@@ -99,7 +99,7 @@ public class Person extends Actor
     // display the current plan.
     if (visualizer != null) {
       visualizer.plan = _plan;
-      visualizer.repaint();
+      visualizer.update();
     }
   }
   

@@ -43,7 +43,7 @@ public class PlanVisualizer extends Shape
 		    (dst.y+0.5)*tilesize-window.top);
   }
 
-  public function repaint():void
+  public function paint():void
   {
     graphics.clear();
     if (plan == null) return;

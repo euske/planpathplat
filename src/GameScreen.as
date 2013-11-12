@@ -73,7 +73,7 @@ public class GameScreen extends Screen
   {
     scene.update();
     scene.setCenter(player.pos, 100, 100);
-    scene.repaint();
+    scene.paint();
   }
 
   // keydown(keycode)

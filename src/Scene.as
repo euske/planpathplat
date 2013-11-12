@@ -67,8 +67,8 @@ public class Scene extends Sprite
     }
   }
 
-  // repaint()
-  public function repaint():void
+  // paint()
+  public function paint():void
   {
     for each (var actor:Actor in _actors) {
       var p:Point = translatePoint(actor.pos);
