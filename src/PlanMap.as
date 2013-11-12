@@ -10,7 +10,6 @@ public class PlanMap
   public var tilemap:TileMap;
   public var goal:Point;
   public var bounds:Rectangle;
-  public var start:Point;
 
   private var _a:Array;
 
@@ -65,7 +64,6 @@ public class PlanMap
 	!tilemap.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
 			 start.x+cb.right, start.y+cb.bottom+1, 
 			 Tile.isstoppable)) return 0;
-    this.start = start;
 
     if (goal.x < bounds.left || bounds.right < goal.x ||
 	goal.y < bounds.top || bounds.bottom < goal.y) return 0;

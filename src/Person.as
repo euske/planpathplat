@@ -79,8 +79,8 @@ public class Person extends Actor
       var action:PlanAction = _plan.getAction(cur.x, cur.y);
       if (action != null && action.next != null) {
 	_action = action;
-	_action.addEventListener(PlanAction.JUMP, onActionJump);
-	_action.addEventListener(PlanAction.MOVETO, onActionMoveTo);
+	_action.addEventListener(PlanActionJumpEvent.JUMP, onActionJump);
+	_action.addEventListener(PlanActionMoveToEvent.MOVETO, onActionMoveTo);
 	_action.begin(this);
       }
     }
@@ -90,24 +90,23 @@ public class Person extends Actor
       if (_action.update(this)) {
 	// finishing an action.
 	_action.end(this);
-	_action.removeEventListener(PlanAction.JUMP, onActionJump);
-	_action.removeEventListener(PlanAction.MOVETO, onActionMoveTo);
+	_action.removeEventListener(PlanActionJumpEvent.JUMP, onActionJump);
+	_action.removeEventListener(PlanActionMoveToEvent.MOVETO, onActionMoveTo);
 	_action = null;
       }
     }
 
     // display the current plan.
     if (visualizer != null) {
-      visualizer.plan = _plan;
-      visualizer.update();
+      visualizer.update(_plan, tilemap.getCoordsByPoint(pos));
     }
   }
   
-  private function onActionJump(e:Event):void
+  private function onActionJump(e:PlanActionJumpEvent):void
   {
     jump();
   }
-  private function onActionMoveTo(e:MoveToEvent):void
+  private function onActionMoveTo(e:PlanActionMoveToEvent):void
   {
     moveToward(e.p);
   }

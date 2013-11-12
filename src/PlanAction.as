@@ -14,7 +14,6 @@ public class PlanAction extends EventDispatcher
   public static const FALL:String = "FALL";
   public static const CLIMB:String = "CLIMB";
   public static const JUMP:String = "JUMP";
-  public static const MOVETO:String = "MOVETO";
 
   public var tilemap:TileMap;
   public var p:Point;
@@ -65,7 +64,7 @@ public class PlanAction extends EventDispatcher
     case WALK:
     case CLIMB:
       p = tilemap.getTilePoint(dst.x, dst.y);
-      dispatchEvent(new MoveToEvent(MOVETO, p));
+      dispatchEvent(new PlanActionMoveToEvent(p));
       break;
 	
     case FALL:
@@ -73,7 +72,7 @@ public class PlanAction extends EventDispatcher
 				    Tile.isobstacle, actor.tilebounds);
       if (0 < path.length) {
 	p = tilemap.getTilePoint(path[0].x, path[0].y);
-	dispatchEvent(new MoveToEvent(MOVETO, p));
+	dispatchEvent(new PlanActionMoveToEvent(p));
       }
       break;
 	  
@@ -83,17 +82,17 @@ public class PlanAction extends EventDispatcher
 	    !hasClearance(actor, cur.x, mid.y)) {
 	  // not landed, grabbing something, or has no clearance.
 	  p = tilemap.getTilePoint(cur.x, cur.y);
-	  dispatchEvent(new MoveToEvent(MOVETO, p));
+	  dispatchEvent(new PlanActionMoveToEvent(p));
 	} else {
 	  _jumped = true;
-	  dispatchEvent(new Event(JUMP));
+	  dispatchEvent(new PlanActionJumpEvent());
 	}
       }
       path = tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
 				    Tile.isstoppable, actor.tilebounds);
       if (0 < path.length) {
 	p = tilemap.getTilePoint(path[0].x, path[0].y);
-	dispatchEvent(new MoveToEvent(MOVETO, p));
+	dispatchEvent(new PlanActionMoveToEvent(p));
       }
       break;
     }

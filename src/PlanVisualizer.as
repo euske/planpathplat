@@ -8,7 +8,6 @@ import flash.geom.Rectangle;
 // 
 public class PlanVisualizer extends Shape
 {
-  public var plan:PlanMap;
   public var scene:Scene;
 
   public function PlanVisualizer(scene:Scene)
@@ -17,33 +16,8 @@ public class PlanVisualizer extends Shape
     this.scene = scene;
   }
 
-  private function get window():Rectangle
-  {
-    return scene.window;
-  }
-  private function get tilesize():int
-  {
-    return scene.tilemap.tilesize;
-  }
-
-  private function drawRect(color:uint, p:Point, size:int):void
-  {
-    graphics.lineStyle(0, color);
-    graphics.drawRect((p.x+0.5)*tilesize-size/2-window.left, 
-		      (p.y+0.5)*tilesize-size/2-window.top, 
-		      size, size);
-  }
-
-  private function drawLine(color:uint, src:Point, dst:Point):void
-  {
-    graphics.lineStyle(0, color);
-    graphics.moveTo((src.x+0.5)*tilesize-window.left,
-		    (src.y+0.5)*tilesize-window.top);
-    graphics.lineTo((dst.x+0.5)*tilesize-window.left,
-		    (dst.y+0.5)*tilesize-window.top);
-  }
-
-  public function paint():void
+  // update()
+  public function update(plan:PlanMap, start:Point):void
   {
     graphics.clear();
     if (plan == null) return;
@@ -79,11 +53,38 @@ public class PlanVisualizer extends Shape
 	}
       }
     }
-    if (plan.start != null) {
-      drawRect(0xffffff, plan.start, tilesize-4);
+    if (start != null) {
+      drawRect(0xffffff, start, tilesize-4);
     }
     drawRect(0x00ff00, plan.goal, tilesize-4);
   }
+
+  private function get window():Rectangle
+  {
+    return scene.window;
+  }
+  private function get tilesize():int
+  {
+    return scene.tilemap.tilesize;
+  }
+
+  private function drawRect(color:uint, p:Point, size:int):void
+  {
+    graphics.lineStyle(0, color);
+    graphics.drawRect((p.x+0.5)*tilesize-size/2-window.left, 
+		      (p.y+0.5)*tilesize-size/2-window.top, 
+		      size, size);
+  }
+
+  private function drawLine(color:uint, src:Point, dst:Point):void
+  {
+    graphics.lineStyle(0, color);
+    graphics.moveTo((src.x+0.5)*tilesize-window.left,
+		    (src.y+0.5)*tilesize-window.top);
+    graphics.lineTo((dst.x+0.5)*tilesize-window.left,
+		    (dst.y+0.5)*tilesize-window.top);
+  }
+
 }
 
 } // package
