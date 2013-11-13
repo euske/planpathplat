@@ -22,7 +22,7 @@ public class PlanVisualizer extends Shape
     graphics.clear();
     if (plan == null) return;
 
-    for (var y:int = Math.floor(window.left/tilesize); 
+    for (var y:int = Math.floor(window.top/tilesize); 
 	 y < Math.ceil(window.bottom/tilesize); y++) {
       for (var x:int = Math.floor(window.left/tilesize); 
 	   x < Math.ceil(window.right/tilesize); x++) {
