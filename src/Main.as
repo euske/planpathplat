@@ -1,7 +1,7 @@
 package {
 
 import flash.display.Sprite;
-import flash.display.Stage;
+import flash.display.Shape;
 import flash.display.StageScaleMode;
 import flash.display.DisplayObject;
 import flash.events.Event;
@@ -20,6 +20,7 @@ public class Main extends Sprite
   private var _screen:Screen;
   private var _paused:Boolean;
   private var _keydown:int;
+  private var _pausescreen:Shape;
 
   // Main()
   public function Main()
@@ -39,6 +40,8 @@ public class Main extends Sprite
     _logger.background = true;
     _logger.type = TextFieldType.DYNAMIC;
     //addChild(_logger);
+
+    _pausescreen = new PauseScreen(stage.stageWidth, stage.stageHeight);
 
     init();
   }
@@ -62,7 +65,13 @@ public class Main extends Sprite
   // setPauseState(paused)
   private function setPauseState(paused:Boolean):void
   {
+    if (_paused) {
+      removeChild(_pausescreen);
+    }
     _paused = paused;
+    if (_paused) {
+      addChild(_pausescreen);
+    }
   }
 
   // setScreen(screen)
@@ -162,3 +171,20 @@ public class Main extends Sprite
 }
 
 } // package
+
+import flash.display.Shape;
+
+class PauseScreen extends Shape
+{
+  public function PauseScreen(width:int, height:int, size:int=50)
+  {
+    graphics.beginFill(0x8888ff, 0.3);
+    graphics.drawRect(0, 0, width, height);
+    graphics.endFill();
+    graphics.beginFill(0xeeeeee);
+    graphics.moveTo(width/2-size, height/2-size);
+    graphics.lineTo(width/2-size, height/2+size);
+    graphics.lineTo(width/2+size, height/2);
+    graphics.endFill();
+  }
+}
