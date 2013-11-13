@@ -26,7 +26,9 @@ public class Scene extends Sprite
     _tilemap = tilemap;
     _tiles = tiles;
     _tilewindow = new Rectangle();
-    _mapimage = new Bitmap(new BitmapData(width, height, true, 0x00000000));
+    _mapimage = new Bitmap(new BitmapData(width+tilemap.tilesize, 
+					  height+tilemap.tilesize, 
+					  true, 0x00000000));
     _mapsize = new Point(tilemap.width*tilemap.tilesize,
 			 tilemap.height*tilemap.tilesize);
     _actors = new Array();
@@ -76,11 +78,11 @@ public class Scene extends Sprite
       actor.skin.y = p.y+actor.frame.y;
     }
     var tilesize:int = _tilemap.tilesize;
-    var r:Rectangle = 
-      new Rectangle(Math.floor(_window.x/tilesize),
-		    Math.floor(_window.y/tilesize),
-		    Math.floor(_window.width/tilesize)+1,
-		    Math.floor(_window.height/tilesize)+1);
+    var x0:int = Math.floor(_window.left/tilesize);
+    var y0:int = Math.floor(_window.top/tilesize);
+    var x1:int = Math.ceil(_window.right/tilesize);
+    var y1:int = Math.ceil(_window.bottom/tilesize);
+    var r:Rectangle = new Rectangle(x0, y0, x1-x0+1, y1-y0+1);
     if (!_tilewindow.equals(r)) {
       renderTiles(r);
     }
@@ -92,12 +94,14 @@ public class Scene extends Sprite
   private function renderTiles(r:Rectangle):void
   {
     var tilesize:int = _tilemap.tilesize;
-    for (var dy:int = 0; dy < r.height; dy++) {
-      for (var dx:int = 0; dx < r.width; dx++) {
+    for (var dy:int = 0; dy <= r.height; dy++) {
+      for (var dx:int = 0; dx <= r.width; dx++) {
 	var i:int = _tilemap.getTile(r.x+dx, r.y+dy);
-	var src:Rectangle = new Rectangle(i*tilesize, 0, tilesize, tilesize);
-	var dst:Point = new Point(dx*tilesize, dy*tilesize);
-	_mapimage.bitmapData.copyPixels(_tiles, src, dst);
+	if (0 <= i) {
+	  var src:Rectangle = new Rectangle(i*tilesize, 0, tilesize, tilesize);
+	  var dst:Point = new Point(dx*tilesize, dy*tilesize);
+	  _mapimage.bitmapData.copyPixels(_tiles, src, dst);
+	}
       }
     }
     _tilewindow = r;
@@ -140,13 +144,14 @@ public class Scene extends Sprite
   // createPlan(center)
   public function createPlan(center:Point, margin:int=0):PlanMap
   {
-    var x0:int = Math.floor(_window.left/_tilemap.tilesize);
+    var tilesize:int = _tilemap.tilesize;
+    var x0:int = Math.floor(_window.left/tilesize);
     x0 = Math.max(x0-margin, 0);
-    var y0:int = Math.floor(_window.top/_tilemap.tilesize);
+    var y0:int = Math.floor(_window.top/tilesize);
     y0 = Math.max(y0-margin, 0);
-    var x1:int = Math.ceil(_window.right/_tilemap.tilesize);
+    var x1:int = Math.ceil(_window.right/tilesize);
     x1 = Math.min(x1+margin, _tilemap.width-1);
-    var y1:int = Math.ceil(_window.bottom/_tilemap.tilesize);
+    var y1:int = Math.ceil(_window.bottom/tilesize);
     y1 = Math.min(y1+margin, _tilemap.height-1);
     var bounds:Rectangle = new Rectangle(x0, y0, x1-x0, y1-y0);
     return new PlanMap(_tilemap, center, bounds);
