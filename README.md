@@ -20,9 +20,10 @@ macro-level planning takes care of a coarse-grained plan such as "go
 to this block" or "jump here and try to land at that block". The
 micro-level planning takes care of more fine-tuned movement that
 involves a continuous 2-D space. The macro-level planning is done by
-using typical AI techniques on block-by-block basis. The micro-level
-planning is done in a more greedy manner, by taking care of physical
-collisions and character coordinates.
+using typical AI techniques per block basis, constructing a mesh of
+possible action at each place. The micro-level planning is done in a
+more greedy manner, by taking care of physical collisions and
+character coordinates.
 
 The macro-level planning can be implemented with a pretty
 straightforward Dijkstra or A* search. It starts from the goal 
@@ -37,7 +38,7 @@ Jumping / Falling
 -----------------
 
 Jumping and falling is the key element of platformer games and the
-meat of its planning problem. It has so many parameters that using
+core of its planning problem. It has so many parameters that using
 naive methods will easily lead to computational explosion. In the
 proposed method, the macro-level planner only takes care of its
 starting point and ending point in the block coordinates. The planner
