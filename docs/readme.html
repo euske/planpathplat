@@ -6,10 +6,11 @@
 <h1>Path Planning (AI) in Platformer Games</h1>
 
 <p>
-I've been working on path planning for platformer games for a
-while. My original intention was to create a scripted character in a
-platformer game easily, but it can have other interesting
-applications. I have a working prototype and its source code.
+I've been working on path planning (path finding) for platformer games
+for a while. My original intention was to create a reusable framework
+for scripting characters in a platformer, but it can have other
+interesting applications. I have a working prototype and its source
+code.
 
 <ul>
 <li> <a href="http://ludumdare.tabesugi.net/ppp/">Working prototype</a>
@@ -99,12 +100,23 @@ based on the current speed of the character.
 <p>
 <img src="prediction.png">
 
-<h2>Moving Platforms</h2>
+<h2>Moving Platforms, Splinting, Double Jumping, etc.</h2>
+
+<p>
+A path finding is based on an assumption that the floor map
+you're planning on is not changed over time. 
 
 <p>
 <img src="movingplatform.png">
 
-<h2>Splinting / Double Jumping</h2>
+<p>
+Handling moves like splinting or double jumping can be more tricky,
+because such actions depend on the previous state of a character.  In
+other words, planning becomes contextual-dependent. Now we would have
+to consider multiple possible states at each grid, making the search
+space several times larger. I am not sure if we can find a really good
+solution for this kind of planning, but in theory we can still take
+this into account in the current framework.
 
 <h2>Source Code Structure</h2>
 
