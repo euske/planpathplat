@@ -1,9 +1,9 @@
 <html>
 <head>
-<title>Path Planning (AI) in Platformer Games</title>
+<title>Path Planning (AI) in Platformer Games: A Layered Approach</title>
 </head>
 <body>
-<h1>Path Planning (AI) in Platformer Games</h1>
+<h1>Path Planning (AI) in Platformer Games: A Layered Approach</h1>
 
 <p>
 I've been working on path planning (path finding) for platformer games
@@ -92,7 +92,7 @@ character to the ending position (Land).  It takes a precise
 <p>
 The planner can find a solution only when the path planning is
 solvable. When a character is following another character that is
-jumping or falling, the goal position is considered unreachable,
+jumping or falling, the goal position is often considered unreachable,
 making it impossible to find a solution. In a case like this, the
 planner can optionally make a guess of the final landing position
 based on the current speed of the character.
@@ -104,15 +104,18 @@ based on the current speed of the character.
 
 <p>
 A path finding is based on an assumption that the floor map
-you're planning on is not changed over time. 
+you're planning on is static. When there are some parts that are
+changing dynamically, those parts need to be handled specially by 
+the micro-level planner. In this case, the macro-level planner only 
+takes care of moving into that part and getting out of it.
 
 <p>
 <img src="movingplatform.png">
 
 <p>
 Handling moves like splinting or double jumping can be more tricky,
-because such actions depend on the previous state of a character.  In
-other words, planning becomes contextual-dependent. Now we would have
+because such actions depend on the current state of a character.  In
+other words, a plan becomes context-dependent. Now we would have
 to consider multiple possible states at each grid, making the search
 space several times larger. I am not sure if we can find a really good
 solution for this kind of planning, but in theory we can still take
@@ -121,24 +124,45 @@ this into account in the current framework.
 <h2>Source Code Structure</h2>
 
 <p>
-There are several important classes that do the logic.
-They are mostly separated from the UI.
+The prototype is written in ActionScript. However, the planning parts
+are separated from the UI and I believe it's relatively easy to port them to
+another language. Here are a couple of important classes:
 
-<ul>
-<li> <code>Actor</code>: 
-  This is an object that the planner takes control of.
-<li> <code>TileMap</code>:
-  An object that holds the 2D map where a plan graph is based on.
+<dl>
+<dt> <code>Actor</code>
+<dd> This is an object that the planner takes control of.
+  The object needs to support methods like <code>move(x, y)</code>, <code>jump()</code>
+  to perform actions on each character, as well as query methods such as 
+  <code>bounds()</code>.
+
+<dt> <code>TileMap</code>
+<dd> An object that stores a 2D map that a planner can use.
   This is basically a two dimensional array of tile numbers.
-<li> <code>PlanMap</code>: 
-  A plan graph and its constructor.
-<li> <code>PlanAction</code>: 
-  This object is responsible for moving a character during a certain action. 
-  Each action is represented as an edge of a plan graph.
-  An action object has a detailed information about the action
-  such as a starting and ending point, the type of the action, 
-  and the tile map it's referring to.
-</ul>
+  The class needs to handle a query like <code>getTile(x, y)</code> as well as
+  range queries like "if there's a certain block within this area" in order to
+  serve the efficient planning.
+
+<dt> <code>PlanMap</code>
+<dd> A macro-level planner that has a plan graph and its constructor.
+  It maintains a grid of actions, which correspond to each tile in 
+  a <code>TileMap</code> object, so that an <code>Actor</code> can query
+  a possible action to take at each place. An action, 
+  which is a <code>PlanAction</code> object, is represented as 
+  an edge of a plan graph. There's one important method <code>addPlan()</code>,
+  which fills the grid according to the given parameters and the associated
+  <code>TileMap</code>.
+  A plan graph can be shared and reused as long as the goal is not changed
+  and all the <code>Actor</code>s has the same property (e.g. speed, gravity, etc.).
+
+<dt> <code>PlanAction</code>
+<dd> This object represents a single action planned by the macro-level planner.
+  An action object has a detailed information about the action such as a
+  starting and ending point, the type of the action, and the tile map it's referring to.
+  The object is responsible for performing micro-level planning.
+  It fires events to an Actor object so that it can carry out 
+  the corresponding actions (jumping or moving, etc).
+
+</dl>
 
 <h2>Is This Smarter than Humans?</h2>
 
