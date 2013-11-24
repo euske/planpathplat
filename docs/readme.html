@@ -13,8 +13,8 @@ interesting applications. I have a working prototype and its source
 code.
 
 <ul>
-<li> <a href="http://ludumdare.tabesugi.net/ppp/">Working prototype</a>
-<li> <a href="https://github.com/euske/planpathplat/">Source code</a>
+<li> <a href="http://ludumdare.tabesugi.net/ppp/">Playable prototype</a>
+<li> <a href="https://github.com/euske/planpathplat/">GitHub</a>
 </ul>
 
 <p>
@@ -100,7 +100,7 @@ based on the current speed of the character.
 <p>
 <img src="prediction.png">
 
-<h2>Moving Platforms, Splinting, Double Jumping, etc.</h2>
+<h2>Moving Platforms, Sprinting, Double Jumping, etc.</h2>
 
 <p>
 A path finding is based on an assumption that the floor map
@@ -113,7 +113,7 @@ takes care of moving into that part and getting out of it.
 <img src="movingplatform.png">
 
 <p>
-Handling moves like splinting or double jumping can be more tricky,
+Handling moves like sprinting or double jumping can be more tricky,
 because such actions depend on the current state of a character.  In
 other words, a plan becomes context-dependent. Now we would have
 to consider multiple possible states at each grid, making the search
