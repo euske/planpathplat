@@ -1,5 +1,5 @@
 Path Planning (AI) in Platformer Games: A Layered Approach
-======================================
+==========================================================
 
 I've been working on path planning (path finding) for platformer games
 for a while. My original intention was to create a reusable framework
