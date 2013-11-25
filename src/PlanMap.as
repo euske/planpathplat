@@ -88,8 +88,9 @@ public class PlanMap
 
       // try climbing down.
       if (bounds.top <= p.y-1 &&
-	  tilemap.isTile(p.x, p.y+cb.bottom,
-			 Tile.isgrabbable)) {
+	  tilemap.hasTile(p.x+cb.left, p.y+cb.bottom,
+			  p.y+cb.right, p.y+cb.bottom,
+			  Tile.isgrabbable)) {
 	e1 = _a[p.y-bounds.top-1][p.x-bounds.left];
 	cost = e0.cost+1;
 	if (cost < e1.cost) {
