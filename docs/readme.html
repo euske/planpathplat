@@ -95,7 +95,7 @@ solvable. When a character is following another character that is
 jumping or falling, the goal position is often considered unreachable,
 making it impossible to find a solution. In a case like this, the
 planner can optionally make a guess of the final landing position
-based on the current speed of the character.
+based on the current speed of the target.
 
 <p>
 <img src="prediction.png">
@@ -161,6 +161,7 @@ another language. Here are a couple of important classes:
   The object is responsible for performing micro-level planning.
   It fires events to an Actor object so that it can carry out 
   the corresponding actions (jumping or moving, etc).
+  Each action also has a link to the next action in the graph.
 
 </dl>
 
