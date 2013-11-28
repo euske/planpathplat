@@ -53,12 +53,14 @@ public class PlanMap
 
   // addPlan(plan, b)
   public function addPlan(cb:Rectangle, 
-			  jumpdt:int, speed:int, gravity:int,
+			  speed:int, jumpspeed:int, gravity:int,
 			  start:Point=null, n:int=1000,
 			  falldx:int=10, falldy:int=20):int
   {
+    var jumpdt:int = Math.floor(jumpspeed / gravity);
     var jumpdx:int = Math.floor(jumpdt*speed / tilemap.tilesize);
     var jumpdy:int = -Math.floor(jumpdt*(jumpdt+1)/2 * gravity / tilemap.tilesize);
+    var jumpdh:int = -Math.ceil(jumpdt*(jumpdt+1)/2 * gravity / tilemap.tilesize);
 
     if (start != null &&
 	!tilemap.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
@@ -197,6 +199,7 @@ public class PlanMap
 	      if (jx < bounds.left || bounds.right < jx) break;
 	      var jy:int = fy-jumpdy;
 	      if (jy < bounds.top || bounds.bottom < jy) break;
+	      //  ........
 	      //  ....+--+  [vx = +1]
 	      //  ....|  |
 	      //  ....+-X+ (fx,fy) midpoint
@@ -207,6 +210,9 @@ public class PlanMap
 	      // ======
 	      if (tilemap.hasTile(jx+bx0, jy+cb.bottom, 
 				  fx+bx1-vx, fy+cb.top, 
+				  Tile.isstoppable)) break;
+	      if (tilemap.hasTile(jx+bx0, jy+jumpdh+cb.bottom, 
+				  fx+bx1, jy+jumpdh+cb.top, 
 				  Tile.isstoppable)) break;
 	      if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
 				   jx+cb.right, jy+cb.bottom+1, 

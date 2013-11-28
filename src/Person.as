@@ -63,10 +63,9 @@ public class Person extends Actor
 
     // make a plan.
     if (_plan == null && _action == null && goal != null) {
-      var jumpdt:int = Math.floor(jumpspeed / gravity);
       var plan:PlanMap = scene.createPlan(goal, 10);
       if (0 < plan.addPlan(tilebounds, 
-			   jumpdt, speed, gravity,
+			   speed, jumpspeed, gravity,
 			   tilemap.getCoordsByPoint(pos))) {
 	_plan = plan;
       }
