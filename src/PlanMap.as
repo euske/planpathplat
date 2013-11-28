@@ -57,10 +57,10 @@ public class PlanMap
 			  start:Point=null, n:int=1000,
 			  falldx:int=10, falldy:int=20):int
   {
-    var jumpdt:int = Math.floor(jumpspeed / gravity);
-    var jumpdx:int = Math.floor(jumpdt*speed / tilemap.tilesize);
-    var jumpdy:int = -Math.floor(jumpdt*(jumpdt+1)/2 * gravity / tilemap.tilesize);
-    var jumpdh:int = -Math.ceil(jumpdt*(jumpdt+1)/2 * gravity / tilemap.tilesize);
+    // madt: maximum amount of time for ascending.
+    var madt:int = Math.floor(jumpspeed / gravity);
+    // madx: maximum horizontal distance while ascending.
+    var madx:int = Math.floor(madt*speed / tilemap.tilesize);
 
     if (start != null &&
 	!tilemap.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
@@ -178,9 +178,12 @@ public class PlanMap
 	for (fdx = 0; fdx <= falldx; fdx++) {
 	  fx = p.x-vx*fdx;
 	  if (fx < bounds.left || bounds.right < fx) break;
+	  // fdt: time for falling.
 	  fdt = Math.ceil(tilemap.tilesize*fdx/speed);
+	  // fdy: amount of falling.
 	  fdy = Math.ceil(fdt*(fdt+1)/2 * gravity / tilemap.tilesize);
 	  for (; fdy <= falldy; fdy++) {
+	    // (fx,fy): tip position.
 	    fy = p.y-fdy;
 	    if (fy < bounds.top || bounds.bottom < fy) break;
 	    //  +--+.....  [vx = +1]
@@ -194,10 +197,17 @@ public class PlanMap
 	    if (tilemap.hasTile(fx+bx0, fy+cb.top, 
 				p.x+bx1, p.y+cb.bottom, 
 				Tile.isstoppable)) break;
-	    for (var jdx:int = 1; jdx <= jumpdx; jdx++) {
+	    for (var jdx:int = 1; jdx <= madx; jdx++) {
+	      // adt: time for ascending.
+	      var adt:int = Math.floor(jdx*tilemap.tilesize/speed);
+	      // ady: height of ascending.
+	      var ady:int = -Math.floor(adt*(adt+1)/2 * gravity / tilemap.tilesize);
+	      // adh: clearance needed for this ascending.
+	      var adh:int = -Math.ceil(adt*(adt+1)/2 * gravity / tilemap.tilesize);
+	      // (jx,jy): original position.
 	      var jx:int = fx-vx*jdx;
 	      if (jx < bounds.left || bounds.right < jx) break;
-	      var jy:int = fy-jumpdy;
+	      var jy:int = fy-ady;
 	      if (jy < bounds.top || bounds.bottom < jy) break;
 	      //  ........
 	      //  ....+--+  [vx = +1]
@@ -211,14 +221,14 @@ public class PlanMap
 	      if (tilemap.hasTile(jx+bx0, jy+cb.bottom, 
 				  fx+bx1-vx, fy+cb.top, 
 				  Tile.isstoppable)) break;
-	      if (tilemap.hasTile(jx+bx0, jy+jumpdh+cb.bottom, 
-				  fx+bx1, jy+jumpdh+cb.top, 
+	      if (tilemap.hasTile(jx+bx0, jy+adh+cb.bottom, 
+				  fx+bx1, jy+adh+cb.top, 
 				  Tile.isstoppable)) break;
 	      if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
 				   jx+cb.right, jy+cb.bottom+1, 
 				   Tile.isstoppable)) continue;
 	      e1 = _a[jy-bounds.top][jx-bounds.left];
-	      cost = e0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(jumpdy)+1;
+	      cost = e0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(ady)+1;
 	      if (cost < e1.cost) {
 		e1.action = PlanAction.JUMP;
 		e1.cost = cost;
