@@ -61,6 +61,8 @@ public class PlanMap
     var madt:int = Math.floor(jumpspeed / gravity);
     // madx: maximum horizontal distance while ascending.
     var madx:int = Math.floor(madt*speed / tilemap.tilesize);
+    // mady: maximum vertical distance while ascending.
+    var mady:int = Math.floor((jumpspeed*madt - madt*(madt+1)/2*gravity) / tilemap.tilesize);
 
     if (start != null &&
 	!tilemap.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
@@ -200,39 +202,42 @@ public class PlanMap
 	    for (var jdx:int = 1; jdx <= madx; jdx++) {
 	      // adt: time for ascending.
 	      var adt:int = Math.floor(jdx*tilemap.tilesize/speed);
-	      // ady: height of ascending.
-	      var ady:Number = (jumpspeed*adt - adt*(adt+1)/2 * gravity) / tilemap.tilesize;
-	      // (jx,jy): original position.
-	      var jx:int = fx-vx*jdx;
-	      if (jx < bounds.left || bounds.right < jx) break;
-	      var jy:int = fy+Math.floor(ady);
-	      if (jy < bounds.top || bounds.bottom < jy) break;
-	      //  ........
-	      //  ....+--+  [vx = +1]
-	      //  ....|  |
-	      //  ....+-X+ (fx,fy) midpoint
-	      //  .......
-	      //  +--+...
-	      //  |  |...
-	      //  +-X+... (jx,jy) original position.
-	      // ======
-	      if (tilemap.hasTile(jx+bx0, jy+cb.bottom, 
-				  fx+bx1-vx, fy+cb.top, 
-				  Tile.isstoppable)) break;
-	      if (tilemap.hasTile(jx+bx0, jy-Math.ceil(ady)+cb.bottom, 
-				  fx+bx1, jy-Math.ceil(ady)+cb.top, 
-				  Tile.isstoppable)) break;
-	      if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
-				   jx+cb.right, jy+cb.bottom+1, 
-				   Tile.isstoppable)) continue;
-	      e1 = _a[jy-bounds.top][jx-bounds.left];
-	      cost = e0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(ady)+1;
-	      if (cost < e1.cost) {
-		e1.action = PlanAction.JUMP;
-		e1.cost = cost;
-		e1.next = e0;
-		e1.mid = new Point(fx, fy);
-		queue.push(new QueueItem(e1, start));
+	      // ady: minimal ascend.
+	      var ady:int = Math.floor((jumpspeed*adt - adt*(adt+1)/2 * gravity) / 
+				       tilemap.tilesize);
+	      for (var jdy:int = ady; jdy <= mady; jdy++) {
+		// (jx,jy): original position.
+		var jx:int = fx-vx*jdx;
+		if (jx < bounds.left || bounds.right < jx) break;
+		var jy:int = fy+jdy;
+		if (jy < bounds.top || bounds.bottom < jy) break;
+		//  ........ (extra clearance is needed)
+		//  ....+--+  [vx = +1]
+		//  ....|  |
+		//  ....+-X+ (fx,fy) midpoint
+		//  .......
+		//  +--+...
+		//  |  |...
+		//  +-X+... (jx,jy) original position.
+		// ======
+		if (tilemap.hasTile(jx+bx0, fy-1+cb.bottom, 
+				    fx+bx1, fy-1+cb.top, 
+				    Tile.isstoppable)) break;
+		if (tilemap.hasTile(jx+bx0, jy+cb.bottom, 
+				    fx+bx1-vx, fy+cb.top, 
+				    Tile.isstoppable)) break;
+		if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
+				     jx+cb.right, jy+cb.bottom+1, 
+				     Tile.isstoppable)) continue;
+		e1 = _a[jy-bounds.top][jx-bounds.left];
+		cost = e0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(jdy)+1;
+		if (cost < e1.cost) {
+		  e1.action = PlanAction.JUMP;
+		  e1.cost = cost;
+		  e1.next = e0;
+		  e1.mid = new Point(fx, fy);
+		  queue.push(new QueueItem(e1, start));
+		}
 	      }
 	    }
 	  }
