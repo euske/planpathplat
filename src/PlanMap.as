@@ -201,13 +201,11 @@ public class PlanMap
 	      // adt: time for ascending.
 	      var adt:int = Math.floor(jdx*tilemap.tilesize/speed);
 	      // ady: height of ascending.
-	      var ady:int = -Math.floor(adt*(adt+1)/2 * gravity / tilemap.tilesize);
-	      // adh: clearance needed for this ascending.
-	      var adh:int = -Math.ceil(adt*(adt+1)/2 * gravity / tilemap.tilesize);
+	      var ady:Number = (jumpspeed*adt - adt*(adt+1)/2 * gravity) / tilemap.tilesize;
 	      // (jx,jy): original position.
 	      var jx:int = fx-vx*jdx;
 	      if (jx < bounds.left || bounds.right < jx) break;
-	      var jy:int = fy-ady;
+	      var jy:int = fy+Math.floor(ady);
 	      if (jy < bounds.top || bounds.bottom < jy) break;
 	      //  ........
 	      //  ....+--+  [vx = +1]
@@ -221,8 +219,8 @@ public class PlanMap
 	      if (tilemap.hasTile(jx+bx0, jy+cb.bottom, 
 				  fx+bx1-vx, fy+cb.top, 
 				  Tile.isstoppable)) break;
-	      if (tilemap.hasTile(jx+bx0, jy+adh+cb.bottom, 
-				  fx+bx1, jy+adh+cb.top, 
+	      if (tilemap.hasTile(jx+bx0, jy-Math.ceil(ady)+cb.bottom, 
+				  fx+bx1, jy-Math.ceil(ady)+cb.top, 
 				  Tile.isstoppable)) break;
 	      if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
 				   jx+cb.right, jy+cb.bottom+1, 
