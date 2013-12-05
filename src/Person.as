@@ -12,7 +12,7 @@ public class Person extends Actor
 
   private var _target:Actor;
   private var _plan:PlanMap;
-  private var _action:PlanAction;
+  private var _runner:PlanActionRunner;
 
   // Person(image)
   public function Person(scene:Scene)
@@ -29,7 +29,7 @@ public class Person extends Actor
   {
     _target = value;
     _plan = null;
-    _action = null;
+    _runner = null;
   }
 
   // update()
@@ -62,7 +62,7 @@ public class Person extends Actor
     }
 
     // make a plan.
-    if (_plan == null && _action == null && goal != null) {
+    if (_plan == null && _runner == null && goal != null) {
       var plan:PlanMap = scene.createPlan(goal, 10);
       if (0 < plan.addPlan(tilebounds, 
 			   speed, jumpspeed, gravity,
@@ -72,26 +72,27 @@ public class Person extends Actor
     }
 
     // follow a plan.
-    if (_plan != null && _action == null) {
+    if (_plan != null && _runner == null) {
       // Get a macro-level plan.
       var cur:Point = tilemap.getCoordsByPoint(pos);
       var action:PlanAction = _plan.getAction(cur.x, cur.y);
       if (action != null && action.next != null) {
-	_action = action;
-	_action.addEventListener(PlanActionJumpEvent.JUMP, onActionJump);
-	_action.addEventListener(PlanActionMoveToEvent.MOVETO, onActionMoveTo);
-	_action.begin(this);
+	_runner = new PlanActionRunner(tilemap, this, action);
+	_runner.addEventListener(PlanActionJumpEvent.JUMP, onActionJump);
+	_runner.addEventListener(PlanActionMoveToEvent.MOVETO, onActionMoveTo);
+	Main.log(this, "begin", _runner.action);
       }
     }
 
     // perform an action.
-    if (_action != null) {
-      if (_action.update(tilemap, this)) {
+    if (_runner != null) {
+      _runner.update();
+      if (_runner.isFinished) {
 	// finishing an action.
-	_action.end(this);
-	_action.removeEventListener(PlanActionJumpEvent.JUMP, onActionJump);
-	_action.removeEventListener(PlanActionMoveToEvent.MOVETO, onActionMoveTo);
-	_action = null;
+	Main.log(this, "end  ", _runner.action);
+	_runner.removeEventListener(PlanActionJumpEvent.JUMP, onActionJump);
+	_runner.removeEventListener(PlanActionMoveToEvent.MOVETO, onActionMoveTo);
+	_runner = null;
       }
     }
 
