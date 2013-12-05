@@ -17,7 +17,7 @@ public class PlanAction extends EventDispatcher
 
   public var tilemap:TileMap;
   public var p:Point;
-  public var action:String;
+  public var type:String;
   public var cost:int;
 
   public var next:PlanAction;
@@ -26,17 +26,17 @@ public class PlanAction extends EventDispatcher
   private var _actor:Actor;
   private var _jumped:Boolean;
 
-  public function PlanAction(tilemap:TileMap, p:Point, action:String, cost:int)
+  public function PlanAction(tilemap:TileMap, p:Point, type:String, cost:int)
   {
     this.tilemap = tilemap;
     this.p = p;
-    this.action = action;
+    this.type = type;
     this.cost = cost;
   }
 
   public override function toString():String
   {
-    return ("<PlanAction: ("+p.x+","+p.y+") action="+action+", cost="+cost+">");
+    return ("<PlanAction: ("+p.x+","+p.y+") type="+type+", cost="+cost+">");
   }
 
   // begin
@@ -60,7 +60,7 @@ public class PlanAction extends EventDispatcher
     var p:Point, path:Array;
 
     // Get a micro-level (greedy) plan.
-    switch (action) {
+    switch (type) {
     case WALK:
     case CLIMB:
       p = tilemap.getTilePoint(dst.x, dst.y);

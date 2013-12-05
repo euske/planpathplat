@@ -30,7 +30,7 @@ public class PlanVisualizer extends Shape
 	if (e == null) continue;
 	var p:Point = e.p;
 	var c:int = 0x0000ff;
-	switch (e.action) {
+	switch (e.type) {
 	case PlanAction.WALK:	// white
 	  drawRect(0xffffff, p, tilesize);
 	  break;

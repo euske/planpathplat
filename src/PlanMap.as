@@ -98,7 +98,7 @@ public class PlanMap
 	e1 = _a[p.y-bounds.top-1][p.x-bounds.left];
 	cost = e0.cost+1;
 	if (cost < e1.cost) {
-	  e1.action = PlanAction.CLIMB;
+	  e1.type = PlanAction.CLIMB;
 	  e1.cost = cost;
 	  e1.next = e0;
 	  queue.push(new QueueItem(e1, start));
@@ -112,7 +112,7 @@ public class PlanMap
 	e1 = _a[p.y-bounds.top+1][p.x-bounds.left];
 	cost = e0.cost+1;
 	if (cost < e1.cost) {
-	  e1.action = PlanAction.CLIMB;
+	  e1.type = PlanAction.CLIMB;
 	  e1.cost = cost;
 	  e1.next = e0;
 	  queue.push(new QueueItem(e1, start));
@@ -133,7 +133,7 @@ public class PlanMap
 	  e1 = _a[p.y-bounds.top][wx-bounds.left];
 	  cost = e0.cost+1;
 	  if (cost < e1.cost) {
-	    e1.action = PlanAction.WALK;
+	    e1.type = PlanAction.WALK;
 	    e1.cost = cost;
 	    e1.next = e0;
 	    queue.push(new QueueItem(e1, start));
@@ -166,7 +166,7 @@ public class PlanMap
 	    e1 = _a[fy-bounds.top][fx-bounds.left];
 	    cost = e0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
 	    if (cost < e1.cost) {
-	      e1.action = PlanAction.FALL;
+	      e1.type = PlanAction.FALL;
 	      e1.cost = cost;
 	      e1.next = e0;
 	      queue.push(new QueueItem(e1, start));
@@ -232,7 +232,7 @@ public class PlanMap
 		e1 = _a[jy-bounds.top][jx-bounds.left];
 		cost = e0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(jdy)+1;
 		if (cost < e1.cost) {
-		  e1.action = PlanAction.JUMP;
+		  e1.type = PlanAction.JUMP;
 		  e1.cost = cost;
 		  e1.next = e0;
 		  e1.mid = new Point(fx, fy);
