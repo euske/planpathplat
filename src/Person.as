@@ -86,7 +86,7 @@ public class Person extends Actor
 
     // perform an action.
     if (_action != null) {
-      if (_action.update(this)) {
+      if (_action.update(tilemap, this)) {
 	// finishing an action.
 	_action.end(this);
 	_action.removeEventListener(PlanActionJumpEvent.JUMP, onActionJump);

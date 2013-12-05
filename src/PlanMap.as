@@ -25,7 +25,7 @@ public class PlanMap
       var b:Array = new Array(bounds.width+1);
       for (var x:int = bounds.left; x <= bounds.right; x++) {
 	var p:Point = new Point(x, y);
-	b[x-bounds.left] = new PlanAction(tilemap, p, PlanAction.NONE, inf);
+	b[x-bounds.left] = new PlanAction(p, PlanAction.NONE, inf);
       }
       _a[y-bounds.top] = b;
     }

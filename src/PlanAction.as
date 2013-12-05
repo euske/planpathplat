@@ -15,7 +15,6 @@ public class PlanAction extends EventDispatcher
   public static const CLIMB:String = "CLIMB";
   public static const JUMP:String = "JUMP";
 
-  public var tilemap:TileMap;
   public var p:Point;
   public var type:String;
   public var cost:int;
@@ -26,9 +25,8 @@ public class PlanAction extends EventDispatcher
   private var _actor:Actor;
   private var _jumped:Boolean;
 
-  public function PlanAction(tilemap:TileMap, p:Point, type:String, cost:int)
+  public function PlanAction(p:Point, type:String, cost:int)
   {
-    this.tilemap = tilemap;
     this.p = p;
     this.type = type;
     this.cost = cost;
@@ -53,7 +51,7 @@ public class PlanAction extends EventDispatcher
   }
 
   // update
-  public function update(actor:Actor):Boolean
+  public function update(tilemap:TileMap, actor:Actor):Boolean
   {
     var cur:Point = tilemap.getCoordsByPoint(actor.pos);
     var dst:Point = next.p;
@@ -79,7 +77,7 @@ public class PlanAction extends EventDispatcher
     case JUMP:
       if (!_jumped) {
 	if (!actor.isLanded() || actor.isGrabbing() ||
-	    !hasClearance(actor, cur.x, mid.y)) {
+	    !hasClearance(tilemap, actor, cur.x, mid.y)) {
 	  // not landed, grabbing something, or has no clearance.
 	  p = tilemap.getTilePoint(cur.x, cur.y);
 	  dispatchEvent(new PlanActionMoveToEvent(p));
@@ -101,7 +99,7 @@ public class PlanAction extends EventDispatcher
     return cur.equals(dst);
   }
 
-  private function hasClearance(actor:Actor, x:int, y:int):Boolean
+  private function hasClearance(tilemap:TileMap, actor:Actor, x:int, y:int):Boolean
   {
     var r:Rectangle = tilemap.getTileRect(x+actor.tilebounds.left, 
 					  y+actor.tilebounds.top, 
