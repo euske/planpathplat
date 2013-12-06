@@ -61,12 +61,14 @@ public class PlanMap
     if (goal.x < bounds.left || bounds.right < goal.x ||
 	goal.y < bounds.top || bounds.bottom < goal.y) return 0;
     
-    var queue:Array = [ new QueueItem(new PlanAction(goal)) ];
+    var queue:Array = new Array();
+    addQueue(queue, start, new PlanAction(goal));
     while (0 < n && 0 < queue.length) {
       var cost:int;
       var q:QueueItem = queue.pop();
       var a0:PlanAction = q.action;
       var p:Point = a0.p;
+      var context:String = a0.context;
       if (start != null && start.equals(p)) break;
       if (tilemap.hasTile(p.x+cb.left, p.y+cb.top, 
 			  p.x+cb.right, p.y+cb.bottom, 
@@ -84,7 +86,7 @@ public class PlanMap
 			  Tile.isgrabbable)) {
 	cost = a0.cost+1;
 	addQueue(queue, start, 
-		 new PlanAction(new Point(p.x, p.y-1), 
+		 new PlanAction(new Point(p.x, p.y-1), context,
 				PlanAction.CLIMB, cost, a0));
       }
       // try climbing up.
@@ -94,7 +96,7 @@ public class PlanMap
 			  Tile.isgrabbable)) {
 	cost = a0.cost+1;
 	addQueue(queue, start, 
-		 new PlanAction(new Point(p.x, p.y+1), 
+		 new PlanAction(new Point(p.x, p.y+1), context,
 				PlanAction.CLIMB, cost, a0));
       }
 
@@ -111,7 +113,7 @@ public class PlanMap
 			    Tile.isstoppable)) {
 	  cost = a0.cost+1;
 	  addQueue(queue, start, 
-		   new PlanAction(new Point(wx, p.y), 
+		   new PlanAction(new Point(wx, p.y), context,
 				  PlanAction.WALK, cost, a0));
 	}
 
@@ -140,7 +142,7 @@ public class PlanMap
 				 Tile.isstoppable)) continue;
 	    cost = a0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
 	    addQueue(queue, start, 
-		     new PlanAction(new Point(fx, fy), 
+		     new PlanAction(new Point(fx, fy), context,
 				    PlanAction.FALL, cost, a0));
 	  }
 	}
@@ -202,8 +204,9 @@ public class PlanMap
 				     Tile.isstoppable)) continue;
 		cost = a0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(jdy)+1;
 		addQueue(queue, start, 
-			 new PlanAction(new Point(jx, jy),
-					PlanAction.JUMP, cost, a0, new Point(fx, fy)));
+			 new PlanAction(new Point(jx, jy), context,
+					PlanAction.JUMP, cost, a0, 
+					new Point(fx, fy)));
 	      }
 	    }
 	  }
