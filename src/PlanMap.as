@@ -73,30 +73,33 @@ public class PlanMap
       if (tilemap.hasTile(p.x+cb.left, p.y+cb.top, 
 			  p.x+cb.right, p.y+cb.bottom, 
 			  Tile.isobstacle)) continue;
-      if (!tilemap.hasTile(p.x+cb.left, p.y+cb.bottom+1, 
+      if (context == null &&
+	  !tilemap.hasTile(p.x+cb.left, p.y+cb.bottom+1, 
 			   p.x+cb.right, p.y+cb.bottom+1, 
 			   Tile.isstoppable)) continue;
       // assert(bounds.left <= p.x && p.x <= bounds.right);
       // assert(bounds.top <= p.y && p.y <= bounds.bottom);
 
       // try climbing down.
-      if (bounds.top <= p.y-1 &&
+      if (context == null &&
+	  bounds.top <= p.y-1 &&
 	  tilemap.hasTile(p.x+cb.left, p.y+cb.bottom,
 			  p.y+cb.right, p.y+cb.bottom,
 			  Tile.isgrabbable)) {
 	cost = a0.cost+1;
 	addQueue(queue, start, 
-		 new PlanAction(new Point(p.x, p.y-1), context,
+		 new PlanAction(new Point(p.x, p.y-1), null,
 				PlanAction.CLIMB, cost, a0));
       }
       // try climbing up.
-      if (p.y+1 <= bounds.bottom &&
+      if (context == null &&
+	  p.y+1 <= bounds.bottom &&
 	  tilemap.hasTile(p.x+cb.left, p.y+cb.top+1,
 			  p.x+cb.right, p.y+cb.bottom+1,
 			  Tile.isgrabbable)) {
 	cost = a0.cost+1;
 	addQueue(queue, start, 
-		 new PlanAction(new Point(p.x, p.y+1), context,
+		 new PlanAction(new Point(p.x, p.y+1), null,
 				PlanAction.CLIMB, cost, a0));
       }
 
@@ -107,107 +110,96 @@ public class PlanMap
 
 	// try walking.
 	var wx:int = p.x-vx;
-	if (bounds.left <= wx && wx <= bounds.right &&
+	if (context == null &&
+	    bounds.left <= wx && wx <= bounds.right &&
 	    tilemap.hasTile(wx+cb.left, p.y+cb.bottom+1,
 			    wx+cb.right, p.y+cb.bottom+1,
 			    Tile.isstoppable)) {
 	  cost = a0.cost+1;
 	  addQueue(queue, start, 
-		   new PlanAction(new Point(wx, p.y), context,
+		   new PlanAction(new Point(wx, p.y), null,
 				  PlanAction.WALK, cost, a0));
 	}
 
 	// try falling.
-	for (fdx = 1; fdx <= falldx; fdx++) {
-	  fx = p.x-vx*fdx;
-	  if (fx < bounds.left || bounds.right < fx) break;
-	  fdt = Math.ceil(tilemap.tilesize*fdx/speed);
-	  fdy = Math.ceil(fdt*(fdt+1)/2 * gravity / tilemap.tilesize);
-	  for (; fdy <= falldy; fdy++) {
-	    fy = p.y-fdy;
-	    if (fy < bounds.top || bounds.bottom < fy) break;
-	    //  +--+....  [vx = +1]
-	    //  |  |....
-	    //  +-X+.... (fx,fy) original position.
-	    // ==.......
-	    //   ...+--+
-	    //   ...|  |
-	    //   ...+-X+ (p.x,p.y)
-	    //     ======
-	    if (tilemap.hasTile(fx+bx0+vx, fy+cb.top, 
-				p.x+bx1, p.y+cb.bottom,
-				Tile.isstoppable)) break;
-	    if (!tilemap.hasTile(fx+cb.left, fy+cb.bottom+1, 
-				 fx+cb.right, fy+cb.bottom+1, 
-				 Tile.isstoppable)) continue;
-	    cost = a0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
-	    addQueue(queue, start, 
-		     new PlanAction(new Point(fx, fy), context,
-				    PlanAction.FALL, cost, a0));
+	if (context == null) {
+	  for (var fdx:int = 0; fdx <= falldx; fdx++) {
+	    var fx:int = p.x-vx*fdx;
+	    if (fx < bounds.left || bounds.right < fx) break;
+	    // fdt: time for falling.
+	    var fdt:int = Math.ceil(tilemap.tilesize*fdx/speed);
+	    // fdy: amount of falling.
+	    var fdy:int = Math.ceil(fdt*(fdt+1)/2 * gravity / tilemap.tilesize);
+	    for (; fdy <= falldy; fdy++) {
+	      var fy:int = p.y-fdy;
+	      if (fy < bounds.top || bounds.bottom < fy) break;
+	      //  +--+....  [vx = +1]
+	      //  |  |....
+	      //  +-X+.... (fx,fy) original position.
+	      // ==.......
+	      //   ...+--+
+	      //   ...|  |
+	      //   ...+-X+ (p.x,p.y)
+	      //     ======
+	      if (tilemap.hasTile(fx+bx0+vx, fy+cb.top, 
+				  p.x+bx1, p.y+cb.bottom,
+				  Tile.isstoppable)) break;
+	      cost = a0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
+	      if (0 < fdx &&
+		  tilemap.hasTile(fx+cb.left, fy+cb.bottom+1, 
+				  fx+cb.right, fy+cb.bottom+1, 
+				  Tile.isstoppable)) {
+		addQueue(queue, start, 
+			 new PlanAction(new Point(fx, fy), null,
+					PlanAction.FALL, cost, a0));
+	      }
+	      if (!tilemap.hasTile(fx+bx0, fy+cb.top, 
+				   p.x+bx1, p.y+cb.bottom,
+				   Tile.isstoppable)) {
+		addQueue(queue, start, 
+			 new PlanAction(new Point(fx, fy), PlanAction.JUMP,
+					PlanAction.FALL, cost, a0));
+	      }
+	    }
 	  }
 	}
 
-	// try jumping + falling.
-	var fx:int, fy:int;
-	var fdt:int, fdx:int, fdy:int;
-	for (fdx = 0; fdx <= falldx; fdx++) {
-	  fx = p.x-vx*fdx;
-	  if (fx < bounds.left || bounds.right < fx) break;
-	  // fdt: time for falling.
-	  fdt = Math.ceil(tilemap.tilesize*fdx/speed);
-	  // fdy: amount of falling.
-	  fdy = Math.ceil(fdt*(fdt+1)/2 * gravity / tilemap.tilesize);
-	  for (; fdy <= falldy; fdy++) {
-	    // (fx,fy): tip position.
-	    fy = p.y-fdy;
-	    if (fy < bounds.top || bounds.bottom < fy) break;
-	    //  +--+.....  [vx = +1]
-	    //  |  |.....
-	    //  +-X+..... (fx,fy) midpoint
-	    //  .........
-	    //  .....+--+
-	    //  .....|  |
-	    //  .....+-X+ (p.x,p.y)
-	    //      ======
-	    if (tilemap.hasTile(fx+bx0, fy+cb.top, 
-				p.x+bx1, p.y+cb.bottom, 
-				Tile.isstoppable)) break;
-	    for (var jdx:int = 1; jdx <= madx; jdx++) {
-	      // adt: time for ascending.
-	      var adt:int = Math.floor(jdx*tilemap.tilesize/speed);
-	      // ady: minimal ascend.
-	      var ady:int = Math.floor((jumpspeed*adt - adt*(adt+1)/2 * gravity) / 
-				       tilemap.tilesize);
-	      for (var jdy:int = ady; jdy <= mady; jdy++) {
-		// (jx,jy): original position.
-		var jx:int = fx-vx*jdx;
-		if (jx < bounds.left || bounds.right < jx) break;
-		var jy:int = fy+jdy;
-		if (jy < bounds.top || bounds.bottom < jy) break;
-		//  ........ (extra clearance is needed)
-		//  ....+--+  [vx = +1]
-		//  ....|  |
-		//  ....+-X+ (fx,fy) midpoint
-		//  .......
-		//  +--+...
-		//  |  |...
-		//  +-X+... (jx,jy) original position.
-		// ======
-		if (tilemap.hasTile(jx+bx0, fy-1+cb.bottom, 
-				    fx+bx1, fy-1+cb.top, 
-				    Tile.isstoppable)) break;
-		if (tilemap.hasTile(jx+bx0, jy+cb.bottom, 
-				    fx+bx1-vx, fy+cb.top, 
-				    Tile.isstoppable)) break;
-		if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
-				     jx+cb.right, jy+cb.bottom+1, 
-				     Tile.isstoppable)) continue;
-		cost = a0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(jdy)+1;
-		addQueue(queue, start, 
-			 new PlanAction(new Point(jx, jy), context,
-					PlanAction.JUMP, cost, a0, 
-					new Point(fx, fy)));
-	      }
+	// try jumping.
+	if (context == PlanAction.JUMP) {
+	  for (var jdx:int = 1; jdx <= madx; jdx++) {
+	    // adt: time for ascending.
+	    var adt:int = Math.floor(jdx*tilemap.tilesize/speed);
+	    // ady: minimal ascend.
+	    var ady:int = Math.floor((jumpspeed*adt - adt*(adt+1)/2 * gravity) / 
+				     tilemap.tilesize);
+	    for (var jdy:int = ady; jdy <= mady; jdy++) {
+	      // (jx,jy): original position.
+	      var jx:int = p.x-vx*jdx;
+	      if (jx < bounds.left || bounds.right < jx) break;
+	      var jy:int = p.y+jdy;
+	      if (jy < bounds.top || bounds.bottom < jy) break;
+	      //  ........ (extra clearance is needed)
+	      //  ....+--+  [vx = +1]
+	      //  ....|  |
+	      //  ....+-X+ (fx,fy) midpoint
+	      //  .......
+	      //  +--+...
+	      //  |  |...
+	      //  +-X+... (jx,jy) original position.
+	      // ======
+	      if (tilemap.hasTile(jx+bx0, p.y-1+cb.bottom, 
+				  p.x+bx1, p.y-1+cb.top, 
+				  Tile.isstoppable)) break;
+	      if (tilemap.hasTile(jx+bx0, jy+cb.bottom, 
+				  p.x+bx1-vx, p.y+cb.top, 
+				  Tile.isstoppable)) break;
+	      if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
+				   jx+cb.right, jy+cb.bottom+1, 
+				   Tile.isstoppable)) continue;
+	      cost = a0.cost+Math.abs(jdx)+Math.abs(jdy)+1;
+	      addQueue(queue, start, 
+		       new PlanAction(new Point(jx, jy), null,
+				      PlanAction.JUMP, cost, a0.next, p));
 	    }
 	  }
 	}
