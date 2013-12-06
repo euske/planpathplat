@@ -15,20 +15,33 @@ public class PlanAction
   public var p:Point;
   public var type:String;
   public var cost:int;
-
   public var next:PlanAction;
   public var mid:Point;
 
-  public function PlanAction(p:Point, type:String, cost:int)
+  public function PlanAction(p:Point, type:String=NONE, cost:int=0, 
+			     next:PlanAction=null, mid:Point=null)
   {
     this.p = p;
     this.type = type;
     this.cost = cost;
+    this.next = next;
+    this.mid = mid;
   }
 
   public function toString():String
   {
     return ("<PlanAction: ("+p.x+","+p.y+") type="+type+", cost="+cost+">");
+  }
+
+  public function get key():String
+  {
+    return getKey(p.x, p.y);
+  }
+
+  // getKey(x, y, context)
+  public static function getKey(x:int, y:int, context:String=null):String
+  {
+    return x+","+y+":"+context
   }
 
 }

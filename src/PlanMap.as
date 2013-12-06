@@ -11,7 +11,7 @@ public class PlanMap
   public var goal:Point;
   public var bounds:Rectangle;
 
-  private var _a:Array;
+  private var _map:Object;
 
   // PlanMap(tilemap, goal, bounds)
   public function PlanMap(tilemap:TileMap, goal:Point, bounds:Rectangle)
@@ -19,16 +19,7 @@ public class PlanMap
     this.tilemap = tilemap;
     this.goal = goal;
     this.bounds = bounds;
-    _a = new Array(bounds.height+1);
-    var inf:int = (bounds.width+bounds.height+1)*2;
-    for (var y:int = bounds.top; y <= bounds.bottom; y++) {
-      var b:Array = new Array(bounds.width+1);
-      for (var x:int = bounds.left; x <= bounds.right; x++) {
-	var p:Point = new Point(x, y);
-	b[x-bounds.left] = new PlanAction(p, PlanAction.NONE, inf);
-      }
-      _a[y-bounds.top] = b;
-    }
+    _map = new Object();
   }
 
   public function toString():String
@@ -44,11 +35,9 @@ public class PlanMap
   }
 
   // getAction(x, y)
-  public function getAction(x:int, y:int):PlanAction
+  public function getAction(x:int, y:int, context:String=null):PlanAction
   {
-    if (x < bounds.left || bounds.right < x ||
-	y < bounds.top || bounds.bottom < y) return null;
-    return _a[y-bounds.top][x-bounds.left];
+    return _map[PlanAction.getKey(x, y, context)];
   }
 
   // addPlan(plan, b)
@@ -72,14 +61,12 @@ public class PlanMap
     if (goal.x < bounds.left || bounds.right < goal.x ||
 	goal.y < bounds.top || bounds.bottom < goal.y) return 0;
     
-    var e1:PlanAction = _a[goal.y-bounds.top][goal.x-bounds.left];
-    e1.cost = 0;
-    var queue:Array = [ new QueueItem(e1) ];
+    var queue:Array = [ new QueueItem(new PlanAction(goal)) ];
     while (0 < n && 0 < queue.length) {
       var cost:int;
       var q:QueueItem = queue.pop();
-      var e0:PlanAction = q.action;
-      var p:Point = e0.p;
+      var a0:PlanAction = q.action;
+      var p:Point = a0.p;
       if (start != null && start.equals(p)) break;
       if (tilemap.hasTile(p.x+cb.left, p.y+cb.top, 
 			  p.x+cb.right, p.y+cb.bottom, 
@@ -95,28 +82,20 @@ public class PlanMap
 	  tilemap.hasTile(p.x+cb.left, p.y+cb.bottom,
 			  p.y+cb.right, p.y+cb.bottom,
 			  Tile.isgrabbable)) {
-	e1 = _a[p.y-bounds.top-1][p.x-bounds.left];
-	cost = e0.cost+1;
-	if (cost < e1.cost) {
-	  e1.type = PlanAction.CLIMB;
-	  e1.cost = cost;
-	  e1.next = e0;
-	  queue.push(new QueueItem(e1, start));
-	}
+	cost = a0.cost+1;
+	addQueue(queue, start, 
+		 new PlanAction(new Point(p.x, p.y-1), 
+				PlanAction.CLIMB, cost, a0));
       }
       // try climbing up.
       if (p.y+1 <= bounds.bottom &&
 	  tilemap.hasTile(p.x+cb.left, p.y+cb.top+1,
 			  p.x+cb.right, p.y+cb.bottom+1,
 			  Tile.isgrabbable)) {
-	e1 = _a[p.y-bounds.top+1][p.x-bounds.left];
-	cost = e0.cost+1;
-	if (cost < e1.cost) {
-	  e1.type = PlanAction.CLIMB;
-	  e1.cost = cost;
-	  e1.next = e0;
-	  queue.push(new QueueItem(e1, start));
-	}
+	cost = a0.cost+1;
+	addQueue(queue, start, 
+		 new PlanAction(new Point(p.x, p.y+1), 
+				PlanAction.CLIMB, cost, a0));
       }
 
       // for left and right.
@@ -130,14 +109,10 @@ public class PlanMap
 	    tilemap.hasTile(wx+cb.left, p.y+cb.bottom+1,
 			    wx+cb.right, p.y+cb.bottom+1,
 			    Tile.isstoppable)) {
-	  e1 = _a[p.y-bounds.top][wx-bounds.left];
-	  cost = e0.cost+1;
-	  if (cost < e1.cost) {
-	    e1.type = PlanAction.WALK;
-	    e1.cost = cost;
-	    e1.next = e0;
-	    queue.push(new QueueItem(e1, start));
-	  }
+	  cost = a0.cost+1;
+	  addQueue(queue, start, 
+		   new PlanAction(new Point(wx, p.y), 
+				  PlanAction.WALK, cost, a0));
 	}
 
 	// try falling.
@@ -163,14 +138,10 @@ public class PlanMap
 	    if (!tilemap.hasTile(fx+cb.left, fy+cb.bottom+1, 
 				 fx+cb.right, fy+cb.bottom+1, 
 				 Tile.isstoppable)) continue;
-	    e1 = _a[fy-bounds.top][fx-bounds.left];
-	    cost = e0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
-	    if (cost < e1.cost) {
-	      e1.type = PlanAction.FALL;
-	      e1.cost = cost;
-	      e1.next = e0;
-	      queue.push(new QueueItem(e1, start));
-	    }
+	    cost = a0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
+	    addQueue(queue, start, 
+		     new PlanAction(new Point(fx, fy), 
+				    PlanAction.FALL, cost, a0));
 	  }
 	}
 
@@ -229,15 +200,10 @@ public class PlanMap
 		if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
 				     jx+cb.right, jy+cb.bottom+1, 
 				     Tile.isstoppable)) continue;
-		e1 = _a[jy-bounds.top][jx-bounds.left];
-		cost = e0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(jdy)+1;
-		if (cost < e1.cost) {
-		  e1.type = PlanAction.JUMP;
-		  e1.cost = cost;
-		  e1.next = e0;
-		  e1.mid = new Point(fx, fy);
-		  queue.push(new QueueItem(e1, start));
-		}
+		cost = a0.cost+Math.abs(fdx+jdx)+Math.abs(fdy)+Math.abs(jdy)+1;
+		addQueue(queue, start, 
+			 new PlanAction(new Point(jx, jy),
+					PlanAction.JUMP, cost, a0, new Point(fx, fy)));
 	      }
 	    }
 	  }
@@ -251,6 +217,18 @@ public class PlanMap
     }
 
     return n;
+  }
+
+  // addQueue
+  private function addQueue(queue:Array, start:Point, a1:PlanAction):void
+  {
+    var a0:PlanAction = _map[a1.key];
+    if (a0 == null || a1.cost < a0.cost) {
+      _map[a1.key] = a1;
+      var dist:int = ((start == null)? 0 :
+		      Math.abs(start.x-a1.p.x)+Math.abs(start.y-a1.p.y));
+      queue.push(new QueueItem(a1, dist));
+    }
   }
 
   // getLandingPoint
@@ -292,10 +270,9 @@ class QueueItem
   public var action:PlanAction;
   public var prio:int;
   
-  public function QueueItem(action:PlanAction, start:Point=null)
+  public function QueueItem(action:PlanAction, prio:int=0)
   {
     this.action = action;
-    this.prio = ((start == null)? 0 :
-		 Math.abs(start.x-action.p.x)+Math.abs(start.y-action.p.y));
+    this.prio = prio;
   }
 }
