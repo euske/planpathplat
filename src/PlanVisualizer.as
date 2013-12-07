@@ -22,35 +22,36 @@ public class PlanVisualizer extends Shape
     graphics.clear();
     if (plan == null) return;
 
-    for (var y:int = Math.floor(window.top/tilesize); 
-	 y < Math.ceil(window.bottom/tilesize); y++) {
-      for (var x:int = Math.floor(window.left/tilesize); 
-	   x < Math.ceil(window.right/tilesize); x++) {
-	var e:PlanAction = plan.getAction(x, y);
-	if (e == null) continue;
-	var p:Point = e.p;
-	var c:int = 0x0000ff;
-	switch (e.type) {
-	case PlanAction.WALK:	// white
-	  drawRect(0xffffff, p, tilesize);
-	  break;
+    var y0:int = Math.floor(window.top/tilesize);
+    var y1:int = Math.ceil(window.bottom/tilesize);
+    var x0:int = Math.floor(window.left/tilesize); 
+    var x1:int = Math.ceil(window.right/tilesize);
+    
+    for each (var a:PlanAction in plan.getAllActions()) {
+      if (a.context != null) continue;
+      var p:Point = a.p;
+      if (p.x < x0 || x1 <= p.x || p.y < y0 || y1 <= p.y) continue;
+      var c:int = 0x0000ff;
+      switch (a.type) {
+      case PlanAction.WALK:	// white
+	drawRect(0xffffff, p, tilesize);
+	break;
 	case PlanAction.CLIMB:	// green
 	  drawRect(0x00ff00, p, tilesize);
 	  break;
 	case PlanAction.FALL:	// blue
 	  drawRect(0x0000ff, p, tilesize);
-	  if (e.next != null) {
-	    drawLine(0x0000ff, p, e.next.p);
+	  if (a.next != null) {
+	    drawLine(0x0000ff, p, a.next.p);
 	  }
 	  break;
 	case PlanAction.JUMP:	// magenta
 	  drawRect(0xff00ff, p, tilesize);
-	  if (e.mid != null && e.next != null) {
-	    drawLine(0xff00ff, p, e.mid);
-	    drawLine(0xff00ff, e.mid, e.next.p);
+	  if (a.mid != null && a.next != null) {
+	    drawLine(0xff00ff, p, a.mid);
+	    drawLine(0xff00ff, a.mid, a.next.p);
 	  }
 	  break;
-	}
       }
     }
     if (start != null) {

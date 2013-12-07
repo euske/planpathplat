@@ -40,6 +40,16 @@ public class PlanMap
     return _map[PlanAction.getKey(x, y, context)];
   }
 
+  // getAllActions()
+  public function getAllActions():Array
+  {
+    var a:Array = new Array();
+    for each (var action:PlanAction in _map) {
+      a.push(action);
+    }
+    return a;
+  }
+
   // addPlan(plan, b)
   public function addPlan(cb:Rectangle, 
 			  speed:int, jumpspeed:int, gravity:int,
