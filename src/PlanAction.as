@@ -17,18 +17,16 @@ public class PlanAction
   public var type:String;
   public var cost:int;
   public var next:PlanAction;
-  public var mid:Point;
 
   public function PlanAction(p:Point, context:String=null,
 			     type:String=NONE, cost:int=0, 
-			     next:PlanAction=null, mid:Point=null)
+			     next:PlanAction=null)
   {
     this.p = p;
     this.context = context;
     this.type = type;
     this.cost = cost;
     this.next = next;
-    this.mid = mid;
   }
 
   public function toString():String

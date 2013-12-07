@@ -61,7 +61,7 @@ public class PlanActionRunner extends EventDispatcher
     case PlanAction.JUMP:
       if (!_jumped) {
 	if (!actor.isLanded() || actor.isGrabbing() ||
-	    !hasClearance(cur.x, action.mid.y)) {
+	    !hasClearance(cur.x, dst.y)) {
 	  // not landed, grabbing something, or has no clearance.
 	  p = tilemap.getTilePoint(cur.x, cur.y);
 	  dispatchEvent(new PlanActionMoveToEvent(p));
@@ -70,6 +70,7 @@ public class PlanActionRunner extends EventDispatcher
 	  dispatchEvent(new PlanActionJumpEvent());
 	}
       }
+      dst = action.next.next.p;
       path = tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
 				    Tile.isstoppable, actor.tilebounds);
       if (0 < path.length) {

@@ -209,7 +209,7 @@ public class PlanMap
 	      cost = a0.cost+Math.abs(jdx)+Math.abs(jdy)+1;
 	      addQueue(queue, start, 
 		       new PlanAction(new Point(jx, jy), null,
-				      PlanAction.JUMP, cost, a0.next, p));
+				      PlanAction.JUMP, cost, a0));
 	    }
 	  }
 	}

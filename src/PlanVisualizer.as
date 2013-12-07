@@ -47,9 +47,9 @@ public class PlanVisualizer extends Shape
 	  break;
 	case PlanAction.JUMP:	// magenta
 	  drawRect(0xff00ff, p, tilesize);
-	  if (a.mid != null && a.next != null) {
-	    drawLine(0xff00ff, p, a.mid);
-	    drawLine(0xff00ff, a.mid, a.next.p);
+	  if (a.next != null && a.next.next != null) {
+	    drawLine(0xff00ff, p, a.next.p);
+	    drawLine(0xff00ff, a.next.p, a.next.next.p);
 	  }
 	  break;
       }
