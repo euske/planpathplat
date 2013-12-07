@@ -5,7 +5,7 @@ I've been working on path planning (path finding) for platformer games
 for a while. My original intention was to create a reusable framework
 for scripting characters in a platformer, but it can have other
 interesting applications. I have a working prototype and its source
-code.
+code. The source code is published under MIT/X License (i.e. it's free).
 
  * <a href="http://ludumdare.tabesugi.net/ppp/">Playable prototype</a>
  * <a href="https://github.com/euske/planpathplat/">GitHub</a>
@@ -159,3 +159,32 @@ do. Also, since it's on block-by-block basis, it cannot consider a
 possibility of barely-make-it kinds of jumps. These are mostly
 complexity problems, but in some cases there might be need to give up
 to find an optimal solution.
+
+
+Terms and Conditions
+--------------------
+
+(This is so-called MIT/X License)
+
+Copyright (c) 2013  Yusuke Shinyama <yusuke at cs dot nyu dot edu>
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
