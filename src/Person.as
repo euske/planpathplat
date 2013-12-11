@@ -11,7 +11,6 @@ public class Person extends Actor
   public var visualizer:PlanVisualizer;
 
   private var _target:Actor;
-  private var _plan:PlanMap;
   private var _runner:PlanActionRunner;
 
   // Person(image)
@@ -28,7 +27,6 @@ public class Person extends Actor
   public function set target(value:Actor):void
   {
     _target = value;
-    _plan = null;
     _runner = null;
   }
 
@@ -43,65 +41,50 @@ public class Person extends Actor
 		      PlanMap.getLandingPoint(tilemap, _target.pos,
 					      _target.tilebounds,
 					      _target.velocity, _target.gravity));
+    if (goal == null) return;
 
     // adjust the goal position when it cannot fit.
-    if (goal != null) {
-      for (var dx:int = tilebounds.left; dx <= tilebounds.right; dx++) {
-	if (!tilemap.hasTile(goal.x-dx+tilebounds.left, goal.y+tilebounds.top,
-			     goal.x-dx+tilebounds.right, goal.y+tilebounds.bottom,
-			     Tile.isobstacle)) {
-	  goal.x -= dx;
-	  break;
-	}
+    for (var dx:int = tilebounds.left; dx <= tilebounds.right; dx++) {
+      if (!tilemap.hasTile(goal.x-dx+tilebounds.left, goal.y+tilebounds.top,
+			   goal.x-dx+tilebounds.right, goal.y+tilebounds.bottom,
+			   Tile.isobstacle)) {
+	goal.x -= dx;
+	break;
       }
     }
 
-    // invalidate plan.
-    if (_plan != null && !_plan.isValid(goal)) {
-      _plan = null;
-    }
-
     // make a plan.
-    if (_plan == null && _runner == null && goal != null) {
+    if (_runner == null) {
       var plan:PlanMap = scene.createPlan(goal, 10);
       if (0 < plan.addPlan(tilebounds, 
 			   speed, jumpspeed, gravity,
 			   tilemap.getCoordsByPoint(pos))) {
-	_plan = plan;
+	// start following a plan.
+	_runner = new PlanActionRunner(plan, this);
+	_runner.addEventListener(PlanActionJumpEvent.JUMP, onActionJump);
+	_runner.addEventListener(PlanActionMoveToEvent.MOVETO, onActionMoveTo);
+	Main.log("begin", _runner);
+	// display the current plan.
+	if (visualizer != null) {
+	  visualizer.update(plan, tilemap.getCoordsByPoint(pos));
+	}
       }
     }
 
     // follow a plan.
-    if (_plan != null && _runner == null) {
-      // Get a macro-level plan.
-      var cur:Point = tilemap.getCoordsByPoint(pos);
-      var action:PlanAction = _plan.getAction(cur.x, cur.y);
-      if (action != null && action.next != null) {
-	_runner = new PlanActionRunner(tilemap, this, action);
-	_runner.addEventListener(PlanActionJumpEvent.JUMP, onActionJump);
-	_runner.addEventListener(PlanActionMoveToEvent.MOVETO, onActionMoveTo);
-	Main.log(this, "begin", _runner.action);
-      }
-    }
-
-    // perform an action.
     if (_runner != null) {
-      _runner.update();
-      if (_runner.isFinished) {
-	// finishing an action.
-	Main.log(this, "end  ", _runner.action);
+      // end following a plan.
+      if (_runner.isFinished || !_runner.plan.isValid(goal)) {
+	Main.log("end  ", _runner);
 	_runner.removeEventListener(PlanActionJumpEvent.JUMP, onActionJump);
 	_runner.removeEventListener(PlanActionMoveToEvent.MOVETO, onActionMoveTo);
 	_runner = null;
+      } else {
+	_runner.update();
       }
     }
-
-    // display the current plan.
-    if (visualizer != null) {
-      visualizer.update(_plan, tilemap.getCoordsByPoint(pos));
-    }
   }
-  
+
   private function onActionJump(e:PlanActionJumpEvent):void
   {
     jump();
