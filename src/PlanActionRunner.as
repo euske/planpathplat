@@ -12,13 +12,15 @@ public class PlanActionRunner extends EventDispatcher
   public var plan:PlanMap;
   public var actor:Actor;
 
+  private var _tilemap:TileMap;
   private var _action:PlanAction;
 
   public function PlanActionRunner(plan:PlanMap, actor:Actor)
   {
     this.plan = plan;
     this.actor = actor;
-    var cur:Point = plan.tilemap.getCoordsByPoint(actor.pos);
+    _tilemap = plan.tilemap;
+    var cur:Point = _tilemap.getCoordsByPoint(actor.pos);
     _action = plan.getAction(cur.x, cur.y);
   }
 
@@ -36,8 +38,7 @@ public class PlanActionRunner extends EventDispatcher
   // update
   public function update():void
   {
-    var tilemap:TileMap = plan.tilemap;
-    var cur:Point = tilemap.getCoordsByPoint(actor.pos);
+    var cur:Point = _tilemap.getCoordsByPoint(actor.pos);
     var dst:Point = _action.next.p;
     var p:Point, path:Array;
 
@@ -45,7 +46,7 @@ public class PlanActionRunner extends EventDispatcher
     switch (_action.type) {
     case PlanAction.WALK:
     case PlanAction.CLIMB:
-      p = tilemap.getTilePoint(dst.x, dst.y);
+      p = _tilemap.getTilePoint(dst.x, dst.y);
       dispatchEvent(new PlanActionMoveToEvent(p));
       if (cur.equals(dst)) {
 	_action = _action.next;
@@ -53,10 +54,10 @@ public class PlanActionRunner extends EventDispatcher
       break;
 	
     case PlanAction.FALL:
-      path = tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
-				    Tile.isobstacle, actor.tilebounds);
+      path = _tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
+				     Tile.isobstacle, actor.tilebounds);
       if (0 < path.length) {
-	p = tilemap.getTilePoint(path[0].x, path[0].y);
+	p = _tilemap.getTilePoint(path[0].x, path[0].y);
 	dispatchEvent(new PlanActionMoveToEvent(p));
       }
       if (cur.equals(dst)) {
@@ -71,7 +72,7 @@ public class PlanActionRunner extends EventDispatcher
 	_action = _action.next;
       } else {
 	// not landed, grabbing something, or has no clearance.
-	p = tilemap.getTilePoint(cur.x, cur.y);
+	p = _tilemap.getTilePoint(cur.x, cur.y);
 	dispatchEvent(new PlanActionMoveToEvent(p));
       }
       break;
@@ -81,12 +82,11 @@ public class PlanActionRunner extends EventDispatcher
 
   private function hasClearance(x:int, y:int):Boolean
   {
-    var tilemap:TileMap = plan.tilemap;
-    var r:Rectangle = tilemap.getTileRect(x+actor.tilebounds.left, 
-					  y+actor.tilebounds.top, 
-					  actor.tilebounds.width+1, 
-					  actor.tilebounds.height+1);
-    return (!tilemap.hasTileByRect(actor.bounds.union(r), Tile.isstoppable));
+    var r:Rectangle = _tilemap.getTileRect(x+actor.tilebounds.left, 
+					   y+actor.tilebounds.top, 
+					   actor.tilebounds.width+1, 
+					   actor.tilebounds.height+1);
+    return (!_tilemap.hasTileByRect(actor.bounds.union(r), Tile.isstoppable));
   }
 }
 
