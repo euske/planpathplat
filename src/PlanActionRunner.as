@@ -36,48 +36,51 @@ public class PlanActionRunner extends EventDispatcher
   }
 
   // update
-  public function update():void
+  public function update(goal:Point):Boolean
   {
-    var cur:Point = _tilemap.getCoordsByPoint(actor.pos);
-    var dst:Point = _action.next.p;
-    var p:Point, path:Array;
+    if (_action != null && _action.next != null) {
+      var valid:Boolean = plan.isValid(goal);
+      var cur:Point = _tilemap.getCoordsByPoint(actor.pos);
+      var dst:Point = _action.next.p;
+      var p:Point, path:Array;
 
-    // Get a micro-level (greedy) plan.
-    switch (_action.type) {
-    case PlanAction.WALK:
-    case PlanAction.CLIMB:
-      p = _tilemap.getTilePoint(dst.x, dst.y);
-      dispatchEvent(new PlanActionMoveToEvent(p));
-      if (cur.equals(dst)) {
-	_action = _action.next;
-      }
-      break;
+      // Get a micro-level (greedy) plan.
+      switch (_action.type) {
+      case PlanAction.WALK:
+      case PlanAction.CLIMB:
+	p = _tilemap.getTilePoint(dst.x, dst.y);
+	dispatchEvent(new PlanActionMoveToEvent(p));
+	if (cur.equals(dst)) {
+	  _action = (valid)? _action.next : null;
+	}
+	break;
 	
-    case PlanAction.FALL:
-      path = _tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
-				     Tile.isobstacle, actor.tilebounds);
-      if (0 < path.length) {
-	p = _tilemap.getTilePoint(path[0].x, path[0].y);
-	dispatchEvent(new PlanActionMoveToEvent(p));
-      }
-      if (cur.equals(dst)) {
-	_action = _action.next;
-      }
-      break;
+      case PlanAction.FALL:
+	path = _tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
+				       Tile.isobstacle, actor.tilebounds);
+	if (0 < path.length) {
+	  p = _tilemap.getTilePoint(path[0].x, path[0].y);
+	  dispatchEvent(new PlanActionMoveToEvent(p));
+	}
+	if (cur.equals(dst)) {
+	  _action = (valid)? _action.next : null;
+	}
+	break;
 	  
-    case PlanAction.JUMP:
-      if (actor.isLanded() && !actor.isGrabbing() &&
-	  hasClearance(cur.x, dst.y)) {
-	dispatchEvent(new PlanActionJumpEvent());
-	_action = _action.next;
-      } else {
-	// not landed, grabbing something, or has no clearance.
-	p = _tilemap.getTilePoint(cur.x, cur.y);
-	dispatchEvent(new PlanActionMoveToEvent(p));
+      case PlanAction.JUMP:
+	if (actor.isLanded() && !actor.isGrabbing() &&
+	    hasClearance(cur.x, dst.y)) {
+	  dispatchEvent(new PlanActionJumpEvent());
+	  _action = (valid)? _action.next : null;
+	} else {
+	  // not landed, grabbing something, or has no clearance.
+	  p = _tilemap.getTilePoint(cur.x, cur.y);
+	  dispatchEvent(new PlanActionMoveToEvent(p));
+	}
+	break;
       }
-      break;
     }
-
+    return (_action != null && _action.next != null);
   }
 
   private function hasClearance(x:int, y:int):Boolean

@@ -74,13 +74,11 @@ public class Person extends Actor
     // follow a plan.
     if (_runner != null) {
       // end following a plan.
-      if (_runner.isFinished || !_runner.plan.isValid(goal)) {
+      if (!_runner.update(goal)) {
 	Main.log("end  ", _runner);
 	_runner.removeEventListener(PlanActionJumpEvent.JUMP, onActionJump);
 	_runner.removeEventListener(PlanActionMoveToEvent.MOVETO, onActionMoveTo);
 	_runner = null;
-      } else {
-	_runner.update();
       }
     }
   }
