@@ -29,12 +29,6 @@ public class PlanActionRunner extends EventDispatcher
     return ("<PlanActionRunner: actor="+actor+", action="+_action+">");
   }
 
-  // isFinished
-  public function get isFinished():Boolean
-  {
-    return (_action == null || _action.next == null);
-  }
-
   // update
   public function update(goal:Point):Boolean
   {
