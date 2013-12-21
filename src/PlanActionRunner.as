@@ -51,7 +51,7 @@ public class PlanActionRunner extends EventDispatcher
 	
       case PlanAction.FALL:
 	path = _tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
-				       Tile.isobstacle, actor.tilebounds);
+				       Tile.isObstacle, actor.tilebounds);
 	if (0 < path.length) {
 	  p = _tilemap.getTilePoint(path[0].x, path[0].y);
 	  dispatchEvent(new PlanActionMoveToEvent(p));
@@ -83,7 +83,8 @@ public class PlanActionRunner extends EventDispatcher
 					   y+actor.tilebounds.top, 
 					   actor.tilebounds.width+1, 
 					   actor.tilebounds.height+1);
-    return (!_tilemap.hasTileByRect(actor.bounds.union(r), Tile.isstoppable));
+    return (!_tilemap.hasTileByRect(actor.bounds.union(r), 
+				    Tile.isStoppable));
   }
 }
 

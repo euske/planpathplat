@@ -47,7 +47,7 @@ public class Person extends Actor
     for (var dx:int = tilebounds.left; dx <= tilebounds.right; dx++) {
       if (!tilemap.hasTile(goal.x-dx+tilebounds.left, goal.y+tilebounds.top,
 			   goal.x-dx+tilebounds.right, goal.y+tilebounds.bottom,
-			   Tile.isobstacle)) {
+			   Tile.isObstacle)) {
 	goal.x -= dx;
 	break;
       }

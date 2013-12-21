@@ -25,7 +25,7 @@ public class Player extends Actor
     var p:Point, t:Rectangle;
     var v:Point = new Point(dir.x*speed, dir.y*speed);
     var r:Rectangle = getMovedBounds(v.x, v.y);
-    var a:Array = tilemap.scanTileByRect(r, Tile.isobstacle);
+    var a:Array = tilemap.scanTileByRect(r, Tile.isObstacle);
     if (v.x != 0 && v.y == 0) {
       // moved left/right.
       var y0:int = r.top;

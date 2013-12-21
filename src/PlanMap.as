@@ -75,7 +75,7 @@ public class PlanMap
     if (start != null &&
 	!tilemap.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
 			 start.x+cb.right, start.y+cb.bottom+1, 
-			 Tile.isstoppable)) return 0;
+			 Tile.isStoppable)) return 0;
     
     var queue:Array = new Array();
     addQueue(queue, start, new PlanAction(goal));
@@ -88,11 +88,11 @@ public class PlanMap
       if (start != null && start.equals(p)) break;
       if (tilemap.hasTile(p.x+cb.left, p.y+cb.top, 
 			  p.x+cb.right, p.y+cb.bottom, 
-			  Tile.isobstacle)) continue;
+			  Tile.isObstacle)) continue;
       if (context == null &&
 	  !tilemap.hasTile(p.x+cb.left, p.y+cb.bottom+1, 
 			   p.x+cb.right, p.y+cb.bottom+1, 
-			   Tile.isstoppable)) continue;
+			   Tile.isStoppable)) continue;
       // assert(bounds.left <= p.x && p.x <= bounds.right);
       // assert(bounds.top <= p.y && p.y <= bounds.bottom);
 
@@ -101,7 +101,7 @@ public class PlanMap
 	  bounds.top <= p.y-1 &&
 	  tilemap.hasTile(p.x+cb.left, p.y+cb.bottom,
 			  p.y+cb.right, p.y+cb.bottom,
-			  Tile.isgrabbable)) {
+			  Tile.isGrabbable)) {
 	cost = a0.cost+1;
 	addQueue(queue, start, 
 		 new PlanAction(new Point(p.x, p.y-1), null,
@@ -112,7 +112,7 @@ public class PlanMap
 	  p.y+1 <= bounds.bottom &&
 	  tilemap.hasTile(p.x+cb.left, p.y+cb.top+1,
 			  p.x+cb.right, p.y+cb.bottom+1,
-			  Tile.isgrabbable)) {
+			  Tile.isGrabbable)) {
 	cost = a0.cost+1;
 	addQueue(queue, start, 
 		 new PlanAction(new Point(p.x, p.y+1), null,
@@ -130,7 +130,7 @@ public class PlanMap
 	    bounds.left <= wx && wx <= bounds.right &&
 	    tilemap.hasTile(wx+cb.left, p.y+cb.bottom+1,
 			    wx+cb.right, p.y+cb.bottom+1,
-			    Tile.isstoppable)) {
+			    Tile.isStoppable)) {
 	  cost = a0.cost+1;
 	  addQueue(queue, start, 
 		   new PlanAction(new Point(wx, p.y), null,
@@ -159,19 +159,19 @@ public class PlanMap
 	      //     ======
 	      if (tilemap.hasTile(fx+bx0+vx, fy+cb.top, 
 				  p.x+bx1, p.y+cb.bottom,
-				  Tile.isstoppable)) break;
+				  Tile.isStoppable)) break;
 	      cost = a0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
 	      if (0 < fdx &&
 		  tilemap.hasTile(fx+cb.left, fy+cb.bottom+1, 
 				  fx+cb.right, fy+cb.bottom+1, 
-				  Tile.isstoppable)) {
+				  Tile.isStoppable)) {
 		addQueue(queue, start, 
 			 new PlanAction(new Point(fx, fy), null,
 					PlanAction.FALL, cost, a0));
 	      }
 	      if (!tilemap.hasTile(fx+bx0, fy+cb.top, 
 				   p.x+bx1, p.y+cb.bottom,
-				   Tile.isstoppable)) {
+				   Tile.isStoppable)) {
 		addQueue(queue, start, 
 			 new PlanAction(new Point(fx, fy), PlanAction.JUMP,
 					PlanAction.FALL, cost, a0));
@@ -205,13 +205,13 @@ public class PlanMap
 	      // ======
 	      if (tilemap.hasTile(jx+bx0, p.y-1+cb.bottom, 
 				  p.x+bx1, p.y-1+cb.top, 
-				  Tile.isstoppable)) break;
+				  Tile.isStoppable)) break;
 	      if (tilemap.hasTile(jx+bx0, jy+cb.bottom, 
 				  p.x+bx1-vx, p.y+cb.top, 
-				  Tile.isstoppable)) break;
+				  Tile.isStoppable)) break;
 	      if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
 				   jx+cb.right, jy+cb.bottom+1, 
-				   Tile.isstoppable)) continue;
+				   Tile.isStoppable)) continue;
 	      cost = a0.cost+Math.abs(jdx)+Math.abs(jdy)+1;
 	      addQueue(queue, start, 
 		       new PlanAction(new Point(jx, jy), null,
@@ -257,10 +257,10 @@ public class PlanMap
 	if (y < 0 || tilemap.height <= y) continue;
 	if (tilemap.hasTile(x+cb.left, y+cb.bottom, 
 			    x+cb.right, y+cb.bottom, 
-			    Tile.isstoppable)) return null;
+			    Tile.isStoppable)) return null;
 	if (tilemap.hasTile(x+cb.left, y+cb.bottom+1, 
 			    x+cb.right, y+cb.bottom+1, 
-			    Tile.isstoppable)) {
+			    Tile.isStoppable)) {
 	  return new Point(x, y);
 	}
       }
