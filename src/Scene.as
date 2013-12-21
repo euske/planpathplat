@@ -141,8 +141,8 @@ public class Scene extends Sprite
     return new Point(p.x-_window.x, p.y-_window.y);
   }
 
-  // createPlan(center)
-  public function createPlan(center:Point, margin:int=0):PlanMap
+  // getCenteredBounds(center, margin)
+  public function getCenteredBounds(center:Point, margin:int=0):Rectangle
   {
     var tilesize:int = _tilemap.tilesize;
     var x0:int = Math.floor(_window.left/tilesize);
@@ -153,8 +153,7 @@ public class Scene extends Sprite
     x1 = Math.min(x1+margin, _tilemap.width-1);
     var y1:int = Math.ceil(_window.bottom/tilesize);
     y1 = Math.min(y1+margin, _tilemap.height-1);
-    var bounds:Rectangle = new Rectangle(x0, y0, x1-x0, y1-y0);
-    return new PlanMap(_tilemap, center, bounds);
+    return new Rectangle(x0, y0, x1-x0, y1-y0);
   }
 }
 

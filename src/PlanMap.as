@@ -10,16 +10,34 @@ public class PlanMap
   public var tilemap:TileMap;
   public var goal:Point;
   public var bounds:Rectangle;
+  public var cb:Rectangle;
+  public var speed:int;
+  public var jumpspeed:int;
+  public var gravity:int;
 
   private var _map:Object;
+  private var _madx:int;
+  private var _mady:int;
 
   // PlanMap(tilemap, goal, bounds)
-  public function PlanMap(tilemap:TileMap, goal:Point, bounds:Rectangle)
+  public function PlanMap(tilemap:TileMap, goal:Point, 
+			  bounds:Rectangle, cb:Rectangle,
+			  speed:int, jumpspeed:int, gravity:int)
   {
     this.tilemap = tilemap;
     this.goal = goal;
     this.bounds = bounds;
+    this.cb = cb;
+    this.speed = speed;
+    this.jumpspeed = jumpspeed;
+    this.gravity = gravity;
     _map = new Object();
+    // madt: maximum amount of time for ascending.
+    var madt:int = Math.floor(jumpspeed / gravity);
+    // madx: maximum horizontal distance while ascending.
+    _madx = Math.floor(madt*speed / tilemap.tilesize);
+    // mady: maximum vertical distance while ascending.
+    _mady = Math.floor((jumpspeed*madt - madt*(madt+1)/2*gravity) / tilemap.tilesize);
   }
 
   public function toString():String
@@ -50,26 +68,14 @@ public class PlanMap
     return a;
   }
 
-  // addPlan(plan, b)
-  public function addPlan(cb:Rectangle, 
-			  speed:int, jumpspeed:int, gravity:int,
-			  start:Point=null, n:int=1000,
-			  falldx:int=10, falldy:int=20):int
+  // fillPlan(plan, b)
+  public function fillPlan(start:Point=null, n:int=1000,
+			   falldx:int=10, falldy:int=20):int
   {
-    // madt: maximum amount of time for ascending.
-    var madt:int = Math.floor(jumpspeed / gravity);
-    // madx: maximum horizontal distance while ascending.
-    var madx:int = Math.floor(madt*speed / tilemap.tilesize);
-    // mady: maximum vertical distance while ascending.
-    var mady:int = Math.floor((jumpspeed*madt - madt*(madt+1)/2*gravity) / tilemap.tilesize);
-
     if (start != null &&
 	!tilemap.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
 			 start.x+cb.right, start.y+cb.bottom+1, 
 			 Tile.isstoppable)) return 0;
-
-    if (goal.x < bounds.left || bounds.right < goal.x ||
-	goal.y < bounds.top || bounds.bottom < goal.y) return 0;
     
     var queue:Array = new Array();
     addQueue(queue, start, new PlanAction(goal));
@@ -176,13 +182,13 @@ public class PlanMap
 
 	// try jumping.
 	if (context == PlanAction.JUMP) {
-	  for (var jdx:int = 1; jdx <= madx; jdx++) {
+	  for (var jdx:int = 1; jdx <= _madx; jdx++) {
 	    // adt: time for ascending.
 	    var adt:int = Math.floor(jdx*tilemap.tilesize/speed);
 	    // ady: minimal ascend.
 	    var ady:int = Math.floor((jumpspeed*adt - adt*(adt+1)/2 * gravity) / 
 				     tilemap.tilesize);
-	    for (var jdy:int = ady; jdy <= mady; jdy++) {
+	    for (var jdy:int = ady; jdy <= _mady; jdy++) {
 	      // (jx,jy): original position.
 	      var jx:int = p.x-vx*jdx;
 	      if (jx < bounds.left || bounds.right < jx) break;

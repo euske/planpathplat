@@ -55,10 +55,10 @@ public class Person extends Actor
 
     // make a plan.
     if (_runner == null) {
-      var plan:PlanMap = scene.createPlan(goal, 10);
-      if (0 < plan.addPlan(tilebounds, 
-			   speed, jumpspeed, gravity,
-			   tilemap.getCoordsByPoint(pos))) {
+      var bounds:Rectangle = scene.getCenteredBounds(goal, 10);
+      var plan:PlanMap = new PlanMap(tilemap, goal, bounds,
+				     tilebounds, speed, jumpspeed, gravity);
+      if (0 < plan.fillPlan(tilemap.getCoordsByPoint(pos))) {
 	// start following a plan.
 	_runner = new PlanActionRunner(plan, this);
 	_runner.addEventListener(PlanActionJumpEvent.JUMP, onActionJump);
