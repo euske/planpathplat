@@ -152,11 +152,11 @@ public class PlanMap
 	      //  +--+....  [vx = +1]
 	      //  |  |....
 	      //  +-X+.... (fx,fy) original position.
-	      // ==.......
+	      // ##.......
 	      //   ...+--+
 	      //   ...|  |
 	      //   ...+-X+ (p.x,p.y)
-	      //     ======
+	      //     ######
 	      if (tilemap.hasTile(fx+bx0+vx, fy+cb.top, 
 				  p.x+bx1, p.y+cb.bottom,
 				  Tile.isStoppable)) break;
@@ -173,7 +173,7 @@ public class PlanMap
 				   p.x+bx1, p.y+cb.bottom,
 				   Tile.isStoppable)) {
 		addQueue(queue, start, 
-			 new PlanAction(new Point(fx, fy), PlanAction.JUMP,
+			 new PlanAction(new Point(fx, fy), PlanAction.FALL,
 					PlanAction.FALL, cost, a0));
 	      }
 	    }
@@ -181,7 +181,7 @@ public class PlanMap
 	}
 
 	// try jumping.
-	if (context == PlanAction.JUMP) {
+	if (context == PlanAction.FALL) {
 	  for (var jdx:int = 1; jdx <= _madx; jdx++) {
 	    // adt: time for ascending.
 	    var adt:int = Math.floor(jdx*tilemap.tilesize/speed);
@@ -194,24 +194,29 @@ public class PlanMap
 	      if (jx < bounds.left || bounds.right < jx) break;
 	      var jy:int = p.y+jdy;
 	      if (jy < bounds.top || bounds.bottom < jy) break;
-	      //  ........ (extra clearance is needed)
 	      //  ....+--+  [vx = +1]
 	      //  ....|  |
-	      //  ....+-X+ (fx,fy) midpoint
+	      //  ....+-X+ (p.x,p.y) tip point
 	      //  .......
 	      //  +--+...
 	      //  |  |...
 	      //  +-X+... (jx,jy) original position.
-	      // ======
-	      if (tilemap.hasTile(jx+bx0, p.y-1+cb.bottom, 
-				  p.x+bx1, p.y-1+cb.top, 
-				  Tile.isStoppable)) break;
+	      // ######
 	      if (tilemap.hasTile(jx+bx0, jy+cb.bottom, 
 				  p.x+bx1-vx, p.y+cb.top, 
 				  Tile.isStoppable)) break;
 	      if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
 				   jx+cb.right, jy+cb.bottom+1, 
 				   Tile.isStoppable)) continue;
+	      // extra care is needed not to allow the following case:
+	      //      .#
+	      //    +--+
+	      //    |  |  (this is impossible!)
+	      //    +-X+
+	      //       #
+	      if (tilemap.isTile(p.x+bx1, p.y+cb.top-1, Tile.isObstacle) &&
+		  tilemap.isTile(p.x+bx1, p.y+cb.bottom+1, Tile.isObstacle) &&
+		  !tilemap.isTile(p.x+bx1-vx, p.y+cb.top-1, Tile.isObstacle)) continue;
 	      cost = a0.cost+Math.abs(jdx)+Math.abs(jdy)+1;
 	      addQueue(queue, start, 
 		       new PlanAction(new Point(jx, jy), null,
