@@ -128,6 +128,9 @@ public class PlanMap
 	var wx:int = p.x-vx;
 	if (context == null &&
 	    bounds.left <= wx && wx <= bounds.right &&
+	    !tilemap.hasTile(wx+cb.left, p.y+cb.top,
+			     wx+cb.right, p.y+cb.bottom,
+			     Tile.isObstacle) &&
 	    tilemap.hasTile(wx+cb.left, p.y+cb.bottom+1,
 			    wx+cb.right, p.y+cb.bottom+1,
 			    Tile.isStoppable)) {
@@ -160,11 +163,15 @@ public class PlanMap
 	      if (tilemap.hasTile(fx+bx0+vx, fy+cb.top, 
 				  p.x+bx1, p.y+cb.bottom,
 				  Tile.isStoppable)) break;
+	      if (tilemap.hasTile(fx+cb.left, fy+cb.top,
+				  fx+cb.right, fy+cb.bottom,
+				  Tile.isObstacle)) continue;
 	      cost = a0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
 	      if (0 < fdx &&
 		  tilemap.hasTile(fx+cb.left, fy+cb.bottom+1, 
 				  fx+cb.right, fy+cb.bottom+1, 
 				  Tile.isStoppable)) {
+		// normal fall.
 		addQueue(queue, start, 
 			 new PlanAction(new Point(fx, fy), null,
 					PlanAction.FALL, cost, a0));
@@ -172,6 +179,7 @@ public class PlanMap
 	      if (!tilemap.hasTile(fx+bx0, fy+cb.top, 
 				   p.x+bx1, p.y+cb.bottom,
 				   Tile.isStoppable)) {
+		// fall after jump.
 		addQueue(queue, start, 
 			 new PlanAction(new Point(fx, fy), PlanAction.FALL,
 					PlanAction.FALL, cost, a0));
