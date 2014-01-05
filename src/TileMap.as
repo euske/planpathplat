@@ -40,8 +40,6 @@ public class TileMap
 	_tilevalue[c] = i;
       }
     }
-
-    _rangecache = new Dictionary();
   }
 
   // width: returns the map width.
@@ -64,6 +62,14 @@ public class TileMap
     }
     var c:uint = bitmap.getPixel(x, y+1);
     return _tilevalue[c];
+  }
+
+  // setTile(x, y, i): set the tile value of pixel at (x,y).
+  public function setTile(x:int, y:int, i:int):void
+  {
+    var c:uint = bitmap.getPixel(i, 0);
+    bitmap.setPixel(x, y+1, c);
+    _rangecache = null;
   }
 
   // isTile(x, y, f): true if the tile at (x,y) has a property given by f.
@@ -103,6 +109,9 @@ public class TileMap
   public function getRangeMap(f:Function):RangeMap
   {
     var map:RangeMap;
+    if (_rangecache == null) {
+	_rangecache = new Dictionary();
+    }
     if (_rangecache[f] === undefined) {
       map = new RangeMap(this, f);
       _rangecache[f] = map;
