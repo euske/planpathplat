@@ -111,27 +111,19 @@ public class Scene extends Sprite
   public function setCenter(p:Point, hmargin:int, vmargin:int):void
   {
     // Center the window position.
-    if (p.x-hmargin < _window.x) {
-      _window.x = p.x-hmargin;
+    if (_mapsize.x+hmargin*2 < _window.width) {
+      ;
+    } else if (p.x-hmargin < _window.x) {
+      _window.x = Math.max(0, p.x-hmargin);
     } else if (_window.x+_window.width < p.x+hmargin) {
-      _window.x = p.x+hmargin-_window.width;
+      _window.x = Math.min(_mapsize.x, p.x+hmargin)-_window.width;
     }
-    if (p.y-vmargin < _window.y) {
-      _window.y = p.y-vmargin;
+    if (_mapsize.y+vmargin*2 < _window.height) {
+      ;
+    } else if (p.y-vmargin < _window.y) {
+      _window.y = Math.max(0, p.y-vmargin);
     } else if (_window.y+_window.height < p.y+vmargin) {
-      _window.y = p.y+vmargin-_window.height;
-    }
-    
-    // Adjust the window position to fit the world.
-    if (_window.x < 0) {
-      _window.x = 0;
-    } else if (_mapsize.x < _window.x+_window.width) {
-      _window.x = _mapsize.x-_window.width;
-    }
-    if (_window.y < 0) {
-      _window.y = 0;
-    } else if (_mapsize.y < _window.y+_window.height) {
-      _window.y = _mapsize.y-_window.height;
+      _window.y = Math.min(_mapsize.y, p.y+vmargin)-_window.height;
     }
   }
 
