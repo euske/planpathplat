@@ -5,14 +5,23 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.utils.Dictionary;
 
-//  TileMap
+//  TileMap class is a two dimensional array that has
+//  various query functions.
 //
 public class TileMap
 {
+  // bitmap: actual bitmap to hold the 2D array.
+  // The top row is used as a lookup table for tile types.
+  // The color of pixel (0,0) is used as type 0.
+  // The color of pixel (1,0) is used as type 1. etc.
   public var bitmap:BitmapData;
+
+  // tilesize: the size of each tile.
   public var tilesize:int;
 
+  // _tilevalue: lookup table from a pixel color to a type number.
   private var _tilevalue:Dictionary;
+  // _mapcache: cache for range query results.
   private var _mapcache:Dictionary;
 
   // TileMap(bitmap, tilesize)
@@ -22,6 +31,8 @@ public class TileMap
     this.bitmap = bitmap;
     this.tilesize = tilesize;
 
+    // Construct a lookup table.
+    // The color value at a pixel at (i,0) is used as i-th type.
     _tilevalue = new Dictionary();
     for (var i:int = 0; i < bitmap.width; i++) {
       var c:uint = bitmap.getPixel(i, 0);
@@ -33,18 +44,18 @@ public class TileMap
     _mapcache = new Dictionary();
   }
 
-  // width
+  // width: returns the map width.
   public function get width():int
   {
     return bitmap.width;
   }
-  // height
+  // height: returns the map height.
   public function get height():int
   {
     return bitmap.height-1;
   }
 
-  // getTile(x, y)
+  // getTile(x, y): returns the tile of a pixel at (x,y).
   public function getTile(x:int, y:int):int
   {
     if (x < 0 || bitmap.width <= x || 
@@ -55,13 +66,16 @@ public class TileMap
     return _tilevalue[c];
   }
 
-  // isTile(x, y, f)
+  // isTile(x, y, f): true if the tile at (x,y) has a property given by f.
   public function isTile(x:int, y:int, f:Function):Boolean
   {
     return f(getTile(x, y));
   }
   
-  // scanTile(x0, y0, x1, y1, f)
+  // scanTile(x0, y0, x1, y1, f): returns a list of tiles that has a given property.
+  //  Note: This function scans the map sequentially and is O(w*h).
+  //        Use this only if an exact position of each item is needed.
+  //        For a "if-exists" query, use hasTile().
   public function scanTile(x0:int, y0:int, x1:int, y1:int, f:Function):Array
   {
     var a:Array = new Array();
@@ -84,20 +98,24 @@ public class TileMap
     return a;
   }
 
-  // hasTile(x0, y0, x1, x1, f)
+  // hasTile(x0, y0, x1, x1, f): true if a tile specified by f exists in a given range.
+  //   Unlike scanTile(), this function is O(1) except for the first time being called.
   public function hasTile(x0:int, y0:int, x1:int, y1:int, f:Function):Boolean
   {
-    var cache:TileMapCache;
+    var cache:RangeMap;
     if (_mapcache[f] === undefined) {
-      cache = new TileMapCache(this, f);
+      cache = new RangeMap(this, f);
       _mapcache[f] = cache;
     } else {
       cache = _mapcache[f];
     }
-    return (cache.getCount(x0, y0, x1, y1) != 0);
+    return cache.hasTile(x0, y0, x1, y1);
   }
 
-  // findSimplePath(x0, y0, x1, x1, f, b)
+  // findSimplePath(x0, y0, x1, x1, f, cb): 
+  //   returns a list of points that a character can proceed without being blocked.
+  //   returns null if no such path exists. This function takes O(w*h).
+  //   Note: this returns only a straightforward path without any detour.
   public function findSimplePath(x0:int, y0:int, x1:int, y1:int, 
 				 f:Function, cb:Rectangle):Array
   {
@@ -109,12 +127,15 @@ public class TileMap
     var vy:int = (y0 <= y1)? +1 : -1;
     for (var dy:int = 0; dy <= h; dy++) {
       a.push(new Array());
+      // y: y0...y1
       var y:int = y0+dy*vy;
       for (var dx:int = 0; dx <= w; dx++) {
+	// x: x0...x1
 	var x:int = x0+dx*vx;
+	// for each point, compare the cost of (x-1,y) and (x,y-1).
 	var p:Point = new Point(x, y);
-	var e:WayPoint = null;
 	var d:int;
+	var e:WayPoint = null;	// the closest neighbor (if exists).
 	if (dx == 0 && dy == 0) {
 	  d = 0;
 	} else {
@@ -131,9 +152,11 @@ public class TileMap
 	  }
 	  d++;
 	}
+	// populate a[dy][dx].
 	a[dy].push(new WayPoint(p, d, e));
       }
     }
+    // trace them in a reverse order: from goal to start.
     var r:Array = new Array();
     e = a[h][w].next;
     while (e != null) {
@@ -143,19 +166,19 @@ public class TileMap
     return r;
   }
 
-  // getTilePoint(x, y)
+  // getTilePoint(x, y): converts a point in the map to screen space.
   public function getTilePoint(x:int, y:int):Point
   {
     return new Point(x*tilesize+tilesize/2, y*tilesize+tilesize/2);
   }
 
-  // getTileRect(x, y)
+  // getTileRect(x, y): converts an area in the map to screen space.
   public function getTileRect(x:int, y:int, w:int=1, h:int=1):Rectangle
   {
     return new Rectangle(x*tilesize, y*tilesize, w*tilesize, h*tilesize);
   }
 
-  // getCoordsByPoint(p)
+  // getCoordsByPoint(p): converts a screen position to map coordinates.
   public function getCoordsByPoint(p:Point):Point
   {
     var x:int = Math.floor(p.x/tilesize);
@@ -163,7 +186,7 @@ public class TileMap
     return new Point(x, y);
   }
 
-  // getCoordsByRect(r)
+  // getCoordsByRect(r): converts a screen area to a map range.
   public function getCoordsByRect(r:Rectangle):Rectangle
   {
     var x0:int = Math.floor(r.left/tilesize);
@@ -173,21 +196,22 @@ public class TileMap
     return new Rectangle(x0, y0, x1-x0, y1-y0);
   }
 
-  // hasTileByRect(r, f)
-  public function hasTileByRect(r:Rectangle, f:Function):Boolean
-  {
-    var r1:Rectangle = getCoordsByRect(r);
-    return hasTile(r1.left, r1.top, r1.right-1, r1.bottom-1, f);
-  }
-
-  // scanTileByRect(r)
+  // scanTileByRect(r): returns a list of tiles that has a given property.
   public function scanTileByRect(r:Rectangle, f:Function):Array
   {
     r = getCoordsByRect(r);
     return scanTile(r.left, r.top, r.right-1, r.bottom-1, f);
   }
 
-  // getCollisionByRect(r, vx, vy, f)
+  // hasTileByRect(r, f): true if a tile specified by f exists in a given range.
+  public function hasTileByRect(r:Rectangle, f:Function):Boolean
+  {
+    var r1:Rectangle = getCoordsByRect(r);
+    return hasTile(r1.left, r1.top, r1.right-1, r1.bottom-1, f);
+  }
+
+  // getCollisionByRect(r, vx, vy, f): 
+  //   adjusts vector (vx,vy) so that the rectangle doesn't collide with a tile specified by f.
   public function getCollisionByRect(r:Rectangle, vx:int, vy:int, f:Function):Point
   {
     var src:Rectangle = r.union(Utils.moveRect(r, vx, vy));
@@ -200,7 +224,7 @@ public class TileMap
     return v;
   }
 
-  // hasCollisionByRect(r, f)
+  // hasCollisionByRect(r, vx, vy, f): true if the rectangle collides with a tile.
   public function hasCollisionByRect(r:Rectangle, vx:int, vy:int, f:Function):Boolean
   {
     var src:Rectangle = r.union(Utils.moveRect(r, vx, vy));
@@ -216,11 +240,16 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.display.BitmapData;
 
-class TileMapCache 
+// A 2D array used for range queries for a certain tile.
+class RangeMap 
 {
+  // _data: array for storing numbers.
+  //   We just use a bitmap for space efficiency,
+  //   assuming the numbers are less than its maximum color values.
   private var _data:BitmapData;
 
-  public function TileMapCache(tilemap:TileMap, f:Function)
+  // RangeMap(tilemap, f): constructs a range map for a given tile f.
+  public function RangeMap(tilemap:TileMap, f:Function)
   {
     _data = new BitmapData(tilemap.width+2, 
 			   tilemap.height+2, false, 0);
@@ -236,6 +265,7 @@ class TileMapCache
     }
   }
 
+  // getCount(x0, y0, x1, y1): returns the number of tiles in the given area.
   public function getCount(x0:int, y0:int, x1:int, y1:int):uint
   {
     var t:int;
@@ -256,13 +286,21 @@ class TileMapCache
 	    ((y0<0)? 0 : _data.getPixel(x1, y0))-
 	    ((x0<0)? 0 : _data.getPixel(x0, y1)));
   }
+
+  // hasTile(x0, y0, x1, y1): true if there's any tile in the given area.
+  public function hasTile(x0:int, y0:int, x1:int, y1:int):Boolean
+  {
+    return (getCount(x0, y0, x1, y1) != 0);
+  }
 }
 
+// A graph node used by findSimplePath().
 class WayPoint
 {
-  public var p:Point;
-  public var d:int;
-  public var next:WayPoint;
+  public var p:Point;		// point.
+  public var d:int;		// cost.
+  public var next:WayPoint;	// next node.
+
   public function WayPoint(p:Point, d:int, next:WayPoint)
   {
     this.p = p;
