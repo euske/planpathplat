@@ -21,8 +21,8 @@ public class TileMap
 
   // _tilevalue: lookup table from a pixel color to a type number.
   private var _tilevalue:Dictionary;
-  // _mapcache: cache for range query results.
-  private var _mapcache:Dictionary;
+  // _rangecache: cache for range query results.
+  private var _rangecache:Dictionary;
 
   // TileMap(bitmap, tilesize)
   public function TileMap(bitmap:BitmapData, 
@@ -41,7 +41,7 @@ public class TileMap
       }
     }
 
-    _mapcache = new Dictionary();
+    _rangecache = new Dictionary();
   }
 
   // width: returns the map width.
@@ -98,18 +98,18 @@ public class TileMap
     return a;
   }
 
-  // hasTile(x0, y0, x1, x1, f): true if a tile specified by f exists in a given range.
+  // getRangeMap(f): returns a RangeMap object for a given tile.
   //   Unlike scanTile(), this function is O(1) except for the first time being called.
-  public function hasTile(x0:int, y0:int, x1:int, y1:int, f:Function):Boolean
+  public function getRangeMap(f:Function):RangeMap
   {
-    var cache:RangeMap;
-    if (_mapcache[f] === undefined) {
-      cache = new RangeMap(this, f);
-      _mapcache[f] = cache;
+    var map:RangeMap;
+    if (_rangecache[f] === undefined) {
+      map = new RangeMap(this, f);
+      _rangecache[f] = map;
     } else {
-      cache = _mapcache[f];
+      map = _rangecache[f];
     }
-    return cache.hasTile(x0, y0, x1, y1);
+    return map;
   }
 
   // findSimplePath(x0, y0, x1, x1, f, cb): 
@@ -125,6 +125,7 @@ public class TileMap
     var inf:int = (w+h+1)*2;
     var vx:int = (x0 <= x1)? +1 : -1;
     var vy:int = (y0 <= y1)? +1 : -1;
+    var map:RangeMap = getRangeMap(f);
     for (var dy:int = 0; dy <= h; dy++) {
       a.push(new Array());
       // y: y0...y1
@@ -140,7 +141,7 @@ public class TileMap
 	  d = 0;
 	} else {
 	  d = inf;
-	  if (!hasTile(x+cb.left, y+cb.top, x+cb.right, y+cb.bottom, f)) {
+	  if (!map.hasTile(x+cb.left, y+cb.top, x+cb.right, y+cb.bottom)) {
 	    if (0 < dx && a[dy][dx-1].d < d) {
 	      e = a[dy][dx-1];
 	      d = e.d;
@@ -203,13 +204,6 @@ public class TileMap
     return scanTile(r.left, r.top, r.right-1, r.bottom-1, f);
   }
 
-  // hasTileByRect(r, f): true if a tile specified by f exists in a given range.
-  public function hasTileByRect(r:Rectangle, f:Function):Boolean
-  {
-    var r1:Rectangle = getCoordsByRect(r);
-    return hasTile(r1.left, r1.top, r1.right-1, r1.bottom-1, f);
-  }
-
   // getCollisionByRect(r, vx, vy, f): 
   //   adjusts vector (vx,vy) so that the rectangle doesn't collide with a tile specified by f.
   public function getCollisionByRect(r:Rectangle, vx:int, vy:int, f:Function):Point
@@ -224,75 +218,11 @@ public class TileMap
     return v;
   }
 
-  // hasCollisionByRect(r, vx, vy, f): true if the rectangle collides with a tile.
-  public function hasCollisionByRect(r:Rectangle, vx:int, vy:int, f:Function):Boolean
-  {
-    var src:Rectangle = r.union(Utils.moveRect(r, vx, vy));
-    return hasTileByRect(src, f);
-  }
-
 }
 
 } // package
 
-
 import flash.geom.Point;
-import flash.geom.Rectangle;
-import flash.display.BitmapData;
-
-// A 2D array used for range queries for a certain tile.
-class RangeMap 
-{
-  // _data: array for storing numbers.
-  //   We just use a bitmap for space efficiency,
-  //   assuming the numbers are less than its maximum color values.
-  private var _data:BitmapData;
-
-  // RangeMap(tilemap, f): constructs a range map for a given tile f.
-  public function RangeMap(tilemap:TileMap, f:Function)
-  {
-    _data = new BitmapData(tilemap.width+2, 
-			   tilemap.height+2, false, 0);
-    for (var y:int = -1; y <= tilemap.height; y++) {
-      var n:uint = 0;
-      for (var x:int = -1; x <= tilemap.width; x++) {
-	var n0:uint = (y<0)? 0 : _data.getPixel(x+1, y);
-	if (f(tilemap.getTile(x, y))) {
-	  n++;
-	}
-	_data.setPixel(x+1, y+1, n0+n);
-      }
-    }
-  }
-
-  // getCount(x0, y0, x1, y1): returns the number of tiles in the given area.
-  public function getCount(x0:int, y0:int, x1:int, y1:int):uint
-  {
-    var t:int;
-    // assert(x0 <= x1);
-    if (x1 < x0) {
-      t = x0; x0 = x1; x1 = t;
-    }
-    // assert(y0 <= y1);
-    if (y1 < y0) {
-      t = y0; y0 = y1; y1 = t;
-    }
-    x0 = Math.max(-1, Math.min(_data.width-2, x0));
-    y0 = Math.max(-1, Math.min(_data.height-2, y0));
-    x1 = Math.max(0, Math.min(_data.width-1, x1+1));
-    y1 = Math.max(0, Math.min(_data.height-1, y1+1));
-    return (_data.getPixel(x1, y1)+
-	    ((x0<0 || y0<0)? 0 : _data.getPixel(x0, y0))-
-	    ((y0<0)? 0 : _data.getPixel(x1, y0))-
-	    ((x0<0)? 0 : _data.getPixel(x0, y1)));
-  }
-
-  // hasTile(x0, y0, x1, y1): true if there's any tile in the given area.
-  public function hasTile(x0:int, y0:int, x1:int, y1:int):Boolean
-  {
-    return (getCount(x0, y0, x1, y1) != 0);
-  }
-}
 
 // A graph node used by findSimplePath().
 class WayPoint

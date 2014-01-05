@@ -44,10 +44,10 @@ public class Person extends Actor
     if (goal == null) return;
 
     // adjust the goal position when it cannot fit.
+    var obstacle:RangeMap = tilemap.getRangeMap(Tile.isObstacle);
     for (var dx:int = tilebounds.left; dx <= tilebounds.right; dx++) {
-      if (!tilemap.hasTile(goal.x-dx+tilebounds.left, goal.y+tilebounds.top,
-			   goal.x-dx+tilebounds.right, goal.y+tilebounds.bottom,
-			   Tile.isObstacle)) {
+      if (!obstacle.hasTile(goal.x-dx+tilebounds.left, goal.y+tilebounds.top,
+			    goal.x-dx+tilebounds.right, goal.y+tilebounds.bottom)) {
 	goal.x -= dx;
 	break;
       }

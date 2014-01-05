@@ -70,19 +70,19 @@ public class Actor
   public function isLanded():Boolean
   {
     return (0 <= _velocity.y && 
-	    tilemap.hasCollisionByRect(bounds, 0, 1, Tile.isStoppable));
+	    tilemap.getRangeMap(Tile.isStoppable).hasCollisionByRect(bounds, 0, 1));
   }
 
   // isGrabbing()
   public function isGrabbing():Boolean
   {
-    return tilemap.hasTileByRect(bounds, Tile.isGrabbable);
+    return tilemap.getRangeMap(Tile.isGrabbable).hasTileByRect(bounds);
   }
 
   // isMovable(dx, dy)
   public function isMovable(dx:int, dy:int):Boolean
   {
-    return (!tilemap.hasCollisionByRect(bounds, dx, dy, Tile.isObstacle));
+    return (!tilemap.getRangeMap(Tile.isObstacle).hasCollisionByRect(bounds, dx, dy));
   }
 
   // getMovedBounds(dx, dy)

@@ -72,10 +72,13 @@ public class PlanMap
   public function fillPlan(start:Point=null, n:int=1000,
 			   falldx:int=10, falldy:int=20):int
   {
+    var obstacle:RangeMap = tilemap.getRangeMap(Tile.isObstacle);
+    var stoppable:RangeMap = tilemap.getRangeMap(Tile.isStoppable);
+    var grabbable:RangeMap = tilemap.getRangeMap(Tile.isGrabbable);
+
     if (start != null &&
-	!tilemap.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
-			 start.x+cb.right, start.y+cb.bottom+1, 
-			 Tile.isStoppable)) return 0;
+	!stoppable.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
+			   start.x+cb.right, start.y+cb.bottom+1)) return 0;
     
     var queue:Array = new Array();
     addQueue(queue, start, new PlanAction(goal));
@@ -86,22 +89,19 @@ public class PlanMap
       var p:Point = a0.p;
       var context:String = a0.context;
       if (start != null && start.equals(p)) break;
-      if (tilemap.hasTile(p.x+cb.left, p.y+cb.top, 
-			  p.x+cb.right, p.y+cb.bottom, 
-			  Tile.isObstacle)) continue;
+      if (obstacle.hasTile(p.x+cb.left, p.y+cb.top, 
+			   p.x+cb.right, p.y+cb.bottom)) continue;
       if (context == null &&
-	  !tilemap.hasTile(p.x+cb.left, p.y+cb.bottom+1, 
-			   p.x+cb.right, p.y+cb.bottom+1, 
-			   Tile.isStoppable)) continue;
+	  !stoppable.hasTile(p.x+cb.left, p.y+cb.bottom+1, 
+			     p.x+cb.right, p.y+cb.bottom+1)) continue;
       // assert(bounds.left <= p.x && p.x <= bounds.right);
       // assert(bounds.top <= p.y && p.y <= bounds.bottom);
 
       // try climbing down.
       if (context == null &&
 	  bounds.top <= p.y-1 &&
-	  tilemap.hasTile(p.x+cb.left, p.y+cb.bottom,
-			  p.y+cb.right, p.y+cb.bottom,
-			  Tile.isGrabbable)) {
+	  grabbable.hasTile(p.x+cb.left, p.y+cb.bottom,
+			    p.y+cb.right, p.y+cb.bottom)) {
 	cost = a0.cost+1;
 	addQueue(queue, start, 
 		 new PlanAction(new Point(p.x, p.y-1), null,
@@ -110,9 +110,8 @@ public class PlanMap
       // try climbing up.
       if (context == null &&
 	  p.y+1 <= bounds.bottom &&
-	  tilemap.hasTile(p.x+cb.left, p.y+cb.top+1,
-			  p.x+cb.right, p.y+cb.bottom+1,
-			  Tile.isGrabbable)) {
+	  grabbable.hasTile(p.x+cb.left, p.y+cb.top+1,
+			    p.x+cb.right, p.y+cb.bottom+1)) {
 	cost = a0.cost+1;
 	addQueue(queue, start, 
 		 new PlanAction(new Point(p.x, p.y+1), null,
@@ -128,12 +127,10 @@ public class PlanMap
 	var wx:int = p.x-vx;
 	if (context == null &&
 	    bounds.left <= wx && wx <= bounds.right &&
-	    !tilemap.hasTile(wx+cb.left, p.y+cb.top,
-			     wx+cb.right, p.y+cb.bottom,
-			     Tile.isObstacle) &&
-	    tilemap.hasTile(wx+cb.left, p.y+cb.bottom+1,
-			    wx+cb.right, p.y+cb.bottom+1,
-			    Tile.isStoppable)) {
+	    !obstacle.hasTile(wx+cb.left, p.y+cb.top,
+			      wx+cb.right, p.y+cb.bottom) &&
+	    stoppable.hasTile(wx+cb.left, p.y+cb.bottom+1,
+			      wx+cb.right, p.y+cb.bottom+1)) {
 	  cost = a0.cost+1;
 	  addQueue(queue, start, 
 		   new PlanAction(new Point(wx, p.y), null,
@@ -160,25 +157,21 @@ public class PlanMap
 	      //   ...|  |
 	      //   ...+-X+ (p.x,p.y)
 	      //     ######
-	      if (tilemap.hasTile(fx+bx0+vx, fy+cb.top, 
-				  p.x+bx1, p.y+cb.bottom,
-				  Tile.isStoppable)) break;
-	      if (tilemap.hasTile(fx+cb.left, fy+cb.top,
-				  fx+cb.right, fy+cb.bottom,
-				  Tile.isObstacle)) continue;
+	      if (stoppable.hasTile(fx+bx0+vx, fy+cb.top, 
+				    p.x+bx1, p.y+cb.bottom)) break;
+	      if (obstacle.hasTile(fx+cb.left, fy+cb.top,
+				   fx+cb.right, fy+cb.bottom)) continue;
 	      cost = a0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
 	      if (0 < fdx &&
-		  tilemap.hasTile(fx+cb.left, fy+cb.bottom+1, 
-				  fx+cb.right, fy+cb.bottom+1, 
-				  Tile.isStoppable)) {
+		  stoppable.hasTile(fx+cb.left, fy+cb.bottom+1, 
+				    fx+cb.right, fy+cb.bottom+1)) {
 		// normal fall.
 		addQueue(queue, start, 
 			 new PlanAction(new Point(fx, fy), null,
 					PlanAction.FALL, cost, a0));
 	      }
-	      if (!tilemap.hasTile(fx+bx0, fy+cb.top, 
-				   p.x+bx1, p.y+cb.bottom,
-				   Tile.isStoppable)) {
+	      if (!stoppable.hasTile(fx+bx0, fy+cb.top, 
+				     p.x+bx1, p.y+cb.bottom)) {
 		// fall after jump.
 		addQueue(queue, start, 
 			 new PlanAction(new Point(fx, fy), PlanAction.FALL,
@@ -210,12 +203,10 @@ public class PlanMap
 	      //  |  |...
 	      //  +-X+... (jx,jy) original position.
 	      // ######
-	      if (tilemap.hasTile(jx+bx0, jy+cb.bottom, 
-				  p.x+bx1-vx, p.y+cb.top, 
-				  Tile.isStoppable)) break;
-	      if (!tilemap.hasTile(jx+cb.left, jy+cb.bottom+1, 
-				   jx+cb.right, jy+cb.bottom+1, 
-				   Tile.isStoppable)) continue;
+	      if (stoppable.hasTile(jx+bx0, jy+cb.bottom, 
+				    p.x+bx1-vx, p.y+cb.top)) break;
+	      if (!stoppable.hasTile(jx+cb.left, jy+cb.bottom+1, 
+				     jx+cb.right, jy+cb.bottom+1)) continue;
 	      // extra care is needed not to allow the following case:
 	      //      .#
 	      //    +--+
@@ -261,6 +252,7 @@ public class PlanMap
 					 velocity:Point, gravity:int,
 					 maxdt:int=20):Point
   {
+    var stoppable:RangeMap = tilemap.getRangeMap(Tile.isStoppable);
     var y0:int = Math.floor(pos.y / tilemap.tilesize);
     for (var dt:int = 0; dt < maxdt; dt++) {
       var x:int = Math.floor((pos.x+velocity.x*dt) / tilemap.tilesize);
@@ -268,12 +260,10 @@ public class PlanMap
       var y1:int = Math.ceil((pos.y + dt*(dt+1)/2 * gravity) / tilemap.tilesize);
       for (var y:int = y0; y <= y1; y++) {
 	if (y < 0 || tilemap.height <= y) continue;
-	if (tilemap.hasTile(x+cb.left, y+cb.bottom, 
-			    x+cb.right, y+cb.bottom, 
-			    Tile.isStoppable)) return null;
-	if (tilemap.hasTile(x+cb.left, y+cb.bottom+1, 
-			    x+cb.right, y+cb.bottom+1, 
-			    Tile.isStoppable)) {
+	if (stoppable.hasTile(x+cb.left, y+cb.bottom, 
+			      x+cb.right, y+cb.bottom)) return null;
+	if (stoppable.hasTile(x+cb.left, y+cb.bottom+1, 
+			      x+cb.right, y+cb.bottom+1)) {
 	  return new Point(x, y);
 	}
       }

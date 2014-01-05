@@ -83,8 +83,8 @@ public class PlanActionRunner extends EventDispatcher
 					   y+actor.tilebounds.top, 
 					   actor.tilebounds.width+1, 
 					   actor.tilebounds.height+1);
-    return (!_tilemap.hasTileByRect(actor.bounds.union(r), 
-				    Tile.isStoppable));
+    var stoppable:RangeMap = _tilemap.getRangeMap(Tile.isStoppable);
+    return (!stoppable.hasTileByRect(actor.bounds.union(r)));
   }
 }
 
