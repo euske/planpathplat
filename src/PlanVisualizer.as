@@ -17,7 +17,7 @@ public class PlanVisualizer extends Shape
   }
 
   // update()
-  public function update(plan:PlanMap, start:Point):void
+  public function update(plan:PlanMap, start:Point=null):void
   {
     graphics.clear();
     if (plan == null) return;

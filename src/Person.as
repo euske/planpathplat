@@ -58,7 +58,7 @@ public class Person extends Actor
       var bounds:Rectangle = scene.getCenteredBounds(goal, 10);
       var plan:PlanMap = new PlanMap(tilemap, goal, bounds,
 				     tilebounds, speed, jumpspeed, gravity);
-      if (0 < plan.fillPlan(tilemap.getCoordsByPoint(pos))) {
+      if (plan.fillPlan(tilemap.getCoordsByPoint(pos))) {
 	// start following a plan.
 	_runner = new PlanActionRunner(plan, this);
 	_runner.addEventListener(PlanActionJumpEvent.JUMP, onActionJump);

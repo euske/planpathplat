@@ -37,7 +37,12 @@ public class PlanMap
     // madx: maximum horizontal distance while ascending.
     _madx = Math.floor(madt*speed / tilemap.tilesize);
     // mady: maximum vertical distance while ascending.
-    _mady = Math.floor((jumpspeed*madt - madt*(madt+1)/2*gravity) / tilemap.tilesize);
+    _mady = Math.floor(ascend(jumpspeed, madt, gravity) / tilemap.tilesize);
+  }
+
+  private static function ascend(v0:Number, dt:Number, g:Number):Number
+  {
+    return (v0*dt - (dt-1)*dt*g/2);
   }
 
   public function toString():String
@@ -70,7 +75,7 @@ public class PlanMap
 
   // fillPlan(plan, b)
   public function fillPlan(start:Point=null, n:int=1000,
-			   falldx:int=10, falldy:int=20):int
+			   falldx:int=10, falldy:int=20):Boolean
   {
     var obstacle:RangeMap = tilemap.getRangeMap(Tile.isObstacle);
     var stoppable:RangeMap = tilemap.getRangeMap(Tile.isStoppable);
@@ -78,7 +83,7 @@ public class PlanMap
 
     if (start != null &&
 	!stoppable.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
-			   start.x+cb.right, start.y+cb.bottom+1)) return 0;
+			   start.x+cb.right, start.y+cb.bottom+1)) return false;
     
     var queue:Array = new Array();
     addQueue(queue, start, new PlanAction(goal));
@@ -88,7 +93,7 @@ public class PlanMap
       var a0:PlanAction = q.action;
       var p:Point = a0.p;
       var context:String = a0.context;
-      if (start != null && start.equals(p)) break;
+      if (start != null && start.equals(p)) return true;
       if (obstacle.hasTile(p.x+cb.left, p.y+cb.top, 
 			   p.x+cb.right, p.y+cb.bottom)) continue;
       if (context == null &&
@@ -143,9 +148,9 @@ public class PlanMap
 	    var fx:int = p.x-vx*fdx;
 	    if (fx < bounds.left || bounds.right < fx) break;
 	    // fdt: time for falling.
-	    var fdt:int = Math.ceil(tilemap.tilesize*fdx/speed);
+	    var fdt:int = Math.floor(tilemap.tilesize*fdx/speed);
 	    // fdy: amount of falling.
-	    var fdy:int = Math.ceil(fdt*(fdt+1)/2 * gravity / tilemap.tilesize);
+	    var fdy:int = Math.ceil(-ascend(0, fdt, gravity) / tilemap.tilesize);
 	    for (; fdy <= falldy; fdy++) {
 	      var fy:int = p.y-fdy;
 	      if (fy < bounds.top || bounds.bottom < fy) break;
@@ -187,8 +192,7 @@ public class PlanMap
 	    // adt: time for ascending.
 	    var adt:int = Math.floor(jdx*tilemap.tilesize/speed);
 	    // ady: minimal ascend.
-	    var ady:int = Math.floor((jumpspeed*adt - adt*(adt+1)/2 * gravity) / 
-				     tilemap.tilesize);
+	    var ady:int = Math.floor(ascend(jumpspeed, adt, gravity) / tilemap.tilesize);
 	    for (var jdy:int = ady; jdy <= _mady; jdy++) {
 	      // (jx,jy): original position.
 	      var jx:int = p.x-vx*jdx;
@@ -231,7 +235,7 @@ public class PlanMap
       n--;
     }
 
-    return n;
+    return false;
   }
 
   // addQueue
@@ -257,7 +261,7 @@ public class PlanMap
     for (var dt:int = 0; dt < maxdt; dt++) {
       var x:int = Math.floor((pos.x+velocity.x*dt) / tilemap.tilesize);
       if (x < 0 || tilemap.width <= x) continue;
-      var y1:int = Math.ceil((pos.y + dt*(dt+1)/2 * gravity) / tilemap.tilesize);
+      var y1:int = Math.ceil((pos.y - ascend(0, dt, gravity)) / tilemap.tilesize);
       for (var y:int = y0; y <= y1; y++) {
 	if (y < 0 || tilemap.height <= y) continue;
 	if (stoppable.hasTile(x+cb.left, y+cb.bottom, 

@@ -90,6 +90,12 @@ public class Scene extends Sprite
     _mapimage.y = (_tilewindow.y*tilesize)-_window.y;
   }
 
+  // refreshTiles()
+  public function refreshTiles():void
+  {
+    _tilewindow = new Rectangle();
+  }
+
   // renderTiles(x, y)
   private function renderTiles(r:Rectangle):void
   {
@@ -111,15 +117,15 @@ public class Scene extends Sprite
   public function setCenter(p:Point, hmargin:int, vmargin:int):void
   {
     // Center the window position.
-    if (_mapsize.x+hmargin*2 < _window.width) {
-      ;
+    if (_mapsize.x < _window.width) {
+      _window.x = -(_window.width-_mapsize.x)/2;
     } else if (p.x-hmargin < _window.x) {
       _window.x = Math.max(0, p.x-hmargin);
     } else if (_window.x+_window.width < p.x+hmargin) {
       _window.x = Math.min(_mapsize.x, p.x+hmargin)-_window.width;
     }
-    if (_mapsize.y+vmargin*2 < _window.height) {
-      ;
+    if (_mapsize.y < _window.height) {
+      _window.y = -(_window.height-_mapsize.y)/2;
     } else if (p.y-vmargin < _window.y) {
       _window.y = Math.max(0, p.y-vmargin);
     } else if (_window.y+_window.height < p.y+vmargin) {
