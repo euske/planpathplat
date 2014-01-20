@@ -82,6 +82,8 @@ public class PlanMap
     var grabbable:RangeMap = tilemap.getRangeMap(Tile.isGrabbable);
 
     if (start != null &&
+	!grabbable.hasTile(start.x+cb.left, start.y+cb.top,
+			   start.y+cb.right, start.y+cb.bottom) &&
 	!stoppable.hasTile(start.x+cb.left, start.y+cb.bottom+1, 
 			   start.x+cb.right, start.y+cb.bottom+1)) return false;
     
@@ -97,6 +99,8 @@ public class PlanMap
       if (obstacle.hasTile(p.x+cb.left, p.y+cb.top, 
 			   p.x+cb.right, p.y+cb.bottom)) continue;
       if (context == null &&
+	  !grabbable.hasTile(p.x+cb.left, p.y+cb.top,
+			     p.x+cb.right, p.y+cb.bottom) &&
 	  !stoppable.hasTile(p.x+cb.left, p.y+cb.bottom+1, 
 			     p.x+cb.right, p.y+cb.bottom+1)) continue;
       // assert(bounds.left <= p.x && p.x <= bounds.right);
@@ -134,8 +138,10 @@ public class PlanMap
 	    bounds.left <= wx && wx <= bounds.right &&
 	    !obstacle.hasTile(wx+cb.left, p.y+cb.top,
 			      wx+cb.right, p.y+cb.bottom) &&
-	    stoppable.hasTile(wx+cb.left, p.y+cb.bottom+1,
-			      wx+cb.right, p.y+cb.bottom+1)) {
+	    (grabbable.hasTile(wx+cb.left, p.y+cb.top,
+			       wx+cb.right, p.y+cb.bottom) ||
+	     stoppable.hasTile(wx+cb.left, p.y+cb.bottom+1,
+			       wx+cb.right, p.y+cb.bottom+1))) {
 	  cost = a0.cost+1;
 	  addQueue(queue, start, 
 		   new PlanAction(new Point(wx, p.y), null,
@@ -162,20 +168,23 @@ public class PlanMap
 	      //   ...|  |
 	      //   ...+-X+ (p.x,p.y)
 	      //     ######
-	      if (stoppable.hasTile(fx+bx0+vx, fy+cb.top, 
-				    p.x+bx1, p.y+cb.bottom)) break;
 	      if (obstacle.hasTile(fx+cb.left, fy+cb.top,
 				   fx+cb.right, fy+cb.bottom)) continue;
 	      cost = a0.cost+Math.abs(fdx)+Math.abs(fdy)+1;
 	      if (0 < fdx &&
-		  stoppable.hasTile(fx+cb.left, fy+cb.bottom+1, 
-				    fx+cb.right, fy+cb.bottom+1)) {
+		  !stoppable.hasTile(fx+bx0+vx, fy+cb.top, 
+				     p.x+bx1, p.y+cb.bottom) &&
+		  (grabbable.hasTile(fx+cb.left, fy+cb.top, 
+				     fx+cb.right, fy+cb.bottom) ||
+		   stoppable.hasTile(fx+cb.left, fy+cb.bottom+1, 
+				     fx+cb.right, fy+cb.bottom+1))) {
 		// normal fall.
 		addQueue(queue, start, 
 			 new PlanAction(new Point(fx, fy), null,
 					PlanAction.FALL, cost, a0));
 	      }
-	      if (!stoppable.hasTile(fx+bx0, fy+cb.top, 
+	      if (fdy == 0 ||
+		  !stoppable.hasTile(fx+bx0, fy+cb.bottom, 
 				     p.x+bx1, p.y+cb.bottom)) {
 		// fall after jump.
 		addQueue(queue, start, 
@@ -209,7 +218,9 @@ public class PlanMap
 	      // ######
 	      if (stoppable.hasTile(jx+bx0, jy+cb.bottom, 
 				    p.x+bx1-vx, p.y+cb.top)) break;
-	      if (!stoppable.hasTile(jx+cb.left, jy+cb.bottom+1, 
+	      if (!grabbable.hasTile(jx+cb.left, jy+cb.top, 
+				     jx+cb.right, jy+cb.bottom) &&
+		  !stoppable.hasTile(jx+cb.left, jy+cb.bottom+1, 
 				     jx+cb.right, jy+cb.bottom+1)) continue;
 	      // extra care is needed not to allow the following case:
 	      //      .#
