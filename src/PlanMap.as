@@ -106,7 +106,7 @@ public class PlanMap
       if (context == null &&
 	  bounds.top <= p.y-1 &&
 	  grabbable.hasTile(p.x+cb.left, p.y+cb.bottom,
-			    p.y+cb.right, p.y+cb.bottom)) {
+			    p.x+cb.right, p.y+cb.bottom)) {
 	cost = a0.cost+1;
 	addQueue(queue, start, 
 		 new PlanAction(new Point(p.x, p.y-1), null,
