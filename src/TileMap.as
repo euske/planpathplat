@@ -52,6 +52,17 @@ public class TileMap
   {
     return bitmap.height-1;
   }
+  // bounds: returns the map bounds.
+  public function get bounds():Rectangle
+  {
+    return new Rectangle(0, 0, width, height);
+  }
+
+  // clone(): returns a cloned TileMap.
+  public function clone():TileMap
+  {
+    return new TileMap(bitmap.clone(), tilesize);
+  }
 
   // getTile(x, y): returns the tile of a pixel at (x,y).
   public function getTile(x:int, y:int):int

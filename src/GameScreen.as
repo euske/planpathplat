@@ -3,6 +3,7 @@ package {
 import flash.display.Shape;
 import flash.display.Bitmap;
 import flash.events.Event;
+import flash.geom.Point;
 import flash.ui.Keyboard;
 
 //  GameScreen
@@ -26,6 +27,14 @@ public class GameScreen extends Screen
   private var scene:Scene;
   private var player:Player;
 
+  private function findSpot(i:int):Point
+  {
+    var tilemap:TileMap = scene.tilemap;
+    var a:Array = tilemap.scanTile(0, 0, tilemap.width, tilemap.height, 
+				   (function (b:int):Boolean { return b == i; }));
+    return a[0];
+  }
+
   public function GameScreen(width:int, height:int)
   {
     var tilesize:int = 32;
@@ -33,15 +42,18 @@ public class GameScreen extends Screen
     scene = new Scene(width, height, tilemap, tilesimage.bitmapData);
     addChild(scene);
 
+    var p:Point;
+    p = findSpot(Tile.PLAYER);
     player = new Player(scene);
-    player.pos = tilemap.getTilePoint(3, 3);
-    player.bounds = tilemap.getTileRect(3, 1, 1, 3);
+    player.pos = tilemap.getTilePoint(p.x, p.y);
+    player.bounds = tilemap.getTileRect(p.x, p.y-3+1, 1, 3);
     player.skin = createSkin(tilesize*1, tilesize*3, 0x44ff44);
     scene.add(player);
 
     var enemy1:Person = new Person(scene);
-    enemy1.pos = tilemap.getTilePoint(6, 6);
-    enemy1.bounds = tilemap.getTileRect(6, 4, 2, 3);
+    p = findSpot(Tile.ENEMY1);
+    enemy1.pos = tilemap.getTilePoint(p.x, p.y);
+    enemy1.bounds = tilemap.getTileRect(p.x, p.y-3+1, 2, 3);
     enemy1.skin = createSkin(tilesize*2, tilesize*3, 0xff44ff);
     enemy1.target = player;
     enemy1.visualizer = new PlanVisualizer(scene);
@@ -49,8 +61,9 @@ public class GameScreen extends Screen
     addChild(enemy1.visualizer);
 
     var enemy2:Person = new Person(scene);
-    enemy2.pos = tilemap.getTilePoint(10, 9);
-    enemy2.bounds = tilemap.getTileRect(10, 8, 1, 2);
+    p = findSpot(Tile.ENEMY2);
+    enemy2.pos = tilemap.getTilePoint(p.x, p.y);
+    enemy2.bounds = tilemap.getTileRect(p.x, p.y-2+1, 1, 2);
     enemy2.skin = createSkin(tilesize*1, tilesize*2, 0x44ffff);
     enemy2.target = player;
     enemy2.visualizer = new PlanVisualizer(scene);
