@@ -1,28 +1,28 @@
 # Makefile
 
+SEP=\\
 DEL=del /f
 COPY=copy /y
+RM=rm -f
+CP=cp -f
 JAVA=java
 START=start "test" /B
-FLEX_HOME=..\flex_sdk4
+RSYNC=rsync -av
 
-MXMLC=$(JAVA) -jar $(FLEX_HOME)\lib\mxmlc.jar +flexlib=$(FLEX_HOME)\frameworks
-FDB=$(JAVA) -jar $(FLEX_HOME)\lib\fdb.jar
+FLEX_HOME=..$(SEP)flex_sdk4
+MXMLC=$(JAVA) -jar $(FLEX_HOME)$(SEP)lib$(SEP)mxmlc.jar +flexlib=$(FLEX_HOME)$(SEP)frameworks
+FDB=$(JAVA) -jar $(FLEX_HOME)$(SEP)lib$(SEP)fdb.jar
+CFLAGS=-static-rsls
+CFLAGS_DEBUG=-debug=true
 
 # Project settings
-CFLAGS=-static-rsls -compiler.source-path=.\src\\
-CFLAGS_DEBUG=-debug=true
 TARGET=main.swf
-TARGET_DEBUG=main_d.swf
-LIVE_URL=ludumdare.tabesugi.net:public/file/ludumdare.tabesugi.net/ppp/
+TARGET_DEBUG=$(TARGET)_d.swf
 
 all: $(TARGET)
 
 clean:
 	-$(DEL) $(TARGET) $(TARGET_DEBUG)
-
-update: $(TARGET)
-	$(RSYNC) $(TARGET) index.html $(LIVE_URL)
 
 run: $(TARGET)
 	$(START) $(TARGET)
@@ -30,8 +30,14 @@ run: $(TARGET)
 debug: $(TARGET_DEBUG)
 	$(FDB) $(TARGET_DEBUG)
 
-$(TARGET): .\src\*.as .\assets\*.*
-	$(MXMLC) $(CFLAGS) -o $@ .\src\Main.as
+$(TARGET): .$(SEP)src$(SEP)*.as
+	$(MXMLC) $(CFLAGS) -compiler.source-path=.$(SEP)src$(SEP) \
+		-o $@ .$(SEP)src$(SEP)Main.as
 
-$(TARGET_DEBUG): .\src\*.as .\assets\*.*
-	$(MXMLC) $(CFLAGS) $(CFLAGS_DEBUG) -o $@ .\src\Main.as
+$(TARGET_DEBUG): .$(SEP)src$(SEP)*.as
+	$(MXMLC) $(CFLAGS) $(CFLAGS_DEBUG) -compiler.source-path=.$(SEP)src$(SEP) \
+		-o $@ .$(SEP)src$(SEP)Main.as
+
+LIVE_URL=ludumdare.tabesugi.net:public/file/ludumdare.tabesugi.net/ppp/
+update: $(TARGET)
+	$(RSYNC) $(TARGET) index.html $(LIVE_URL)
