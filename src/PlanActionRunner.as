@@ -65,6 +65,7 @@ public class PlanActionRunner extends EventDispatcher
 	if (actor.isLanded() && !actor.isGrabbing() &&
 	    hasClearance(cur.x, dst.y)) {
 	  dispatchEvent(new PlanActionJumpEvent());
+	  // once you leap, the action is considered finished.
 	  _action = (valid)? _action.next : null;
 	} else {
 	  // not landed, grabbing something, or has no clearance.
