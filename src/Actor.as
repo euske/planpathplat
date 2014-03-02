@@ -73,8 +73,8 @@ public class Actor
 	    tilemap.getRangeMap(Tile.isStoppable).hasCollisionByRect(bounds, 0, 1));
   }
 
-  // isGrabbing()
-  public function isGrabbing():Boolean
+  // isHolding()
+  public function isHolding():Boolean
   {
     return tilemap.getRangeMap(Tile.isGrabbable).hasTileByRect(bounds);
   }
@@ -99,7 +99,7 @@ public class Actor
   // jump()
   public function jump():void
   {
-    if (isLanded() && !isGrabbing()) {
+    if (isLanded() && !isHolding()) {
       _velocity.y = -jumpspeed;
     }
   }
@@ -107,7 +107,7 @@ public class Actor
   // fall()
   public function fall():void
   {
-    if (!isGrabbing() && !isLanded()) {
+    if (!isHolding() && !isLanded()) {
       var v:Point;
       // falling (in x and y).
       v = tilemap.getCollisionByRect(bounds, _velocity.x, _velocity.y, 
@@ -126,7 +126,7 @@ public class Actor
   // move(v)
   public function move(v:Point):void
   {
-    if (isGrabbing()) {
+    if (isHolding()) {
       // climing a ladder.
       v = tilemap.getCollisionByRect(bounds, v.x, v.y, 
 				     Tile.isObstacle);
@@ -149,7 +149,7 @@ public class Actor
   {
     var v:Point = new Point(Utils.clamp(-speed, (p.x-pos.x), +speed),
 			    Utils.clamp(-speed, (p.y-pos.y), +speed));
-    if (isLanded() || isGrabbing()) {
+    if (isLanded() || isHolding()) {
       if (isMovable(v.x, v.y)) {
 	move(v);
       } else if (isMovable(0, v.y)) {

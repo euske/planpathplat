@@ -62,13 +62,13 @@ public class PlanActionRunner extends EventDispatcher
 	break;
 	  
       case PlanAction.JUMP:
-	if (actor.isLanded() && !actor.isGrabbing() &&
+	if (actor.isLanded() && !actor.isHolding() &&
 	    hasClearance(cur.x, dst.y)) {
 	  dispatchEvent(new PlanActionJumpEvent());
 	  // once you leap, the action is considered finished.
 	  _action = (valid)? _action.next : null;
 	} else {
-	  // not landed, grabbing something, or has no clearance.
+	  // not landed, holding something, or has no clearance.
 	  p = _tilemap.getTilePoint(cur.x, cur.y);
 	  dispatchEvent(new PlanActionMoveToEvent(p));
 	}

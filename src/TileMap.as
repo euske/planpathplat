@@ -10,7 +10,7 @@ import flash.utils.Dictionary;
 //
 public class TileMap
 {
-  // bitmap: actual bitmap to hold the 2D array.
+  // bitmap: actual bitmap to store the 2D array.
   // The top row is used as a lookup table for tile types.
   // The color of pixel (0,0) is used as type 0.
   // The color of pixel (1,0) is used as type 1. etc.
