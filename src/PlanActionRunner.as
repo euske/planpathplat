@@ -52,10 +52,12 @@ public class PlanActionRunner extends EventDispatcher
       case PlanAction.FALL:
 	path = _tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
 				       Tile.isObstacle, actor.tilebounds);
-	if (0 < path.length) {
+	if (0 < path.length && !actor.isHolding()) {
 	  p = _tilemap.getTilePoint(path[0].x, path[0].y);
-	  dispatchEvent(new PlanActionMoveToEvent(p));
+	} else {
+	  p = _tilemap.getTilePoint(dst.x, dst.y);
 	}
+	dispatchEvent(new PlanActionMoveToEvent(p));
 	if (cur.equals(dst)) {
 	  _action = (valid)? _action.next : null;
 	}

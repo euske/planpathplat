@@ -109,15 +109,15 @@ public class Actor
   {
     if (!isHolding() && !isLanded()) {
       var v:Point;
+      //var f:Function = (_velocity.y < 0)? Tile.isObstacle : Tile.isStoppable;
+      var f:Function = Tile.isObstacle;
       // falling (in x and y).
-      v = tilemap.getCollisionByRect(bounds, _velocity.x, _velocity.y, 
-				     Tile.isStoppable);
+      v = tilemap.getCollisionByRect(bounds, _velocity.x, _velocity.y, f);
       // falling (in x).
       v.x = tilemap.getCollisionByRect(bounds, _velocity.x, v.y, 
 				       Tile.isObstacle).x;
       // falling (in y).
-      v.y = tilemap.getCollisionByRect(bounds, v.x, _velocity.y, 
-				       Tile.isStoppable).y;
+      v.y = tilemap.getCollisionByRect(bounds, v.x, _velocity.y, f).y;
       pos = Utils.movePoint(pos, v.x, v.y);
       _velocity = new Point(v.x, Math.min(v.y+gravity, maxspeed));
     }
