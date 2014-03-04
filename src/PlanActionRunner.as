@@ -50,14 +50,15 @@ public class PlanActionRunner extends EventDispatcher
 	break;
 	
       case PlanAction.FALL:
-	path = _tilemap.findSimplePath(dst.x, dst.y, cur.x, cur.y, 
-				       Tile.isObstacle, actor.tilebounds);
-	if (0 < path.length && !actor.isHolding()) {
-	  p = _tilemap.getTilePoint(path[0].x, path[0].y);
-	} else {
-	  p = _tilemap.getTilePoint(dst.x, dst.y);
+	var map:RangeMap = _tilemap.getRangeMap(Tile.isObstacle);
+	path = _tilemap.findSimplePath(cur.x, cur.y, dst.x, dst.y, map, actor.tilebounds);
+	for each (p in path) {
+	  p = _tilemap.getTilePoint(p.x, p.y);
+	  if (actor.isMovable(p.x-actor.pos.x, p.y-actor.pos.y)) {
+	    dispatchEvent(new PlanActionMoveToEvent(p));
+	    break;
+	  }
 	}
-	dispatchEvent(new PlanActionMoveToEvent(p));
 	if (cur.equals(dst)) {
 	  _action = (valid)? _action.next : null;
 	}

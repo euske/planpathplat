@@ -132,12 +132,12 @@ public class TileMap
     return map;
   }
 
-  // findSimplePath(x0, y0, x1, x1, f, cb): 
+  // findSimplePath(x0, y0, x1, x1, map, cb): 
   //   returns a list of points that a character can proceed without being blocked.
   //   returns null if no such path exists. This function takes O(w*h).
   //   Note: this returns only a straightforward path without any detour.
   public function findSimplePath(x0:int, y0:int, x1:int, y1:int, 
-				 f:Function, cb:Rectangle):Array
+				 map:RangeMap, cb:Rectangle):Array
   {
     var a:Array = new Array();
     var w:int = Math.abs(x1-x0);
@@ -145,7 +145,6 @@ public class TileMap
     var inf:int = (w+h+1)*2;
     var vx:int = (x0 <= x1)? +1 : -1;
     var vy:int = (y0 <= y1)? +1 : -1;
-    var map:RangeMap = getRangeMap(f);
     for (var dy:int = 0; dy <= h; dy++) {
       a.push(new Array());
       // y: y0...y1
@@ -179,7 +178,7 @@ public class TileMap
     }
     // trace them in a reverse order: from goal to start.
     var r:Array = new Array();
-    e = a[h][w].next;
+    e = a[h][w];
     while (e != null) {
       r.push(e.p);
       e = e.next;
