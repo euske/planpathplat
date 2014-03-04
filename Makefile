@@ -17,7 +17,7 @@ CFLAGS_DEBUG=-debug=true
 
 # Project settings
 TARGET=main.swf
-TARGET_DEBUG=$(TARGET)_d.swf
+TARGET_DEBUG=main_d.swf
 
 all: $(TARGET)
 
@@ -30,11 +30,11 @@ run: $(TARGET)
 debug: $(TARGET_DEBUG)
 	$(FDB) $(TARGET_DEBUG)
 
-$(TARGET): .$(SEP)src$(SEP)*.as
+$(TARGET): .$(SEP)src$(SEP)*.as .$(SEP)assets$(SEP)*.*
 	$(MXMLC) $(CFLAGS) -compiler.source-path=.$(SEP)src$(SEP) \
 		-o $@ .$(SEP)src$(SEP)Main.as
 
-$(TARGET_DEBUG): .$(SEP)src$(SEP)*.as
+$(TARGET_DEBUG): .$(SEP)src$(SEP)*.as .$(SEP)assets$(SEP)*.*
 	$(MXMLC) $(CFLAGS) $(CFLAGS_DEBUG) -compiler.source-path=.$(SEP)src$(SEP) \
 		-o $@ .$(SEP)src$(SEP)Main.as
 
