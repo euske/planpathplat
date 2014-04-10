@@ -75,6 +75,12 @@ public class TileMap
     return _tilevalue[c];
   }
 
+  // isTile(x, y, f): true if the tile at (x,y) has a property given by f.
+  public function isTile(x:int, y:int, f:Function):Boolean
+  {
+    return f(getTile(x, y));
+  }
+
   // setTile(x, y, i): set the tile value of pixel at (x,y).
   public function setTile(x:int, y:int, i:int):void
   {
@@ -83,10 +89,16 @@ public class TileMap
     _rangecache = null;
   }
 
-  // isTile(x, y, f): true if the tile at (x,y) has a property given by f.
-  public function isTile(x:int, y:int, f:Function):Boolean
+  // fillTile(x0, y0, x1, y1, i): fill the tile with a given value.
+  public function fillTile(x0:int, y0:int, x1:int, y1:int, i:uint):void
   {
-    return f(getTile(x, y));
+    var c:uint = bitmap.getPixel(i, 0);
+    for (var y:int = y0; y <= y1; y++) {
+      for (var x:int = x0; x <= x1; x++) {
+	bitmap.setPixel(x, y+1, c);
+      }
+    }
+    _rangecache = null;
   }
   
   // scanTile(x0, y0, x1, y1, f): returns a list of tiles that has a given property.
@@ -237,6 +249,13 @@ public class TileMap
     return v;
   }
 
+  // findSpot
+  public function findSpot(i:int):Point
+  {
+    var a:Array = scanTile(0, 0, width, height, 
+			   (function (b:int):Boolean { return b == i; }));
+    return (a.length == 0)? null : a[0];
+  }
 }
 
 } // package

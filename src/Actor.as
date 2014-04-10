@@ -24,8 +24,9 @@ public class Actor
   public function Actor(scene:Scene)
   {
     _scene = scene;
-    _velocity = new Point(0, 0);
-    pos = new Point(0, 0);
+    _velocity = new Point();
+    pos = new Point();
+    frame = new Rectangle();
   }
 
   // scene
@@ -131,13 +132,13 @@ public class Actor
       v = tilemap.getCollisionByRect(bounds, v.x, v.y, 
 				     Tile.isObstacle);
       pos = Utils.movePoint(pos, v.x, v.y);
-      _velocity = new Point(0, 0);
+      _velocity = new Point();
     } else if (isLanded()) {
       // moving.
       v = tilemap.getCollisionByRect(bounds, v.x, Math.max(0, v.y), 
 				     Tile.isObstacle);
       pos = Utils.movePoint(pos, v.x, v.y);
-      _velocity = new Point(0, 0);
+      _velocity = new Point();
     } else {
       // jumping/falling.
       _velocity = new Point(v.x, _velocity.y);

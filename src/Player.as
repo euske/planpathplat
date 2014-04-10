@@ -13,7 +13,7 @@ public class Player extends Actor
   public function Player(scene:Scene)
   {
     super(scene);
-    dir = new Point(0, 0);
+    dir = new Point();
   }
 
   // update()
